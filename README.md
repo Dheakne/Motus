@@ -4,7 +4,7 @@ Aplicativo de bem-estar mental com funcionalidades de meditação, gratidão, re
 
 ## Sobre o Projeto
 
-O Motus Anime é uma plataforma desenvolvida para auxiliar usuários no cuidado com a saúde mental através de recursos como meditações guiadas, registros de gratidão, reflexões diárias, áudios para sono e técnicas de concentração.
+O Motus é uma plataforma desenvolvida para auxiliar usuários no cuidado com a saúde mental através de recursos como meditações guiadas, registros de gratidão, reflexões diárias, áudios para sono e técnicas de concentração.
 
 ## Funcionalidades
 
