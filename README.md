@@ -1,50 +1,78 @@
-# Welcome to your Expo app 👋
+# Motus
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Aplicativo de bem-estar mental com funcionalidades de meditação, gratidão, reflexões e gerenciamento de tarefas semanais.
 
-## Get started
+## Sobre o Projeto
 
-1. Install dependencies
+O Motus Anime é uma plataforma desenvolvida para auxiliar usuários no cuidado com a saúde mental através de recursos como meditações guiadas, registros de gratidão, reflexões diárias, áudios para sono e técnicas de concentração.
 
-   ```bash
-   npm install
-   ```
+## Funcionalidades
 
-2. Start the app
+- Cadastro e autenticação de usuários
+- Sistema de notificações personalizadas
+- Meditações guiadas com áudios
+- Registro diário de gratidão
+- Reflexões e perguntas para autoconhecimento
+- Áudios para auxiliar no sono
+- Técnicas de concentração (Pomodoro, Foco Profundo)
+- Gerenciamento de tarefas semanais
+- Histórico de uso e progresso
 
-   ```bash
-   npx expo start
-   ```
+## Tecnologias
 
-In the output, you'll find options to open the app in a
+### Backend
+- Microsoft SQL Server
+- T-SQL
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+### Ferramentas
+- SQL Server Management Studio (SSMS)
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## Estrutura do Banco de Dados
 
-## Get a fresh project
+O banco de dados é composto por 14 tabelas principais:
 
-When you're ready, run:
+**Configuração:** generos, status_tarefa
 
-```bash
-npm run reset-project
+**Usuários:** usuarios, configuracoes_usuario, notificacoes
+
+**Conteúdo:** tarefas_semanais, meditacoes, sono, reflexoes, concentracao
+
+**Registros:** tarefas_usuario, gratidao, historico_acessos
+
+## Instalação
+
+### Pré-requisitos
+- Microsoft SQL Server 2016 ou superior
+- SQL Server Management Studio
+
+### Configuração do Banco
+
+1. Criar o banco de dados:
+```sql
+CREATE DATABASE Motus_Anime;
+USE Motus_Anime;
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+2. Executar os scripts SQL na ordem especificada na documentação
 
-## Learn more
+3. Verificar a instalação:
+```sql
+SELECT TABLE_NAME 
+FROM INFORMATION_SCHEMA.TABLES 
+WHERE TABLE_TYPE = 'BASE TABLE';
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+## Padrões de Código
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+- Nomenclatura de tabelas e colunas em snake_case
+- IDs auto-incrementados com IDENTITY
+- Formato de data ISO (YYYY-MM-DD)
+- Valores booleanos representados como BIT (0 ou 1)
 
-## Join the community
+## Licença
 
-Join our community of developers creating universal apps.
+Este projeto é de uso acadêmico/interno.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Contato
+
+Para mais informações, entre em contato com a equipe de desenvolvimento.
