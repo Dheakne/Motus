@@ -4,7 +4,7 @@ Aplicativo de bem-estar mental com funcionalidades de meditação, gratidão, re
 
 ## Sobre o Projeto
 
-O Motus Anime é uma plataforma desenvolvida para auxiliar usuários no cuidado com a saúde mental através de recursos como meditações guiadas, registros de gratidão, reflexões diárias, áudios para sono e técnicas de concentração.
+O Motus é uma plataforma desenvolvida para auxiliar usuários no cuidado com a saúde mental através de recursos como meditações guiadas, registros de gratidão, reflexões diárias, áudios para sono e técnicas de concentração.
 
 ## Funcionalidades
 
@@ -21,10 +21,12 @@ O Motus Anime é uma plataforma desenvolvida para auxiliar usuários no cuidado 
 ## Tecnologias
 
 ### Backend
+
 - Microsoft SQL Server
 - T-SQL
 
 ### Ferramentas
+
 - SQL Server Management Studio (SSMS)
 
 ## Estrutura do Banco de Dados
@@ -42,12 +44,14 @@ O banco de dados é composto por 14 tabelas principais:
 ## Instalação
 
 ### Pré-requisitos
+
 - Microsoft SQL Server 2016 ou superior
 - SQL Server Management Studio
 
 ### Configuração do Banco
 
 1. Criar o banco de dados:
+
 ```sql
 CREATE DATABASE Motus_Anime;
 USE Motus_Anime;
@@ -56,9 +60,10 @@ USE Motus_Anime;
 2. Executar os scripts SQL na ordem especificada na documentação
 
 3. Verificar a instalação:
+
 ```sql
-SELECT TABLE_NAME 
-FROM INFORMATION_SCHEMA.TABLES 
+SELECT TABLE_NAME
+FROM INFORMATION_SCHEMA.TABLES
 WHERE TABLE_TYPE = 'BASE TABLE';
 ```
 

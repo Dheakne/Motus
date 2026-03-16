@@ -1,75 +1,84 @@
-import { useEffect, useState } from 'react';
+// Tela de edição dos dados do perfil do usuário.
+// Permite alterar nome, sobrenome, telefone, data de nascimento e senha.
+
+import { useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
-} from 'react-native';
-import { supabase } from '../services/supabase';
+  ActivityIndicator,
+  Alert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { supabase } from "../services/supabase";
 
 export default function EditProfileScreen({ navigation }) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  
+
+  // Estados dos campos editáveis
   const [userId, setUserId] = useState(null);
-  const [name, setName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
-  const [birthDate, setBirthDate] = useState('');
-  const [phone, setPhone] = useState('');
-  const [password, setPassword] = useState('');
+  const [name, setName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [birthDate, setBirthDate] = useState("");
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     loadProfile();
   }, []);
 
+  // Carrega os dados atuais para preencher os campos
   async function loadProfile() {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
       if (user) {
         setUserId(user.id);
-        setEmail(user.email || '');
+        setEmail(user.email || "");
 
         const { data: profileData } = await supabase
-          .from('user_profiles')
-          .select('*')
-          .eq('user_id', user.id)
+          .from("user_profiles")
+          .select("*")
+          .eq("user_id", user.id)
           .single();
-        
+
         if (profileData) {
-          const fullNameParts = profileData.full_name?.split(' ') || [];
-          setName(profileData.display_name || fullNameParts[0] || '');
-          setLastName(fullNameParts.slice(1).join(' ') || '');
-          setPhone(profileData.phone || '');
-          setBirthDate(profileData.birth_date ? formatDate(profileData.birth_date) : '');
+          const fullNameParts = profileData.full_name?.split(" ") || [];
+          setName(profileData.display_name || fullNameParts[0] || "");
+          setLastName(fullNameParts.slice(1).join(" ") || "");
+          setPhone(profileData.phone || "");
+          setBirthDate(
+            profileData.birth_date ? formatDate(profileData.birth_date) : "",
+          );
         }
       }
     } catch (error) {
-      console.error('Erro ao carregar perfil:', error);
-      Alert.alert('Erro', 'Não foi possível carregar seus dados');
+      console.error("Erro ao carregar perfil:", error);
+      Alert.alert("Erro", "Não foi possível carregar seus dados");
     } finally {
       setLoading(false);
     }
   }
 
   function formatDate(dateString) {
-    if (!dateString) return '';
+    if (!dateString) return "";
     const date = new Date(dateString);
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
     const year = date.getFullYear();
     return `${day}/${month}/${year}`;
   }
 
   function convertToSQLDate(dateString) {
     if (!dateString || dateString.length < 8) return null;
-    const cleaned = dateString.replace(/\D/g, '');
+    const cleaned = dateString.replace(/\D/g, "");
     if (cleaned.length === 8) {
       const day = cleaned.substring(0, 2);
       const month = cleaned.substring(2, 4);
@@ -81,40 +90,40 @@ export default function EditProfileScreen({ navigation }) {
 
   async function handleSave() {
     if (!name.trim()) {
-      Alert.alert('Erro', 'O nome é obrigatório');
+      Alert.alert("Erro", "O nome é obrigatório");
       return;
     }
 
     setSaving(true);
 
     try {
-      // Atualizar perfil
+      // 1. Atualiza a tabela user_profiles
       const { error: profileError } = await supabase
-        .from('user_profiles')
+        .from("user_profiles")
         .update({
           display_name: name.trim(),
           full_name: `${name.trim()} ${lastName.trim()}`,
           phone: phone.trim() || null,
           birth_date: convertToSQLDate(birthDate),
         })
-        .eq('user_id', userId);
+        .eq("user_id", userId);
 
       if (profileError) throw profileError;
 
-      // Atualizar senha se foi fornecida
+      // 2. Atualiza a senha no Supabase Auth (só se preenchida)
       if (password.trim()) {
         const { error: passwordError } = await supabase.auth.updateUser({
-          password: password.trim()
+          password: password.trim(),
         });
         if (passwordError) throw passwordError;
       }
 
-      Alert.alert('Sucesso!', 'Perfil atualizado com sucesso', [
-        { text: 'OK', onPress: () => navigation.goBack() }
+      Alert.alert("Sucesso!", "Perfil atualizado com sucesso", [
+        { text: "OK", onPress: () => navigation.goBack() },
       ]);
     } catch (error) {
-      console.error('Erro ao salvar:', error);
-      Alert.alert('Erro', 'Não foi possível salvar as alterações');
+      console.error("Erro ao salvar:", error);
+      Alert.alert("Erro", "Não foi possível salvar as alterações");
     } finally {
       setSaving(false);
     }
@@ -132,7 +141,7 @@ export default function EditProfileScreen({ navigation }) {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.backButton}
           onPress={() => navigation.goBack()}
         >
@@ -141,7 +150,7 @@ export default function EditProfileScreen({ navigation }) {
         <Text style={styles.headerTitle}>Editar Perfil</Text>
       </View>
 
-      <ScrollView 
+      <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -223,17 +232,17 @@ export default function EditProfileScreen({ navigation }) {
               placeholderTextColor="#A1A4B2"
               secureTextEntry={!showPassword}
             />
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.eyeButton}
               onPress={() => setShowPassword(!showPassword)}
             >
-              <Text style={styles.inputIcon}>{showPassword ? '👁️' : '👁️‍🗨️'}</Text>
+              <Text style={styles.inputIcon}>{showPassword ? "👁️" : "👁️‍🗨️"}</Text>
             </TouchableOpacity>
           </View>
         </View>
 
         {/* Botão Salvar */}
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.saveButton}
           onPress={handleSave}
           disabled={saving}
@@ -250,26 +259,26 @@ export default function EditProfileScreen({ navigation }) {
 
       {/* Bottom Navigation */}
       <View style={styles.bottomNav}>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.navItem}
-          onPress={() => navigation.navigate('Challenges')}
+          onPress={() => navigation.navigate("Challenges")}
         >
           <Text style={styles.navIcon}>⏰</Text>
           <Text style={styles.navLabel}>Desafios</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.navItem}
-          onPress={() => navigation.navigate('Home')}
+          onPress={() => navigation.navigate("Home")}
         >
           <View style={styles.navIconActive}>
             <Text style={styles.navIconActiveText}>🏠</Text>
           </View>
         </TouchableOpacity>
 
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.navItem}
-          onPress={() => navigation.navigate('Profile')}
+          onPress={() => navigation.navigate("Profile")}
         >
           <Text style={styles.navIcon}>👤</Text>
           <Text style={styles.navLabel}>Amanda</Text>
@@ -282,37 +291,37 @@ export default function EditProfileScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: "#F5F5F5",
   },
   loadingContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5F5F5',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#F5F5F5",
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingTop: 50,
     paddingHorizontal: 24,
     paddingBottom: 20,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
   },
   backButton: {
     width: 40,
     height: 40,
-    justifyContent: 'center',
+    justifyContent: "center",
   },
   backArrow: {
     fontSize: 24,
-    color: '#3F414E',
+    color: "#3F414E",
   },
   headerTitle: {
     flex: 1,
     fontSize: 18,
-    fontWeight: '600',
-    color: '#B8A5D9',
-    textAlign: 'center',
+    fontWeight: "600",
+    color: "#B8A5D9",
+    textAlign: "center",
     marginRight: 40,
   },
   scrollView: {
@@ -326,70 +335,70 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 13,
-    color: '#A1A4B2',
+    color: "#A1A4B2",
     marginBottom: 8,
   },
   input: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderRadius: 12,
     padding: 16,
     fontSize: 15,
-    color: '#3F414E',
+    color: "#3F414E",
     borderWidth: 1,
-    borderColor: '#E8E8E8',
+    borderColor: "#E8E8E8",
   },
   inputDisabled: {
-    backgroundColor: '#F5F5F5',
-    color: '#A1A4B2',
+    backgroundColor: "#F5F5F5",
+    color: "#A1A4B2",
   },
   inputWithIcon: {
-    position: 'relative',
+    position: "relative",
   },
   inputIcon: {
-    position: 'absolute',
+    position: "absolute",
     right: 16,
     top: 16,
     fontSize: 18,
   },
   eyeButton: {
-    position: 'absolute',
+    position: "absolute",
     right: 12,
     top: 12,
     padding: 4,
   },
   saveButton: {
-    backgroundColor: '#C8A882',
+    backgroundColor: "#C8A882",
     borderRadius: 25,
     padding: 16,
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 20,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
   },
   saveButtonText: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   bottomNav: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
-    flexDirection: 'row',
-    backgroundColor: '#FDFCF6',
+    flexDirection: "row",
+    backgroundColor: "#FDFCF6",
     paddingVertical: 12,
     paddingHorizontal: 20,
-    justifyContent: 'space-around',
-    alignItems: 'center',
+    justifyContent: "space-around",
+    alignItems: "center",
     height: 85,
   },
   navItem: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     flex: 1,
   },
   navIcon: {
@@ -398,23 +407,23 @@ const styles = StyleSheet.create({
   },
   navLabel: {
     fontSize: 11,
-    color: '#5A5A5A',
-    fontWeight: '500',
+    color: "#5A5A5A",
+    fontWeight: "500",
   },
   navLabelActive: {
     fontSize: 11,
-    color: '#3F414E',
-    fontWeight: '600',
+    color: "#3F414E",
+    fontWeight: "600",
   },
   navIconActive: {
-    backgroundColor: '#AF7842',
+    backgroundColor: "#AF7842",
     width: 65,
     height: 65,
     borderRadius: 32.5,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     marginTop: -40,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 8,

@@ -1,4 +1,6 @@
-import { useState } from 'react';
+// Tela de cadastro de novo usuário. Cria a conta no Supabase Auth e insere o perfil na tabela user_profiles do banco de dados.
+
+import { useState } from "react";
 import {
   Alert,
   KeyboardAvoidingView,
@@ -8,46 +10,48 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View
-} from 'react-native';
-import { supabase } from '../services/supabase';
+  View,
+} from "react-native";
+import { supabase } from "../services/supabase";
 
 // Função para converter data DD/MM/YYYY para YYYY-MM-DD
 function convertToSQLDate(dateString) {
   if (!dateString || dateString.length < 8) return null;
-  
+
   // Remove caracteres especiais
-  const cleaned = dateString.replace(/\D/g, '');
-  
+  const cleaned = dateString.replace(/\D/g, "");
+
   // Espera formato DDMMYYYY
   if (cleaned.length === 8) {
     const day = cleaned.substring(0, 2);
     const month = cleaned.substring(2, 4);
     const year = cleaned.substring(4, 8);
-    return `${year}-${month}-${day}`;
+    return `${year}-${month}-${day}`; // Formato SQL
   }
-  
+
   return null;
 }
 
 export default function SignUpScreen({ navigation }) {
-  const [name, setName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
-  const [birthDate, setBirthDate] = useState('');
-  const [phone, setPhone] = useState('');
-  const [password, setPassword] = useState('');
+  // Estados dos campos do formulário
+  const [name, setName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [birthDate, setBirthDate] = useState("");
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
+  //Função de CADASTRO
   async function handleSignUp() {
     if (!name || !lastName || !email || !password) {
-      Alert.alert('Erro', 'Preencha os campos obrigatórios');
+      Alert.alert("Erro", "Preencha os campos obrigatórios");
       return;
     }
 
     setLoading(true);
-    
-    // Criar conta
+
+    // 1. Cria a conta de autenticação no Supabase Auth
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password,
@@ -55,50 +59,51 @@ export default function SignUpScreen({ navigation }) {
 
     if (authError) {
       setLoading(false);
-      Alert.alert('Erro no cadastro', authError.message);
+      Alert.alert("Erro no cadastro", authError.message);
       return;
     }
 
-    // Criar perfil
+    // 2. Cria o perfil do usuário na tabela user_profiles
+    // É separado da autenticação e guarda dados extras do usuário
     if (authData.user) {
       const { error: profileError } = await supabase
-        .from('user_profiles')
+        .from("user_profiles")
         .insert([
           {
             user_id: authData.user.id,
-            display_name: name,
-            full_name: `${name} ${lastName}`,
+            display_name: name, // Nome exibido no app
+            full_name: `${name} ${lastName}`, // Nome completo
             phone: phone,
             birth_date: birthDate ? convertToSQLDate(birthDate) : null,
-            level: 1,
-            total_points: 0,
-            has_seen_tutus: false,
-          }
+            level: 1, // Nível inicial
+            total_points: 0, // Pontuação inicial
+            has_seen_tutus: false, // Flag de tutorial (tutus é o mascote do app)
+          },
         ]);
 
       if (profileError) {
-        console.error('Erro ao criar perfil:', profileError);
+        // Loga o erro mas não bloqueia o fluxo
+        console.error("Erro ao criar perfil:", profileError);
       }
     }
 
     setLoading(false);
-    Alert.alert(
-      'Sucesso!', 
-      'Conta criada com sucesso!',
-      [{ text: 'OK', onPress: () => navigation.navigate('Login') }]
-    );
+    Alert.alert("Sucesso!", "Conta criada com sucesso!", [
+      { text: "OK", onPress: () => navigation.navigate("Login") },
+    ]);
   }
 
   return (
-    <KeyboardAvoidingView 
+    // KeyboardAvoidingView evita que o teclado cubra os inputs
+    <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
-      <ScrollView 
+      <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.backButton}
           onPress={() => navigation.goBack()}
         >
@@ -107,7 +112,7 @@ export default function SignUpScreen({ navigation }) {
 
         <View style={styles.header}>
           <Text style={styles.title}>Inscrever-se</Text>
-          <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+          <TouchableOpacity onPress={() => navigation.navigate("Login")}>
             <Text style={styles.loginLink}>
               Já tem uma conta? <Text style={styles.loginLinkBold}>Login</Text>
             </Text>
@@ -142,12 +147,12 @@ export default function SignUpScreen({ navigation }) {
           />
 
           <Text style={styles.label}>Data de nascimento</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="DD/MM/AAAA"
-              value={birthDate}
-              onChangeText={setBirthDate}
-            />
+          <TextInput
+            style={styles.input}
+            placeholder="DD/MM/AAAA"
+            value={birthDate}
+            onChangeText={setBirthDate}
+          />
 
           <Text style={styles.label}>Número de celular</Text>
           <TextInput
@@ -159,23 +164,21 @@ export default function SignUpScreen({ navigation }) {
           />
 
           <Text style={styles.label}>Definir palavra-passe</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="••••••••"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-            />
+          <TextInput
+            style={styles.input}
+            placeholder="••••••••"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+          />
 
-
-
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.registerButton}
             onPress={handleSignUp}
             disabled={loading}
           >
             <Text style={styles.registerButtonText}>
-              {loading ? 'Criando conta...' : 'Registrar'}
+              {loading ? "Criando conta..." : "Registrar"}
             </Text>
           </TouchableOpacity>
         </View>
@@ -187,7 +190,7 @@ export default function SignUpScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F8F8',
+    backgroundColor: "#F8F8F8",
   },
   scrollContent: {
     flexGrow: 1,
@@ -201,54 +204,54 @@ const styles = StyleSheet.create({
   },
   backArrow: {
     fontSize: 28,
-    color: '#2C2C2C',
+    color: "#2C2C2C",
   },
   header: {
     marginBottom: 30,
   },
   title: {
     fontSize: 28,
-    fontWeight: 'bold',
-    color: '#9B87D9',
+    fontWeight: "bold",
+    color: "#9B87D9",
     marginBottom: 10,
   },
   loginLink: {
     fontSize: 14,
-    color: '#666',
+    color: "#666",
   },
   loginLinkBold: {
-    color: '#9B87D9',
-    fontWeight: 'bold',
+    color: "#9B87D9",
+    fontWeight: "bold",
   },
   form: {
     flex: 1,
   },
   label: {
     fontSize: 14,
-    color: '#666',
+    color: "#666",
     marginBottom: 8,
     marginTop: 15,
   },
   inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fff",
     borderRadius: 12,
     paddingHorizontal: 15,
     height: 50,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: "#E0E0E0",
   },
   input: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 12,
     paddingHorizontal: 15,
     height: 50,
     fontSize: 16,
-    color: '#2C2C2C',
+    color: "#2C2C2C",
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: "#E0E0E0",
   },
   calendarIcon: {
     fontSize: 18,
@@ -259,17 +262,17 @@ const styles = StyleSheet.create({
     marginLeft: -35,
   },
   registerButton: {
-    backgroundColor: '#C8B896',
+    backgroundColor: "#C8B896",
     borderRadius: 25,
     height: 50,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     marginTop: 30,
     marginBottom: 40,
   },
   registerButtonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
 });
