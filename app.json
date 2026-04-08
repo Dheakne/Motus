@@ -39,7 +39,16 @@
           }
         }
       ],
-      "expo-font",
+      [
+        "expo-font",
+        {
+          "fonts": [
+            "./assets/fonts/Whyte-Regular.ttf",
+            "./assets/fonts/Whyte-Bold.ttf",
+            "./assets/fonts/Whyte-Medium.ttf"
+          ]
+        }
+      ],
       "expo-web-browser"
     ],
     "experiments": {

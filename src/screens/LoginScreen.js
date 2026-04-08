@@ -1,26 +1,26 @@
-// Tela de login e cadastro. Usa o Supabase Auth para autenticar via e-mail/senha.
+// Tela de login. Usa o Supabase Auth para autenticar via e-mail/senha.
 
+import { LinearGradient } from "expo-linear-gradient";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
   Alert,
+  SafeAreaView,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
-import { supabase } from "../services/supabase"; // Cliente Supabase configurado
+import { supabase } from "../services/supabase";
 
 export default function LoginScreen({ navigation }) {
-  // Estados locais para os campos do formulário e loading
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
 
-  // Função de LOGIN
   async function handleLogin() {
     if (!email || !password) {
       Alert.alert("Erro", "Preencha todos os campos");
@@ -28,7 +28,6 @@ export default function LoginScreen({ navigation }) {
     }
 
     setLoading(true);
-    // Chama o Supabase Auth para autenticar o usuário
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -40,21 +39,26 @@ export default function LoginScreen({ navigation }) {
     } else {
       navigation.reset({
         index: 0,
-        routes: [{ name: "Home" }], // Navega para Home em caso de sucesso
+        routes: [{ name: "Home" }],
       });
     }
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.content}>
-        {/* Título */}
-        <Text style={styles.title}>Iniciar sessão na sua conta</Text>
+    <SafeAreaView style={styles.safeArea}>
+      {/* Gradiente no topo */}
+      <LinearGradient
+        colors={["#13E698", "#74B8DE"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0, y: 1 }}
+        style={styles.gradient}
+      />
 
-        {/* Subtítulo */}
-        <Text style={styles.subtitle}>
-          Introduza o seu e-mail e palavra-passe para iniciar sessão
-        </Text>
+      {/* Card branco sobrepõe o gradiente */}
+      <View style={styles.card}>
+        {/* Título */}
+        <Text style={styles.title}>Bem-vindo!</Text>
+        <Text style={styles.subtitle}>Faça login na sua conta</Text>
 
         {/* Campo Email */}
         <View style={styles.inputGroup}>
@@ -67,15 +71,15 @@ export default function LoginScreen({ navigation }) {
               placeholderTextColor="#A1A4B2"
               value={email}
               onChangeText={setEmail}
-              autoCapitalize="none" // Evita capitalização automática no e-mail
+              autoCapitalize="none"
               keyboardType="email-address"
             />
           </View>
         </View>
 
-        {/* Campo Password */}
+        {/* Campo Senha */}
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Password</Text>
+          <Text style={styles.label}>Senha</Text>
           <View style={styles.inputContainer}>
             <Text style={styles.inputIcon}>🔒</Text>
             <TextInput
@@ -110,16 +114,24 @@ export default function LoginScreen({ navigation }) {
           <TouchableOpacity
             onPress={() => Alert.alert("Recuperar senha", "Em desenvolvimento")}
           >
-            <Text style={styles.forgotPassword}>Esqueceu sua senha ?</Text>
+            <Text style={styles.forgotPassword}>Esqueçeu sua senha?</Text>
           </TouchableOpacity>
         </View>
 
-        {/* Divisor OR */}
+        {/* Divisor */}
         <View style={styles.divider}>
           <View style={styles.dividerLine} />
-          <Text style={styles.dividerText}>Or</Text>
+          <Text style={styles.dividerText}>Ou</Text>
           <View style={styles.dividerLine} />
         </View>
+
+        {/* Continuar com Google */}
+        <TouchableOpacity
+          style={styles.googleButton}
+          onPress={() => Alert.alert("Google", "Em desenvolvimento")}
+        >
+          <Text style={styles.googleButtonText}>Continuar com o Google</Text>
+        </TouchableOpacity>
 
         {/* Botão Iniciar sessão */}
         <TouchableOpacity
@@ -142,80 +154,89 @@ export default function LoginScreen({ navigation }) {
           </TouchableOpacity>
         </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
-    backgroundColor: "#F8F8F8",
+    backgroundColor: "#13E698",
   },
-  content: {
+  gradient: {
+    height: 120,
+  },
+  card: {
     flex: 1,
-    justifyContent: "center",
+    backgroundColor: "#FFFFFF",
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    marginTop: -30,
     paddingHorizontal: 32,
+    paddingTop: 56,
   },
   title: {
-    fontSize: 35,
+    fontSize: 28,
     fontWeight: "bold",
+    fontFamily: "Whyte-Bold",
     color: "#1C1C1E",
-    marginBottom: 12,
-    textAlign: "left",
+    textAlign: "center",
+    marginBottom: 8,
   },
   subtitle: {
     fontSize: 14,
+    fontFamily: "Whyte-Regular",
     color: "#6E6E73",
-    marginBottom: 40,
-    lineHeight: 20,
+    textAlign: "center",
+    marginBottom: 36,
   },
   inputGroup: {
-    marginBottom: 20,
+    marginBottom: 16,
   },
   label: {
     fontSize: 13,
+    fontFamily: "Whyte-Regular",
     color: "#6E6E73",
     marginBottom: 8,
-    fontWeight: "500",
   },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F0F1F5",
     borderRadius: 12,
     paddingHorizontal: 16,
-    borderWidth: 1,
-    borderColor: "#E5E5EA",
   },
   inputIcon: {
-    fontSize: 18,
-    marginRight: 12,
+    fontSize: 16,
+    marginRight: 10,
   },
   input: {
     flex: 1,
-    paddingVertical: 16,
+    paddingVertical: 14,
     fontSize: 15,
+    fontFamily: "Whyte-Regular",
     color: "#1C1C1E",
   },
   eyeButton: {
     padding: 8,
   },
   eyeIcon: {
-    fontSize: 18,
+    fontSize: 16,
   },
   optionsRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 24,
+    marginBottom: 32,
+    marginTop: 8,
   },
   rememberMe: {
     flexDirection: "row",
     alignItems: "center",
   },
   checkbox: {
-    width: 20,
-    height: 20,
+    width: 18,
+    height: 18,
     borderRadius: 4,
     borderWidth: 2,
     borderColor: "#D1D1D6",
@@ -224,19 +245,20 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   checkboxFilled: {
-    width: 12,
-    height: 12,
+    width: 10,
+    height: 10,
     borderRadius: 2,
-    backgroundColor: "#C8A882",
+    backgroundColor: "#1066E7",
   },
   rememberMeText: {
-    fontSize: 14,
+    fontSize: 13,
+    fontFamily: "Whyte-Regular",
     color: "#1C1C1E",
   },
   forgotPassword: {
-    fontSize: 14,
-    color: "#8B7DD8",
-    fontWeight: "500",
+    fontSize: 13,
+    fontFamily: "Whyte-Regular",
+    color: "#1066E7",
   },
   divider: {
     flexDirection: "row",
@@ -251,23 +273,30 @@ const styles = StyleSheet.create({
   dividerText: {
     marginHorizontal: 16,
     fontSize: 13,
+    fontFamily: "Whyte-Regular",
     color: "#6E6E73",
   },
+  googleButton: {
+    alignItems: "center",
+    marginBottom: 28,
+  },
+  googleButtonText: {
+    fontSize: 15,
+    fontFamily: "Whyte-Medium",
+    color: "#1C1C1E",
+    fontWeight: "600",
+  },
   loginButton: {
-    backgroundColor: "#AF7842",
+    backgroundColor: "#1066E7",
     borderRadius: 25,
     paddingVertical: 16,
     alignItems: "center",
     marginBottom: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
   },
   loginButtonText: {
     color: "#FFFFFF",
     fontSize: 16,
+    fontFamily: "Whyte-Medium",
     fontWeight: "600",
   },
   signupContainer: {
@@ -277,11 +306,13 @@ const styles = StyleSheet.create({
   },
   signupText: {
     fontSize: 14,
+    fontFamily: "Whyte-Regular",
     color: "#6E6E73",
   },
   signupLink: {
     fontSize: 14,
-    color: "#8B7DD8",
+    fontFamily: "Whyte-Medium",
+    color: "#1066E7",
     fontWeight: "600",
   },
 });
