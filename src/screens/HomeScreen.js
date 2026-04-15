@@ -1,8 +1,10 @@
-// Tela principal do app. Exibe categorias de prática com cards de imagem de fundo e dados vindos do Supabase.
+// Tela principal do app. Exibe progresso semanal, categorias de áudio e exercícios.
 
+import { LinearGradient } from "expo-linear-gradient";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -11,10 +13,16 @@ import {
 } from "react-native";
 import { supabase } from "../services/supabase";
 
+// Primeiras letras dos dias da semana em português
+const WEEK_DAYS = ["S", "T", "Q", "Q", "S", "S", "D"];
+
 export default function HomeScreen({ navigation }) {
-  const [categories, setCategories] = useState([]); // Lista de categorias do banco
-  const [userProfile, setUserProfile] = useState(null); // Perfil do usuário logado
+  const [categories, setCategories] = useState([]);
+  const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // TODO: buscar dias concluídos do banco futuramente
+  const completedDays = 3;
 
   useEffect(() => {
     loadData();
@@ -23,482 +31,318 @@ export default function HomeScreen({ navigation }) {
   // Carrega perfil do usuário e categorias do banco
   async function loadData() {
     try {
-      // Busca as categorias ordenadas para exibição
       const { data: categoriesData } = await supabase
         .from("categories")
         .select("*")
         .order("order", { ascending: true });
 
-      if (categoriesData) {
-        setCategories(categoriesData);
-      }
+      if (categoriesData) setCategories(categoriesData);
 
-      // Busca o usuário atualmente autenticado
       const {
         data: { user },
       } = await supabase.auth.getUser();
 
       if (user) {
-        let { data: profileData } = await supabase
+        const { data: profileData } = await supabase
           .from("user_profiles")
           .select("*")
-          .eq("user_id", user.id) // Filtra pelo ID do usuário logado
-          .single(); // Espera apenas um resultado
-
+          .eq("user_id", user.id)
+          .single();
         setUserProfile(profileData);
       }
     } catch (error) {
       console.error("Erro ao carregar dados:", error);
     } finally {
-      setLoading(false); // Para o loading independente de sucesso ou erro
+      setLoading(false);
     }
   }
-
-  // Função para pegar tempo estimado por categoria
-  const getDuration = (title) => {
-    const durations = {
-      Gratidão: "30 MIN",
-      "Atenção Concentrada": "10 MIN",
-      Meditação: "30 MIN",
-      Reflexão: "20 MIN",
-      Descanso: "10 MIN",
-    };
-    return durations[title] || "";
-  };
 
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#8B7355" />
+        <ActivityIndicator size="large" color="#1066E7" />
       </View>
     );
   }
 
-  return (
-    <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.greeting}>Olá, {userProfile?.display_name}</Text>
-        <Text style={styles.subtitle}>
-          Descubra a meditação e a atenção plena
-        </Text>
-      </View>
+  const audioCategories = categories.filter(
+    (c) => c.title !== "Exercícios Semanais",
+  );
+  const exerciseCategory = categories.find(
+    (c) => c.title === "Exercícios Semanais",
+  );
 
-      {/* Grid de Categorias */}
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      {/* Gradiente no topo */}
+      <LinearGradient
+        colors={["#13E698", "#74B8DE"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0, y: 1 }}
+        style={styles.gradient}
+      >
+        <View style={styles.headerRow}>
+          <Text style={styles.greeting}>Olá, {userProfile?.display_name}</Text>
+          <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
+            <Text style={styles.menuIcon}>☰</Text>
+          </TouchableOpacity>
+        </View>
+      </LinearGradient>
+
+      {/* Card branco com scroll */}
       <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
+        style={styles.card}
+        contentContainerStyle={styles.cardContent}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.grid}>
-          {categories.slice(0, 2).map((category) => (
-            <TouchableOpacity
-              key={category.id}
-              style={[styles.categoryCard, { backgroundColor: category.color }]}
-              onPress={() => {
-                navigation.navigate("Category", {
-                  categoryId: category.id,
-                  categoryTitle: category.title,
-                  categoryColor: category.color,
-                });
-              }}
-            >
-              <View style={styles.illustrationArea}>
-                <Text style={styles.illustrationPlaceholder}>
-                  {category.icon_emoji}
-                </Text>
-              </View>
+        {/* Seção: exercício semanal */}
+        <Text style={styles.sectionTitle}>Meu exercício semanal</Text>
 
-              <View style={styles.cardContent}>
-                <View style={styles.cardInfo}>
-                  <Text style={styles.categoryTitle}>{category.title}</Text>
-                  <Text style={styles.categorySubtitle}>Áudios</Text>
-                </View>
+        <View style={styles.progressCard}>
+          <View style={styles.progressHeader}>
+            <Text style={styles.progressLabel}>Progresso semanal</Text>
+            <Text style={styles.progressCount}>{completedDays}/7</Text>
+          </View>
 
-                <View style={styles.cardFooter}>
-                  {getDuration(category.title) && (
-                    <Text style={styles.duration}>
-                      {getDuration(category.title)}
-                    </Text>
-                  )}
-                  <TouchableOpacity style={styles.startButton}>
-                    <Text style={styles.startButtonText}>Começar</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </TouchableOpacity>
-          ))}
-
-          {categories[2] && (
-            <TouchableOpacity
+          {/* Barra de progresso */}
+          <View style={styles.progressBarBg}>
+            <View
               style={[
-                styles.categoryCardWide,
-                { backgroundColor: categories[2].color },
+                styles.progressBarFill,
+                { width: `${(completedDays / 7) * 100}%` },
               ]}
-              onPress={() => {
-                navigation.navigate("Category", {
-                  categoryId: categories[2].id,
-                  categoryTitle: categories[2].title,
-                  categoryColor: categories[2].color,
-                });
-              }}
-            >
-              <View style={styles.cardContentWide}>
-                <View style={styles.cardInfoWide}>
-                  <Text style={styles.categoryTitleWide}>
-                    {categories[2].title}
-                  </Text>
-                  <Text style={styles.categorySubtitleWide}>Áudios</Text>
-                </View>
+            />
+          </View>
 
-                {getDuration(categories[2].title) && (
-                  <Text style={styles.durationWide}>
-                    {getDuration(categories[2].title)}
-                  </Text>
+          {/* Dias da semana */}
+          <View style={styles.daysRow}>
+            {WEEK_DAYS.map((day, index) => (
+              <View
+                key={index}
+                style={[
+                  styles.dayCircle,
+                  index < completedDays && styles.dayCircleCompleted,
+                ]}
+              >
+                {index < completedDays ? (
+                  <Text style={styles.dayCheck}>✓</Text>
+                ) : (
+                  <Text style={styles.dayLabel}>{day}</Text>
                 )}
               </View>
+            ))}
+          </View>
+        </View>
 
-              <View style={styles.illustrationAreaWide}>
-                <Text style={styles.illustrationPlaceholderSmall}>
-                  {categories[2].icon_emoji}
-                </Text>
-                <TouchableOpacity style={styles.startButtonWide}>
-                  <Text style={styles.startButtonText}>Começar</Text>
-                </TouchableOpacity>
-              </View>
-            </TouchableOpacity>
-          )}
+        {/* Seção: áudios */}
+        <Text style={styles.sectionTitle}>Áudios</Text>
 
-          {categories.slice(3, 5).map((category) => (
-            <TouchableOpacity
-              key={category.id}
-              style={[styles.categoryCard, { backgroundColor: category.color }]}
-              onPress={() => {
-                navigation.navigate("Category", {
-                  categoryId: category.id,
-                  categoryTitle: category.title,
-                  categoryColor: category.color,
-                });
-              }}
-            >
-              <View style={styles.illustrationArea}>
-                <Text style={styles.illustrationPlaceholder}>
-                  {category.icon_emoji}
-                </Text>
-              </View>
+        <View style={styles.audioGrid}>
+          {audioCategories.map((category, index) => {
+            // Última categoria sozinha → ocupa largura total
+            const isLastOdd =
+              audioCategories.length % 2 !== 0 &&
+              index === audioCategories.length - 1;
 
-              <View style={styles.cardContent}>
-                <View style={styles.cardInfo}>
-                  <Text style={styles.categoryTitle}>{category.title}</Text>
-                  <Text style={styles.categorySubtitle}>Áudios</Text>
+            return (
+              <TouchableOpacity
+                key={category.id}
+                style={[styles.audioCard, isLastOdd && styles.audioCardFull]}
+                onPress={() =>
+                  navigation.navigate("Category", {
+                    categoryId: category.id,
+                    categoryTitle: category.title,
+                    categoryColor: category.color,
+                  })
+                }
+              >
+                <View style={styles.audioCardTextWrapper}>
+                  <Text style={styles.audioCardTitle}>{category.title}</Text>
                 </View>
+                <Text style={styles.audioCardIcon}>{category.icon_emoji}</Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
 
-                <View style={styles.cardFooter}>
-                  {getDuration(category.title) && (
-                    <Text style={styles.duration}>
-                      {getDuration(category.title)}
-                    </Text>
-                  )}
-                  <TouchableOpacity style={styles.startButton}>
-                    <Text style={styles.startButtonText}>Começar</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </TouchableOpacity>
-          ))}
-
-          {categories[5] && (
+        {/* Seção: exercícios */}
+        {exerciseCategory && (
+          <>
+            <Text style={styles.sectionTitle}>Exercícios</Text>
             <TouchableOpacity
-              style={[
-                styles.categoryCardFull,
-                { backgroundColor: categories[5].color },
-              ]}
+              style={styles.audioCardFull}
               onPress={() => navigation.navigate("Challenges")}
             >
-              <View style={styles.cardContentWide}>
-                <Text style={styles.categoryTitleWide}>
-                  {categories[5].title}
-                </Text>
-                <Text style={styles.descriptionWide}>
-                  Que tal treinar sua mente com pequenos exercícios?{"\n\n"}A
-                  cada semana, um novo exercício prático para cultivar atenção
-                  plena no dia a dia.
+              <View style={styles.audioCardTextWrapper}>
+                <Text style={styles.audioCardTitle}>
+                  {exerciseCategory.title}
                 </Text>
               </View>
-
-              <View style={styles.illustrationAreaWide}>
-                <Text style={styles.illustrationPlaceholderSmall}>
-                  {categories[5].icon_emoji}
-                </Text>
-                <TouchableOpacity style={styles.startButtonWide}>
-                  <Text style={styles.startButtonText}>Começar</Text>
-                </TouchableOpacity>
-              </View>
+              <Text style={styles.audioCardIcon}>
+                {exerciseCategory.icon_emoji}
+              </Text>
             </TouchableOpacity>
-          )}
-        </View>
+          </>
+        )}
       </ScrollView>
-
-      {/* Bottom Navigation */}
-      <View style={styles.bottomNav}>
-        <TouchableOpacity
-          style={styles.navItem}
-          onPress={() => navigation.navigate("Challenges")}
-        >
-          <Text style={styles.navIcon}>⏰</Text>
-          <Text style={styles.navLabel}>Desafios</Text>
-        </TouchableOpacity>
-
-        <View style={styles.navItemCenter}>
-          <View style={styles.navIconActive}>
-            <Text style={styles.navIconActiveText}>🏠</Text>
-          </View>
-        </View>
-
-        <TouchableOpacity
-          style={styles.navItem}
-          onPress={() => navigation.navigate("Profile")}
-        >
-          <Text style={styles.navIcon}>👤</Text>
-          <Text style={styles.navLabel}>Amanda</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Bottom Navigation */}
-      <View style={styles.bottomNav}>
-        <TouchableOpacity
-          style={styles.navItem}
-          onPress={() => navigation.navigate("Challenges")}
-        >
-          <Text style={styles.navIcon}>⏰</Text>
-          <Text style={styles.navLabel}>Desafios</Text>
-        </TouchableOpacity>
-
-        <View style={styles.navItemCenter}>
-          <View style={styles.navIconActive}>
-            <Text style={styles.navIconActiveText}>🏠</Text>
-          </View>
-        </View>
-
-        <TouchableOpacity
-          style={styles.navItem}
-          onPress={() => navigation.navigate("Profile")}
-        >
-          <Text style={styles.navIcon}>👤</Text>
-          <Text style={styles.navLabel}>{userProfile?.display_name}</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
-    backgroundColor: "#F8F8F5",
+    backgroundColor: "#13E698",
   },
   loadingContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#F8F8F5",
+    backgroundColor: "#FFFFFF",
   },
-  header: {
-    paddingHorizontal: 20,
-    paddingTop: 50,
-    paddingBottom: 20,
+  gradient: {
+    paddingHorizontal: 24,
+    paddingBottom: 52,
+    paddingTop: 16,
+  },
+  headerRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   greeting: {
-    fontSize: 20,
-    fontWeight: "400",
-    color: "#B8B8B8",
-    marginBottom: 8,
+    fontSize: 26,
+    fontFamily: "Whyte-Bold",
+    color: "#FFFFFF",
   },
-  subtitle: {
-    fontSize: 18,
-    color: "#2C2C2C",
-    fontWeight: "600",
-    lineHeight: 24,
+  menuIcon: {
+    fontSize: 26,
+    color: "#FFFFFF",
   },
-  scrollView: {
+
+  // Card branco
+  card: {
     flex: 1,
+    backgroundColor: "#FFFFFF",
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    marginTop: -30,
   },
-  scrollContent: {
-    paddingHorizontal: 16,
-    paddingBottom: 100,
+  cardContent: {
+    paddingHorizontal: 24,
+    paddingTop: 44,
+    paddingBottom: 40,
   },
-  grid: {
+
+  // Títulos de seção
+  sectionTitle: {
+    fontSize: 18,
+    fontFamily: "Whyte-Bold",
+    color: "#1C1C1E",
+    marginBottom: 14,
+    marginTop: 8,
+  },
+
+  // Card de progresso semanal
+  progressCard: {
+    backgroundColor: "#F0F1F5",
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 28,
+  },
+  progressHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 10,
+  },
+  progressLabel: {
+    fontSize: 14,
+    fontFamily: "Whyte-Regular",
+    color: "#1C1C1E",
+  },
+  progressCount: {
+    fontSize: 14,
+    fontFamily: "Whyte-Medium",
+    color: "#1066E7",
+  },
+  progressBarBg: {
+    height: 8,
+    backgroundColor: "#DCDDE3",
+    borderRadius: 4,
+    marginBottom: 14,
+  },
+  progressBarFill: {
+    height: 8,
+    backgroundColor: "#1066E7",
+    borderRadius: 4,
+  },
+  daysRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  dayCircle: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#DCDDE3",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  dayCircleCompleted: {
+    backgroundColor: "#1066E7",
+  },
+  dayLabel: {
+    fontSize: 20,
+    fontFamily: "Whyte-Medium",
+    color: "#6E6E73",
+  },
+  dayCheck: {
+    fontSize: 20,
+    color: "#FFFFFF",
+    fontFamily: "Whyte-Bold",
+  },
+
+  // Grid de áudios
+  audioGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
+    marginBottom: 8,
   },
-  categoryCard: {
+  audioCard: {
     width: "48%",
-    borderRadius: 24,
-    marginBottom: 14,
-    overflow: "hidden",
-    minHeight: 220,
-  },
-  illustrationArea: {
-    height: 120,
-    alignItems: "center",
-    justifyContent: "center",
-    position: "relative",
-  },
-  illustrationPlaceholder: {
-    fontSize: 60,
-  },
-  illustrationPlaceholderSmall: {
-    fontSize: 50,
-    marginBottom: 15,
-  },
-  cardContent: {
-    padding: 16,
-    paddingTop: 8,
-  },
-  cardInfo: {
-    marginBottom: 12,
-  },
-  categoryTitle: {
-    fontSize: 17,
-    fontWeight: "600",
-    color: "#fff",
-    marginBottom: 2,
-  },
-  categorySubtitle: {
-    fontSize: 13,
-    color: "#fff",
-    opacity: 0.9,
-  },
-  cardFooter: {
+    height: 83,
+    backgroundColor: "#F0F1F5",
+    borderRadius: 14,
+    paddingHorizontal: 14,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    marginBottom: 12,
   },
-  duration: {
-    fontSize: 12,
-    color: "#fff",
-    fontWeight: "500",
-    opacity: 0.9,
-  },
-  startButton: {
-    backgroundColor: "rgba(255, 255, 255, 0.35)",
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 16,
-  },
-  startButtonText: {
-    color: "#fff",
-    fontSize: 13,
-    fontWeight: "600",
-  },
-  categoryCardWide: {
+  audioCardFull: {
     width: "100%",
-    borderRadius: 24,
-    marginBottom: 14,
-    overflow: "hidden",
+    height: 83,
+    backgroundColor: "#F0F1F5",
+    borderRadius: 14,
+    paddingHorizontal: 14,
     flexDirection: "row",
-    minHeight: 160,
-  },
-  categoryCardFull: {
-    width: "100%",
-    borderRadius: 24,
-    marginBottom: 14,
-    overflow: "hidden",
-    flexDirection: "row",
-    minHeight: 180,
-  },
-  illustrationAreaWide: {
-    width: "35%",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 20,
-  },
-  cardContentWide: {
-    flex: 1,
-    padding: 16,
     justifyContent: "space-between",
-  },
-  cardInfoWide: {
+    alignItems: "center",
     marginBottom: 12,
   },
-  categoryTitleWide: {
-    fontSize: 17,
-    fontWeight: "600",
-    color: "#fff",
-    marginBottom: 4,
-  },
-  categorySubtitleWide: {
-    fontSize: 13,
-    color: "#fff",
-    opacity: 0.9,
-  },
-  descriptionWide: {
-    fontSize: 12,
-    color: "#fff",
-    opacity: 0.95,
-    lineHeight: 18,
-    marginBottom: 12,
-  },
-  durationWide: {
-    fontSize: 12,
-    color: "#fff",
-    fontWeight: "500",
-    opacity: 0.9,
-  },
-  startButtonWide: {
-    backgroundColor: "rgba(255, 255, 255, 0.35)",
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 18,
-  },
-  bottomNav: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    flexDirection: "row",
-    backgroundColor: "#FDFCF6",
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    justifyContent: "space-around",
-    alignItems: "center",
-    height: 85,
-  },
-  navItem: {
-    alignItems: "center",
-    justifyContent: "center",
+  audioCardTextWrapper: {
     flex: 1,
-  },
-  navIcon: {
-    fontSize: 24,
-    marginBottom: 4,
-  },
-  navLabel: {
-    fontSize: 11,
-    color: "#5A5A5A",
-    fontWeight: "500",
-  },
-  navLabelActive: {
-    fontSize: 11,
-    color: "#3F414E",
-    fontWeight: "600",
-  },
-  navIconActive: {
-    backgroundColor: "#AF7842",
-    width: 65,
-    height: 65,
-    borderRadius: 32.5,
-    alignItems: "center",
     justifyContent: "center",
-    marginTop: -40,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    elevation: 8,
+    marginRight: 12,
   },
-  navIconActiveText: {
-    fontSize: 30,
+  audioCardTitle: {
+    fontSize: 15,
+    fontFamily: "Whyte-Regular",
+    color: "#747474",
+    lineHeight: 22,
+  },
+  audioCardIcon: {
+    fontSize: 22,
   },
 });
