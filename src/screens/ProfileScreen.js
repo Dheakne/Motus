@@ -1,17 +1,15 @@
-// Tela de perfil do usuário. Exibe foto, nome, username e opções de configuração da conta.
-// Recarrega os dados toda vez que a tela ganha foco (útil após editar o perfil).
+// Tela de perfil do usuário. Exibe foto, nome, username e opções da conta.
 
 import { useEffect, useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+  ActivityIndicator, Alert, Image, ScrollView,
+  StyleSheet, Text, TouchableOpacity, View,
 } from "react-native";
+import {
+  BellIcon, ChallengesIcon, ChevronRightIcon, CloudIcon,
+  EditIcon, FlagIcon, HomeIcon, LockIcon, LogoutIcon,
+  TrashIcon, UserIcon,
+} from "../components/Icons";
 import { supabase } from "../services/supabase";
 
 export default function ProfileScreen({ navigation }) {
@@ -19,33 +17,19 @@ export default function ProfileScreen({ navigation }) {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Carrega o perfil na montagem da tela
+  useEffect(() => { loadProfile(); }, []);
   useEffect(() => {
-    loadProfile();
-  }, []);
-
-  // Recarregar perfil quando a tela ganhar foco
-  useEffect(() => {
-    const unsubscribe = navigation.addListener("focus", () => {
-      loadProfile();
-    });
-    return unsubscribe; // Remove o listener quando o componente desmonta
+    const unsubscribe = navigation.addListener("focus", () => loadProfile());
+    return unsubscribe;
   }, [navigation]);
 
   async function loadProfile() {
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
-
       if (user) {
         const { data: profileData } = await supabase
-          .from("user_profiles")
-          .select("*")
-          .eq("user_id", user.id)
-          .single();
-
+          .from("user_profiles").select("*").eq("user_id", user.id).single();
         setProfile(profileData);
       }
     } catch (error) {
@@ -55,67 +39,39 @@ export default function ProfileScreen({ navigation }) {
     }
   }
 
-  // Logout com confirmação
   async function handleLogout() {
     Alert.alert("Sair", "Tem certeza que deseja sair da sua conta?", [
       { text: "Cancelar", style: "cancel" },
       {
-        text: "Sair",
-        style: "destructive",
+        text: "Sair", style: "destructive",
         onPress: async () => {
           const { error } = await supabase.auth.signOut();
-          // Reseta a pilha de navegação para o Onboarding
-          // (impede o usuário de voltar com o botão "voltar")
-          if (error) {
-            Alert.alert("Erro", error.message);
-          } else {
-            navigation.reset({
-              index: 0,
-              routes: [{ name: "Login" }],
-            });
-          }
+          if (error) { Alert.alert("Erro", error.message); }
+          else { navigation.reset({ index: 0, routes: [{ name: "Login" }] }); }
         },
       },
     ]);
   }
 
+  async function handleChangePhoto() {
+    Alert.alert("Foto de Perfil", "Escolha uma opção", [
+      { text: "Cancelar", style: "cancel" },
+      { text: "Trocar Foto", onPress: () => Alert.alert("Em desenvolvimento", "Funcionalidade será implementada em breve") },
+      profile?.avatar_url && {
+        text: "Remover Foto", style: "destructive",
+        onPress: async () => {
+          await supabase.from("user_profiles").update({ avatar_url: null }).eq("user_id", user.id);
+          loadProfile();
+        },
+      },
+    ].filter(Boolean));
+  }
+
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#8E97FD" />
+        <ActivityIndicator size="large" color="#1066E7" />
       </View>
-    );
-  }
-
-  // Trocar foto de perfil
-  async function handleChangePhoto() {
-    Alert.alert(
-      "Foto de Perfil",
-      "Escolha uma opção",
-      [
-        { text: "Cancelar", style: "cancel" },
-        {
-          text: "Trocar Foto",
-          onPress: () =>
-            Alert.alert(
-              "Em desenvolvimento",
-              "Funcionalidade de upload de foto será implementada em breve",
-            ),
-        },
-        // Só mostra "Remover" se o usuário já tiver uma foto
-        profile?.avatar_url && {
-          text: "Remover Foto",
-          style: "destructive",
-          onPress: async () => {
-            // Remover foto do perfil
-            await supabase
-              .from("user_profiles")
-              .update({ avatar_url: null })
-              .eq("user_id", user.id);
-            loadProfile(); // Recarrega para refletir a remoção
-          },
-        },
-      ].filter(Boolean), // Remove entradas null do array
     );
   }
 
@@ -126,45 +82,28 @@ export default function ProfileScreen({ navigation }) {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Header com foto e info do usuário */}
+        {/* Header com avatar */}
         <View style={styles.header}>
-          {/* Foto de perfil */}
-          <View style={styles.avatarContainer}>
-            <TouchableOpacity
-              style={styles.avatarContainer}
-              onPress={handleChangePhoto}
-            >
-              {profile?.avatar_url ? (
-                <Image
-                  source={{ uri: profile.avatar_url }}
-                  style={styles.avatar}
-                />
-              ) : (
-                <View style={styles.avatarPlaceholder}>
-                  <Text style={styles.avatarText}>
-                    {profile?.display_name?.charAt(0).toUpperCase() || "U"}
-                  </Text>
-                </View>
-              )}
-              {/* Badge/ícone de edição */}
-              <View style={styles.editBadge}>
-                <Text style={styles.editBadgeIcon}>✏️</Text>
+          <TouchableOpacity style={styles.avatarContainer} onPress={handleChangePhoto}>
+            {profile?.avatar_url ? (
+              <Image source={{ uri: profile.avatar_url }} style={styles.avatar} />
+            ) : (
+              <View style={styles.avatarPlaceholder}>
+                <Text style={styles.avatarText}>
+                  {profile?.display_name?.charAt(0).toUpperCase() || "U"}
+                </Text>
               </View>
-            </TouchableOpacity>
-          </View>
+            )}
+            <View style={styles.editBadge}>
+              <EditIcon size={13} color="#FFFFFF" />
+            </View>
+          </TouchableOpacity>
 
-          {/* Nome e username */}
-          <Text style={styles.displayName}>
-            {profile?.display_name || "Usuário"}
-          </Text>
+          <Text style={styles.displayName}>{profile?.display_name || "Usuário"}</Text>
           <Text style={styles.username}>
-            @
-            {profile?.display_name?.toLowerCase().replace(/\s/g, "") ||
-              "usuario"}
-            31
+            @{profile?.display_name?.toLowerCase().replace(/\s/g, "") || "usuario"}
           </Text>
 
-          {/* Botão Editar */}
           <TouchableOpacity
             style={styles.editButton}
             onPress={() => navigation.navigate("EditProfile")}
@@ -173,116 +112,48 @@ export default function ProfileScreen({ navigation }) {
           </TouchableOpacity>
         </View>
 
-        {/* Seção: Conta */}
+        {/* Conta */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Conta</Text>
-
-          <TouchableOpacity
-            style={styles.menuItem}
-            onPress={() => navigation.navigate("EditProfile")}
-          >
-            <View style={styles.menuIcon}>
-              <Text style={styles.menuIconText}>👤</Text>
-            </View>
-            <Text style={styles.menuText}>Editar Perfil</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.menuItem}
-            onPress={() => Alert.alert("Notificações", "Em desenvolvimento")}
-          >
-            <View style={styles.menuIcon}>
-              <Text style={styles.menuIconText}>🔔</Text>
-            </View>
-            <Text style={styles.menuText}>Notificações</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.menuItem}
-            onPress={() => Alert.alert("Privacidade", "Em desenvolvimento")}
-          >
-            <View style={styles.menuIcon}>
-              <Text style={styles.menuIconText}>🔒</Text>
-            </View>
-            <Text style={styles.menuText}>Privacidade</Text>
-          </TouchableOpacity>
+          <MenuItem icon={<UserIcon size={18} color="#1066E7" />} label="Editar Perfil" onPress={() => navigation.navigate("EditProfile")} />
+          <MenuItem icon={<BellIcon size={18} color="#1066E7" />} label="Notificações" onPress={() => Alert.alert("Notificações", "Em desenvolvimento")} />
+          <MenuItem icon={<LockIcon size={18} color="#1066E7" />} label="Privacidade" onPress={() => Alert.alert("Privacidade", "Em desenvolvimento")} />
         </View>
 
-        {/* Seção: Cache & celular */}
+        {/* Cache & celular */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Cache & celular</Text>
-
-          <TouchableOpacity
-            style={styles.menuItem}
-            onPress={() => Alert.alert("Liberar espaço", "Em desenvolvimento")}
-          >
-            <View style={styles.menuIcon}>
-              <Text style={styles.menuIconText}>🗑️</Text>
-            </View>
-            <Text style={styles.menuText}>Liberar espaço</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.menuItem}
-            onPress={() => Alert.alert("Data Saver", "Em desenvolvimento")}
-          >
-            <View style={styles.menuIcon}>
-              <Text style={styles.menuIconText}>💾</Text>
-            </View>
-            <Text style={styles.menuText}>Data Saver</Text>
-          </TouchableOpacity>
+          <MenuItem icon={<TrashIcon size={18} color="#1066E7" />} label="Liberar espaço" onPress={() => Alert.alert("Liberar espaço", "Em desenvolvimento")} />
+          <MenuItem icon={<CloudIcon size={18} color="#1066E7" />} label="Data Saver" onPress={() => Alert.alert("Data Saver", "Em desenvolvimento")} />
         </View>
 
-        {/* Seção: Ações */}
+        {/* Ações */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Ações</Text>
-
-          <TouchableOpacity
-            style={styles.menuItem}
-            onPress={() =>
-              Alert.alert("Reportar problema", "Em desenvolvimento")
-            }
-          >
-            <View style={styles.menuIcon}>
-              <Text style={styles.menuIconText}>🚩</Text>
-            </View>
-            <Text style={styles.menuText}>Reportar um problema</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
-            <View style={styles.menuIcon}>
-              <Text style={styles.menuIconText}>🚪</Text>
-            </View>
-            <Text style={[styles.menuText, styles.logoutText]}>Sair</Text>
-          </TouchableOpacity>
+          <MenuItem icon={<FlagIcon size={18} color="#1066E7" />} label="Reportar um problema" onPress={() => Alert.alert("Reportar problema", "Em desenvolvimento")} />
+          <MenuItem icon={<LogoutIcon size={18} color="#FF4444" />} label="Sair" labelColor="#FF4444" onPress={handleLogout} />
         </View>
 
         <View style={{ height: 100 }} />
       </ScrollView>
 
-      {/* Bottom Navigation */}
+      {/* Bottom Navigation com ícones SVG */}
       <View style={styles.bottomNav}>
-        <TouchableOpacity
-          style={styles.navItem}
-          onPress={() => navigation.navigate("Challenges")}
-        >
-          <Text style={styles.navIcon}>⏰</Text>
+        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate("Challenges")}>
+          <ChallengesIcon size={24} color="#6E6E73" />
           <Text style={styles.navLabel}>Desafios</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.navItem}
-          onPress={() => navigation.navigate("Home")}
-        >
+        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate("Home")}>
           <View style={styles.navIconActive}>
-            <Text style={styles.navIconActiveText}>🏠</Text>
+            <HomeIcon size={26} color="#FFFFFF" filled />
           </View>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.navItem}>
-          <Text style={styles.navIcon}>👤</Text>
-          <Text style={styles.navLabelActive}>
-            {profile?.display_name || "Amanda"}
+          <UserIcon size={24} color="#1066E7" />
+          <Text style={[styles.navLabel, { color: "#1066E7" }]}>
+            {profile?.display_name?.split(" ")[0] || "Perfil"}
           </Text>
         </TouchableOpacity>
       </View>
@@ -290,179 +161,66 @@ export default function ProfileScreen({ navigation }) {
   );
 }
 
+// Sub-componente para item de menu
+function MenuItem({ icon, label, onPress, labelColor = "#3F414E" }) {
+  return (
+    <TouchableOpacity style={styles.menuItem} onPress={onPress}>
+      <View style={styles.menuIconBox}>{icon}</View>
+      <Text style={[styles.menuText, { color: labelColor }]}>{label}</Text>
+      <ChevronRightIcon size={16} color="#BCBCBC" />
+    </TouchableOpacity>
+  );
+}
+
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#FAFAFA",
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#FAFAFA",
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingTop: 60,
-    paddingBottom: 120,
-  },
-  header: {
-    alignItems: "center",
-    paddingHorizontal: 24,
-    marginBottom: 30,
-  },
-  avatarContainer: {
-    position: "relative",
-    marginBottom: 16,
-  },
-  avatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-  },
+  container: { flex: 1, backgroundColor: "#FAFAFA" },
+  loadingContainer: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#FAFAFA" },
+  scrollView: { flex: 1 },
+  scrollContent: { paddingTop: 60, paddingBottom: 120 },
+  header: { alignItems: "center", paddingHorizontal: 24, marginBottom: 30 },
+  avatarContainer: { position: "relative", marginBottom: 16 },
+  avatar: { width: 100, height: 100, borderRadius: 50 },
   avatarPlaceholder: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: "#E0E0E0",
-    alignItems: "center",
-    justifyContent: "center",
+    width: 100, height: 100, borderRadius: 50,
+    backgroundColor: "#E8F0FE", alignItems: "center", justifyContent: "center",
   },
-  avatarText: {
-    fontSize: 40,
-    fontWeight: "bold",
-    color: "#8E97FD",
-  },
+  avatarText: { fontSize: 40, fontWeight: "bold", color: "#1066E7" },
   editBadge: {
-    position: "absolute",
-    bottom: 0,
-    right: 0,
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: "#C8A882",
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 3,
-    borderColor: "#FAFAFA",
+    position: "absolute", bottom: 0, right: 0,
+    width: 32, height: 32, borderRadius: 16,
+    backgroundColor: "#1066E7", alignItems: "center", justifyContent: "center",
+    borderWidth: 3, borderColor: "#FAFAFA",
   },
-  editBadgeIcon: {
-    fontSize: 14,
-  },
-  displayName: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: "#B4C77E",
-    marginBottom: 4,
-  },
-  username: {
-    fontSize: 14,
-    color: "#A1A4B2",
-    marginBottom: 16,
-  },
-  editButton: {
-    backgroundColor: "#C8A882",
-    paddingHorizontal: 40,
-    paddingVertical: 12,
-    borderRadius: 20,
-  },
-  editButtonText: {
-    color: "#FFFFFF",
-    fontSize: 15,
-    fontWeight: "600",
-  },
-  section: {
-    marginBottom: 24,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#3F414E",
-    marginBottom: 12,
-  },
+  displayName: { fontSize: 22, fontFamily: "Whyte-Bold", color: "#1C1C1E", marginBottom: 4 },
+  username: { fontSize: 14, fontFamily: "Whyte-Regular", color: "#A1A4B2", marginBottom: 16 },
+  editButton: { backgroundColor: "#1066E7", paddingHorizontal: 40, paddingVertical: 12, borderRadius: 20 },
+  editButtonText: { color: "#FFFFFF", fontSize: 15, fontFamily: "Whyte-Medium" },
+  section: { marginBottom: 24, paddingHorizontal: 24 },
+  sectionTitle: { fontSize: 16, fontFamily: "Whyte-Bold", color: "#3F414E", marginBottom: 12 },
   menuItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#FFFFFF",
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    flexDirection: "row", alignItems: "center",
+    backgroundColor: "#FFFFFF", padding: 16, borderRadius: 14, marginBottom: 8,
+    shadowColor: "#000", shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05, shadowRadius: 4, elevation: 2,
   },
-  menuIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: "#F5F5F5",
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 16,
+  menuIconBox: {
+    width: 36, height: 36, borderRadius: 10,
+    backgroundColor: "#EEF3FF", alignItems: "center", justifyContent: "center", marginRight: 16,
   },
-  menuIconText: {
-    fontSize: 18,
-  },
-  menuText: {
-    fontSize: 15,
-    color: "#3F414E",
-    fontWeight: "500",
-  },
-  logoutText: {
-    color: "#FF4444",
-  },
+  menuText: { flex: 1, fontSize: 15, fontFamily: "Whyte-Medium" },
   bottomNav: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    flexDirection: "row",
-    backgroundColor: "#FDFCF6",
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    justifyContent: "space-around",
-    alignItems: "center",
-    height: 85,
+    position: "absolute", bottom: 0, left: 0, right: 0,
+    flexDirection: "row", backgroundColor: "#FDFCF6",
+    paddingVertical: 12, paddingHorizontal: 20,
+    justifyContent: "space-around", alignItems: "center",
+    height: 80, borderTopWidth: 1, borderTopColor: "#F0F0F0",
   },
-  navItem: {
-    alignItems: "center",
-    justifyContent: "center",
-    flex: 1,
-  },
-  navIcon: {
-    fontSize: 24,
-    marginBottom: 4,
-  },
-  navLabel: {
-    fontSize: 11,
-    color: "#5A5A5A",
-    fontWeight: "500",
-  },
-  navLabelActive: {
-    fontSize: 11,
-    color: "#3F414E",
-    fontWeight: "600",
-  },
+  navItem: { alignItems: "center", justifyContent: "center", flex: 1 },
+  navLabel: { fontSize: 11, fontFamily: "Whyte-Medium", color: "#5A5A5A", marginTop: 4 },
   navIconActive: {
-    backgroundColor: "#AF7842",
-    width: 65,
-    height: 65,
-    borderRadius: 32.5,
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: -40,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  navIconActiveText: {
-    fontSize: 30,
+    backgroundColor: "#1066E7", width: 60, height: 60, borderRadius: 30,
+    alignItems: "center", justifyContent: "center", marginTop: -36,
+    shadowColor: "#1066E7", shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35, shadowRadius: 8, elevation: 8,
   },
 });
