@@ -89,8 +89,17 @@ export default function SignUpScreen({ navigation }) {
 
     setLoading(false);
     Alert.alert("Sucesso!", "Conta criada com sucesso!", [
-      { text: "OK", onPress: () => navigation.navigate("Login") },
+      {
+        text: "OK",
+        onPress: () =>
+          navigation.reset({
+            index: 0,
+            routes: [{ name: "Login" }],
+          }),
+      },
     ]);
+
+    navigation.replace("Home");
   }
 
   return (

@@ -1,5 +1,3 @@
-// Tela principal do app. Exibe progresso semanal, categorias de áudio e exercícios.
-
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useEffect, useState } from "react";
 import {
@@ -13,17 +11,15 @@ import {
   View,
 } from "react-native";
 import DrawerMenu from "../components/DrawerMenu";
-import { ChallengesIcon, CheckIcon, HomeIcon, MenuIcon, UserIcon } from "../components/Icons";
+import WeeklyProgressCard from "../components/WeeklyProgressCard";
+import { ChallengesIcon, HomeIcon, MenuIcon, UserIcon } from "../components/Icons";
 import { supabase } from "../services/supabase";
-
-const WEEK_DAYS = ["S", "T", "Q", "Q", "S", "S", "D"];
 
 export default function HomeScreen({ navigation }) {
   const [categories, setCategories] = useState([]);
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const completedDays = 3;
 
   useEffect(() => { loadData(); }, []);
 
@@ -73,7 +69,6 @@ export default function HomeScreen({ navigation }) {
   return (
     <View style={{ flex: 1 }}>
       <SafeAreaView style={styles.safeArea}>
-        {/* Gradiente no topo */}
         <LinearGradient
           colors={["#13E698", "#74B8DE"]}
           start={{ x: 0, y: 0 }}
@@ -87,7 +82,6 @@ export default function HomeScreen({ navigation }) {
                 Olá, {userProfile?.display_name?.split(" ")[0] || ""}
               </Text>
             </View>
-            {/* Botão de menu — abre o Drawer */}
             <TouchableOpacity
               style={styles.menuButton}
               onPress={() => setDrawerOpen(true)}
@@ -97,43 +91,15 @@ export default function HomeScreen({ navigation }) {
           </View>
         </LinearGradient>
 
-        {/* Card branco com scroll */}
         <ScrollView
           style={styles.card}
           contentContainerStyle={styles.cardContent}
           showsVerticalScrollIndicator={false}
         >
-          {/* Seção: exercício semanal */}
           <Text style={styles.sectionTitle}>Meu exercício semanal</Text>
 
-          <View style={styles.progressCard}>
-            <View style={styles.progressHeader}>
-              <Text style={styles.progressLabel}>Progresso semanal</Text>
-              <Text style={styles.progressCount}>{completedDays}/7</Text>
-            </View>
+          <WeeklyProgressCard readOnly />
 
-            <View style={styles.progressBarBg}>
-              <View
-                style={[styles.progressBarFill, { width: `${(completedDays / 7) * 100}%` }]}
-              />
-            </View>
-
-            <View style={styles.daysRow}>
-              {WEEK_DAYS.map((day, index) => (
-                <View
-                  key={index}
-                  style={[styles.dayCircle, index < completedDays && styles.dayCircleCompleted]}
-                >
-                  {index < completedDays
-                    ? <CheckIcon size={16} color="#FFFFFF" />
-                    : <Text style={styles.dayLabel}>{day}</Text>
-                  }
-                </View>
-              ))}
-            </View>
-          </View>
-
-          {/* Seção: áudios */}
           <Text style={styles.sectionTitle}>Áudios</Text>
 
           <View style={styles.audioGrid}>
@@ -162,7 +128,6 @@ export default function HomeScreen({ navigation }) {
             })}
           </View>
 
-          {/* Seção: exercícios */}
           {exerciseCategory && (
             <>
               <Text style={styles.sectionTitle}>Exercícios</Text>
@@ -181,7 +146,6 @@ export default function HomeScreen({ navigation }) {
           <View style={{ height: 20 }} />
         </ScrollView>
 
-        {/* Bottom Navigation com ícones SVG */}
         <View style={styles.bottomNav}>
           <TouchableOpacity
             style={styles.navItem}
@@ -209,7 +173,6 @@ export default function HomeScreen({ navigation }) {
         </View>
       </SafeAreaView>
 
-      {/* Drawer lateral (fora do SafeAreaView para cobrir tudo) */}
       <DrawerMenu
         visible={drawerOpen}
         onClose={() => setDrawerOpen(false)}
@@ -236,16 +199,6 @@ const styles = StyleSheet.create({
   card: { flex: 1, backgroundColor: "#FFFFFF", borderTopLeftRadius: 30, borderTopRightRadius: 30, marginTop: -30 },
   cardContent: { paddingHorizontal: 24, paddingTop: 44, paddingBottom: 100 },
   sectionTitle: { fontSize: 18, fontFamily: "Whyte-Bold", color: "#1C1C1E", marginBottom: 14, marginTop: 8 },
-  progressCard: { backgroundColor: "#F0F1F5", borderRadius: 16, padding: 16, marginBottom: 28 },
-  progressHeader: { flexDirection: "row", justifyContent: "space-between", marginBottom: 10 },
-  progressLabel: { fontSize: 14, fontFamily: "Whyte-Regular", color: "#1C1C1E" },
-  progressCount: { fontSize: 14, fontFamily: "Whyte-Medium", color: "#1066E7" },
-  progressBarBg: { height: 8, backgroundColor: "#DCDDE3", borderRadius: 4, marginBottom: 14 },
-  progressBarFill: { height: 8, backgroundColor: "#1066E7", borderRadius: 4 },
-  daysRow: { flexDirection: "row", justifyContent: "space-between" },
-  dayCircle: { width: 40, height: 40, borderRadius: 20, backgroundColor: "#DCDDE3", alignItems: "center", justifyContent: "center" },
-  dayCircleCompleted: { backgroundColor: "#1066E7" },
-  dayLabel: { fontSize: 14, fontFamily: "Whyte-Medium", color: "#6E6E73" },
   audioGrid: { flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between", marginBottom: 8 },
   audioCard: {
     width: "48%", height: 83, backgroundColor: "#F0F1F5",

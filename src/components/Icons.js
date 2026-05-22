@@ -1,6 +1,3 @@
-// Biblioteca centralizada de ícones SVG do app Motus
-// Todos os ícones são componentes React Native SVG puros
-
 import React from "react";
 import Svg, {
   Circle,
@@ -14,9 +11,6 @@ import Svg, {
   Rect,
 } from "react-native-svg";
 
-// ──────────────────────────────────────────────
-// Ícone: Menu hamburger (≡)
-// ──────────────────────────────────────────────
 export function MenuIcon({ size = 24, color = "#FFFFFF" }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
@@ -30,9 +24,6 @@ export function MenuIcon({ size = 24, color = "#FFFFFF" }) {
   );
 }
 
-// ──────────────────────────────────────────────
-// Ícone: Fechar (X)
-// ──────────────────────────────────────────────
 export function CloseIcon({ size = 24, color = "#1C1C1E" }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
@@ -46,9 +37,6 @@ export function CloseIcon({ size = 24, color = "#1C1C1E" }) {
   );
 }
 
-// ──────────────────────────────────────────────
-// Ícone: Casa / Home
-// ──────────────────────────────────────────────
 export function HomeIcon({ size = 24, color = "#6E6E73", filled = false }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
@@ -69,9 +57,6 @@ export function HomeIcon({ size = 24, color = "#6E6E73", filled = false }) {
   );
 }
 
-// ──────────────────────────────────────────────
-// Ícone: Perfil / Usuário
-// ──────────────────────────────────────────────
 export function UserIcon({ size = 24, color = "#6E6E73", filled = false }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
@@ -93,9 +78,6 @@ export function UserIcon({ size = 24, color = "#6E6E73", filled = false }) {
   );
 }
 
-// ──────────────────────────────────────────────
-// Ícone: Desafios / Relógio
-// ──────────────────────────────────────────────
 export function ChallengesIcon({ size = 24, color = "#6E6E73" }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
@@ -111,9 +93,6 @@ export function ChallengesIcon({ size = 24, color = "#6E6E73" }) {
   );
 }
 
-// ──────────────────────────────────────────────
-// Ícone: Voltar (←)
-// ──────────────────────────────────────────────
 export function BackIcon({ size = 24, color = "#1C1C1E" }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
@@ -128,9 +107,6 @@ export function BackIcon({ size = 24, color = "#1C1C1E" }) {
   );
 }
 
-// ──────────────────────────────────────────────
-// Ícone: Check / Concluído (✓)
-// ──────────────────────────────────────────────
 export function CheckIcon({ size = 16, color = "#FFFFFF" }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
@@ -145,9 +121,6 @@ export function CheckIcon({ size = 16, color = "#FFFFFF" }) {
   );
 }
 
-// ──────────────────────────────────────────────
-// Ícone: Calendário / Data
-// ──────────────────────────────────────────────
 export function CalendarIcon({ size = 20, color = "#A1A4B2" }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
@@ -170,9 +143,6 @@ export function CalendarIcon({ size = 20, color = "#A1A4B2" }) {
   );
 }
 
-// ──────────────────────────────────────────────
-// Ícone: Olho (visível) — senha
-// ──────────────────────────────────────────────
 export function EyeIcon({ size = 20, color = "#A1A4B2" }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
@@ -187,9 +157,6 @@ export function EyeIcon({ size = 20, color = "#A1A4B2" }) {
   );
 }
 
-// ──────────────────────────────────────────────
-// Ícone: Olho cortado (oculto) — senha
-// ──────────────────────────────────────────────
 export function EyeOffIcon({ size = 20, color = "#A1A4B2" }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
@@ -211,9 +178,6 @@ export function EyeOffIcon({ size = 20, color = "#A1A4B2" }) {
   );
 }
 
-// ──────────────────────────────────────────────
-// Ícone: Editar (lápis)
-// ──────────────────────────────────────────────
 export function EditIcon({ size = 20, color = "#FFFFFF" }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
@@ -235,9 +199,6 @@ export function EditIcon({ size = 20, color = "#FFFFFF" }) {
   );
 }
 
-// ──────────────────────────────────────────────
-// Ícone: Notificação (sino)
-// ──────────────────────────────────────────────
 export function BellIcon({ size = 22, color = "#3F414E" }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
@@ -252,9 +213,6 @@ export function BellIcon({ size = 22, color = "#3F414E" }) {
   );
 }
 
-// ──────────────────────────────────────────────
-// Ícone: Privacidade (cadeado)
-// ──────────────────────────────────────────────
 export function LockIcon({ size = 22, color = "#3F414E" }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
@@ -277,9 +235,6 @@ export function LockIcon({ size = 22, color = "#3F414E" }) {
   );
 }
 
-// ──────────────────────────────────────────────
-// Ícone: Lixo / Liberar espaço
-// ──────────────────────────────────────────────
 export function TrashIcon({ size = 22, color = "#3F414E" }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
@@ -301,9 +256,6 @@ export function TrashIcon({ size = 22, color = "#3F414E" }) {
   );
 }
 
-// ──────────────────────────────────────────────
-// Ícone: Data Saver (nuvem)
-// ──────────────────────────────────────────────
 export function CloudIcon({ size = 22, color = "#3F414E" }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
@@ -317,9 +269,6 @@ export function CloudIcon({ size = 22, color = "#3F414E" }) {
   );
 }
 
-// ──────────────────────────────────────────────
-// Ícone: Reportar problema (bandeira)
-// ──────────────────────────────────────────────
 export function FlagIcon({ size = 22, color = "#3F414E" }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
@@ -342,9 +291,6 @@ export function FlagIcon({ size = 22, color = "#3F414E" }) {
   );
 }
 
-// ──────────────────────────────────────────────
-// Ícone: Sair (porta)
-// ──────────────────────────────────────────────
 export function LogoutIcon({ size = 22, color = "#FF4444" }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
@@ -375,9 +321,6 @@ export function LogoutIcon({ size = 22, color = "#FF4444" }) {
   );
 }
 
-// ──────────────────────────────────────────────
-// Ícone: Seta para direita (chevron →)
-// ──────────────────────────────────────────────
 export function ChevronRightIcon({ size = 18, color = "#BCBCBC" }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
@@ -392,9 +335,6 @@ export function ChevronRightIcon({ size = 18, color = "#BCBCBC" }) {
   );
 }
 
-// ──────────────────────────────────────────────
-// Ícone: Headphones / Áudio
-// ──────────────────────────────────────────────
 export function HeadphonesIcon({ size = 24, color = "#6E6E73" }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
@@ -414,9 +354,6 @@ export function HeadphonesIcon({ size = 24, color = "#6E6E73" }) {
   );
 }
 
-// ──────────────────────────────────────────────
-// Ícone: Coração / Gratidão
-// ──────────────────────────────────────────────
 export function HeartIcon({ size = 24, color = "#6E6E73" }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
@@ -430,9 +367,6 @@ export function HeartIcon({ size = 24, color = "#6E6E73" }) {
   );
 }
 
-// ──────────────────────────────────────────────
-// Ícone: Estrela / Destaque
-// ──────────────────────────────────────────────
 export function StarIcon({ size = 24, color = "#6E6E73" }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
@@ -445,10 +379,6 @@ export function StarIcon({ size = 24, color = "#6E6E73" }) {
     </Svg>
   );
 }
-
-// ──────────────────────────────────────────────
-// Ícone: Meditação / Paz (folha)
-// ──────────────────────────────────────────────
 export function LeafIcon({ size = 24, color = "#6E6E73" }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
@@ -463,9 +393,6 @@ export function LeafIcon({ size = 24, color = "#6E6E73" }) {
   );
 }
 
-// ──────────────────────────────────────────────
-// Ícone: Telefone / Celular
-// ──────────────────────────────────────────────
 export function PhoneIcon({ size = 20, color = "#A1A4B2" }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
@@ -491,9 +418,6 @@ export function PhoneIcon({ size = 20, color = "#A1A4B2" }) {
   );
 }
 
-// ──────────────────────────────────────────────
-// Ícone: Email
-// ──────────────────────────────────────────────
 export function MailIcon({ size = 20, color = "#A1A4B2" }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">

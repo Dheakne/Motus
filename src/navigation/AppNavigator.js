@@ -30,10 +30,12 @@ export default function AppNavigator() {
   // Aguarda carregamento das fontes para evitar flash de texto sem estilo
   if (!fontsLoaded) return null;
 
+  const skipAuth = process.env.EXPO_PUBLIC_SKIP_AUTH === 'true';
+
   return (
     // Stack.Navigator define as opções globais e a tela inicial
     <Stack.Navigator
-      initialRouteName="Splash" // Primeira tela que o usuário vê
+      initialRouteName={skipAuth ? 'Home' : 'Splash'}
       screenOptions={{ headerShown: false }} // Remove a barra de título em todas as telas
     >
       {/* Cada Stack.Screen registra uma tela no sistema de navegação */}
