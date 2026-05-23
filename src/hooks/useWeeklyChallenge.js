@@ -44,17 +44,29 @@ export function useWeeklyChallenge() {
       setError(null);
       const weekStart = getWeekStart();
 
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { setLoading(false); return; }
+      const { data: { user }, error: authErr } = await supabase.auth.getUser();
+      if (authErr) throw authErr;
+      if (!user) {
+        setError('Faça login para acompanhar o desafio.');
+        setLoading(false);
+        return;
+      }
       setUserId(user.id);
 
-      const { data: challenge } = await supabase
+      const { data: challenge, error: challengeErr } = await supabase
         .from('weekly_challenges')
         .select('id')
         .eq('is_active', true)
-        .single();
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
-      if (!challenge) { setLoading(false); return; }
+      if (challengeErr) throw challengeErr;
+      if (!challenge) {
+        setError('Nenhum desafio ativo no momento.');
+        setLoading(false);
+        return;
+      }
       setChallengeId(challenge.id);
 
       const { data: row, error: fetchErr } = await supabase
@@ -88,21 +100,29 @@ export function useWeeklyChallenge() {
           });
         if (insertErr) throw insertErr;
       }
-    } catch {
-      setError('Erro ao carregar progresso da semana.');
+    } catch (err) {
+      console.error('[useWeeklyChallenge] load error:', err);
+      setError(err?.message || 'Erro ao carregar progresso da semana.');
     } finally {
       setLoading(false);
     }
   }
 
   async function toggleToday() {
-    if (!userId || !challengeId) return;
+    if (!userId) {
+      setError('Faça login para marcar o desafio.');
+      return;
+    }
+    if (!challengeId) {
+      setError('Nenhum desafio ativo no momento.');
+      return;
+    }
 
     const weekStart = getWeekStart();
-    const newValue = !progress[todayColumn];
     const snapshot = progress;
+    const nextProgress = { ...progress, [todayColumn]: !progress[todayColumn] };
 
-    setProgress(prev => ({ ...prev, [todayColumn]: newValue }));
+    setProgress(nextProgress);
     setError(null);
 
     const { error: upsertErr } = await supabase
@@ -112,15 +132,15 @@ export function useWeeklyChallenge() {
           user_id: userId,
           challenge_id: challengeId,
           week_start: weekStart,
-          ...progress,
-          [todayColumn]: newValue,
+          ...nextProgress,
         },
         { onConflict: 'user_id,challenge_id,week_start' }
       );
 
     if (upsertErr) {
+      console.error('[useWeeklyChallenge] upsert error:', upsertErr);
       setProgress(snapshot);
-      setError('Não foi possível salvar. Tente novamente.');
+      setError(upsertErr.message || 'Não foi possível salvar. Tente novamente.');
     }
   }
 
