@@ -9,6 +9,7 @@ import AudioPlayerScreen from "../screens/AudioPlayerScreen";
 import CategoryScreen from "../screens/CategoryScreen";
 import ChallengesScreen from "../screens/ChallengesScreen";
 import EditProfileScreen from "../screens/EditProfileScreen";
+import ExerciseListScreen from "../screens/ExerciseListScreen";
 import HomeScreen from "../screens/HomeScreen";
 import LoginScreen from "../screens/LoginScreen";
 import ProfileScreen from "../screens/ProfileScreen";
@@ -20,7 +21,6 @@ import SplashScreen from "../screens/SplashScreen";
 const Stack = createNativeStackNavigator();
 
 export default function AppNavigator() {
-  // Carrega as fontes Whyte antes de renderizar as telas
   const [fontsLoaded] = useFonts({
     "Whyte-Regular": require("../../assets/fonts/Whyte-Regular.ttf"),
     "Whyte-Bold": require("../../assets/fonts/Whyte-Bold.ttf"),
@@ -45,6 +45,7 @@ export default function AppNavigator() {
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="SignUp" component={SignUpScreen} />
       <Stack.Screen name="Home" component={HomeScreen} />
+      <Stack.Screen name="ExerciseList" component={ExerciseListScreen} />
       <Stack.Screen name="Category" component={CategoryScreen} />
       <Stack.Screen name="AudioPlayer" component={AudioPlayerScreen} />
       <Stack.Screen name="Challenges" component={ChallengesScreen} />

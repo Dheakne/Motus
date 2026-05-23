@@ -133,7 +133,7 @@ export default function HomeScreen({ navigation }) {
               <Text style={styles.sectionTitle}>Exercícios</Text>
               <TouchableOpacity
                 style={styles.audioCardFull}
-                onPress={() => navigation.navigate("Challenges")}
+                onPress={() => navigation.navigate("ExerciseList")}
               >
                 <View style={styles.audioCardTextWrapper}>
                   <Text style={styles.audioCardTitle}>{exerciseCategory.title}</Text>

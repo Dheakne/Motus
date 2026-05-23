@@ -12,7 +12,16 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { BackIcon, EyeIcon, EyeOffIcon } from "../components/Icons";
 import { supabase } from "../services/supabase";
+
+// Aplica máscara DD/MM/AAAA enquanto o usuário digita
+function formatBirthDate(value) {
+  const digits = value.replace(/\D/g, "").slice(0, 8);
+  if (digits.length <= 2) return digits;
+  if (digits.length <= 4) return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+  return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
+}
 
 // Função para converter data DD/MM/YYYY para YYYY-MM-DD
 function convertToSQLDate(dateString) {
@@ -40,6 +49,7 @@ export default function SignUpScreen({ navigation }) {
   const [birthDate, setBirthDate] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
   //Função de CADASTRO
@@ -116,7 +126,7 @@ export default function SignUpScreen({ navigation }) {
           style={styles.backButton}
           onPress={() => navigation.goBack()}
         >
-          <Text style={styles.backArrow}>←</Text>
+          <BackIcon size={24} color="#1C1C1E" />
         </TouchableOpacity>
 
         <View style={styles.header}>
@@ -130,61 +140,93 @@ export default function SignUpScreen({ navigation }) {
 
         <View style={styles.form}>
           <Text style={styles.label}>Nome</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Nome"
-            value={name}
-            onChangeText={setName}
-          />
+          <View style={styles.inputWrapper}>
+            <TextInput
+              style={styles.input}
+              placeholder="Nome"
+              placeholderTextColor="#A1A4B2"
+              value={name}
+              onChangeText={setName}
+            />
+          </View>
 
           <Text style={styles.label}>Sobrenome</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Sobrenome(s)"
-            value={lastName}
-            onChangeText={setLastName}
-          />
+          <View style={styles.inputWrapper}>
+            <TextInput
+              style={styles.input}
+              placeholder="Sobrenome(s)"
+              placeholderTextColor="#A1A4B2"
+              value={lastName}
+              onChangeText={setLastName}
+            />
+          </View>
 
           <Text style={styles.label}>Email</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="seuemail@gmail.com"
-            value={email}
-            onChangeText={setEmail}
-            autoCapitalize="none"
-            keyboardType="email-address"
-          />
+          <View style={styles.inputWrapper}>
+            <TextInput
+              style={styles.input}
+              placeholder="seuemail@gmail.com"
+              placeholderTextColor="#A1A4B2"
+              value={email}
+              onChangeText={setEmail}
+              autoCapitalize="none"
+              keyboardType="email-address"
+            />
+          </View>
 
           <Text style={styles.label}>Data de nascimento</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="DD/MM/AAAA"
-            value={birthDate}
-            onChangeText={setBirthDate}
-          />
+          <View style={styles.inputWrapper}>
+            <TextInput
+              style={styles.input}
+              placeholder="DD/MM/AAAA"
+              placeholderTextColor="#A1A4B2"
+              value={birthDate}
+              onChangeText={(v) => setBirthDate(formatBirthDate(v))}
+              keyboardType="number-pad"
+              maxLength={10}
+            />
+          </View>
 
-          <Text style={styles.label}>Número de celular</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="(00) 90000-0000"
-            value={phone}
-            onChangeText={setPhone}
-            keyboardType="phone-pad"
-          />
+          <Text style={styles.label}>Numero de celular</Text>
+          <View style={styles.inputWrapper}>
+            <TextInput
+              style={styles.input}
+              placeholder="(00) 90000-0000"
+              placeholderTextColor="#A1A4B2"
+              value={phone}
+              onChangeText={setPhone}
+              keyboardType="phone-pad"
+            />
+          </View>
 
           <Text style={styles.label}>Definir palavra-passe</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="••••••••"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-          />
+          <View style={styles.inputWrapper}>
+            <TextInput
+              style={[styles.input, styles.inputWithIcon]}
+              placeholder="••••••••"
+              placeholderTextColor="#A1A4B2"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={!showPassword}
+            />
+            <TouchableOpacity
+              style={styles.eyeButton}
+              onPress={() => setShowPassword((v) => !v)}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            >
+              {showPassword ? (
+                <EyeOffIcon size={20} color="#A1A4B2" />
+              ) : (
+                <EyeIcon size={20} color="#A1A4B2" />
+              )}
+            </TouchableOpacity>
+          </View>
 
           <TouchableOpacity
-            style={styles.registerButton}
+            style={[styles.registerButton, loading && styles.registerButtonDisabled]}
             onPress={handleSignUp}
             disabled={loading}
+            activeOpacity={0.85}
           >
             <Text style={styles.registerButtonText}>
               {loading ? "Criando conta..." : "Registrar"}
@@ -199,89 +241,92 @@ export default function SignUpScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F8F8F8",
+    backgroundColor: "#FFFFFF",
   },
   scrollContent: {
     flexGrow: 1,
-    padding: 20,
-    paddingTop: 40,
+    paddingHorizontal: 24,
+    paddingTop: 24,
+    paddingBottom: 40,
   },
   backButton: {
     width: 40,
     height: 40,
-    marginBottom: 20,
-  },
-  backArrow: {
-    fontSize: 28,
-    color: "#2C2C2C",
+    justifyContent: "center",
+    marginBottom: 8,
   },
   header: {
-    marginBottom: 30,
+    alignItems: "center",
+    marginBottom: 28,
   },
   title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#9B87D9",
-    marginBottom: 10,
+    fontSize: 32,
+    fontFamily: "Whyte-Bold",
+    fontWeight: "700",
+    color: "#1C1C1E",
+    marginBottom: 8,
+    textAlign: "center",
   },
   loginLink: {
     fontSize: 14,
-    color: "#666",
+    fontFamily: "Whyte-Regular",
+    color: "#6E6E73",
+    textAlign: "center",
   },
   loginLinkBold: {
-    color: "#9B87D9",
-    fontWeight: "bold",
+    color: "#1066E7",
+    fontFamily: "Whyte-Medium",
+    fontWeight: "600",
   },
   form: {
     flex: 1,
   },
   label: {
-    fontSize: 14,
-    color: "#666",
-    marginBottom: 8,
-    marginTop: 15,
+    fontSize: 13,
+    fontFamily: "Whyte-Regular",
+    color: "#1C1C1E",
+    marginBottom: 6,
+    marginTop: 14,
   },
-  inputContainer: {
+  inputWrapper: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#fff",
+    backgroundColor: "#F5F5F5",
     borderRadius: 12,
-    paddingHorizontal: 15,
+    paddingHorizontal: 16,
     height: 50,
-    borderWidth: 1,
-    borderColor: "#E0E0E0",
   },
   input: {
     flex: 1,
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    paddingHorizontal: 15,
-    height: 50,
-    fontSize: 16,
-    color: "#2C2C2C",
-    borderWidth: 1,
-    borderColor: "#E0E0E0",
+    height: "100%",
+    fontSize: 15,
+    fontFamily: "Whyte-Regular",
+    color: "#1C1C1E",
+    padding: 0,
   },
-  calendarIcon: {
-    fontSize: 18,
-    marginLeft: -40,
+  inputWithIcon: {
+    paddingRight: 8,
   },
-  eyeIcon: {
-    padding: 5,
-    marginLeft: -35,
+  eyeButton: {
+    paddingHorizontal: 4,
+    paddingVertical: 8,
   },
   registerButton: {
-    backgroundColor: "#C8B896",
-    borderRadius: 25,
-    height: 50,
+    backgroundColor: "#1066E7",
+    borderRadius: 30,
+    height: 56,
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 30,
-    marginBottom: 40,
+    marginTop: 32,
+    marginBottom: 24,
+  },
+  registerButtonDisabled: {
+    opacity: 0.6,
   },
   registerButtonText: {
-    color: "#fff",
+    color: "#FFFFFF",
     fontSize: 16,
-    fontWeight: "bold",
+    fontFamily: "Whyte-Bold",
+    fontWeight: "700",
   },
 });
