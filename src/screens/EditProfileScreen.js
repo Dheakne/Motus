@@ -1,5 +1,7 @@
+import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useEffect, useState } from "react";
+import { EyeIcon, EyeOffIcon } from "../components/Icons";
 import {
   ActivityIndicator,
   Alert,
@@ -26,6 +28,8 @@ export default function EditProfileScreen({ navigation }) {
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [birthDateError, setBirthDateError] = useState("");
 
   useEffect(() => {
     loadProfile();
@@ -67,11 +71,16 @@ export default function EditProfileScreen({ navigation }) {
 
   function formatDate(dateString) {
     if (!dateString) return "";
-    const date = new Date(dateString);
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const year = date.getFullYear();
+    const [year, month, day] = dateString.split("-");
+    if (!year || !month || !day) return "";
     return `${day}/${month}/${year}`;
+  }
+
+  function formatBirthDate(value) {
+    const digits = value.replace(/\D/g, "").slice(0, 8);
+    if (digits.length <= 2) return digits;
+    if (digits.length <= 4) return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+    return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
   }
 
   function convertToSQLDate(dateString) {
@@ -83,11 +92,35 @@ export default function EditProfileScreen({ navigation }) {
     return null;
   }
 
+  function isValidBirthDate(dateString) {
+    if (!dateString) return true;
+    const digits = dateString.replace(/\D/g, "");
+    if (digits.length !== 8) return false;
+    const day = parseInt(digits.substring(0, 2), 10);
+    const month = parseInt(digits.substring(2, 4), 10);
+    const year = parseInt(digits.substring(4, 8), 10);
+    if (day < 1 || day > 31) return false;
+    if (month < 1 || month > 12) return false;
+    if (year < 1900 || year > new Date().getFullYear()) return false;
+    const d = new Date(year, month - 1, day);
+    return (
+      d.getFullYear() === year &&
+      d.getMonth() === month - 1 &&
+      d.getDate() === day
+    );
+  }
+
   async function handleSave() {
     if (!name.trim()) {
       Alert.alert("Erro", "O nome é obrigatório");
       return;
     }
+
+    if (!isValidBirthDate(birthDate)) {
+      setBirthDateError("Data de nascimento inválida");
+      return;
+    }
+    setBirthDateError("");
 
     setSaving(true);
     try {
@@ -110,9 +143,8 @@ export default function EditProfileScreen({ navigation }) {
         if (passwordError) throw passwordError;
       }
 
-      Alert.alert("Sucesso!", "Perfil atualizado com sucesso", [
-        { text: "OK", onPress: () => navigation.goBack() },
-      ]);
+      setSuccessMessage("Perfil atualizado com sucesso!");
+      setTimeout(() => setSuccessMessage(""), 3000);
     } catch (error) {
       Alert.alert("Erro", "Não foi possível salvar as alterações");
     } finally {
@@ -130,12 +162,11 @@ export default function EditProfileScreen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      {/* Header com gradiente */}
-      <LinearGradient
-        colors={["#13E698", "#74B8DE"]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 0, y: 1 }}
-        style={styles.gradient}
+            <LinearGradient
+              colors={["#13E698", "#74B8DE"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 0, y: 1 }}
+              style={styles.gradient}
       >
         <Text style={styles.headerTitle}>Editar Perfil</Text>
       </LinearGradient>
@@ -195,18 +226,23 @@ export default function EditProfileScreen({ navigation }) {
           </Field>
 
           <Field label="Data de nascimento">
-            <View style={styles.inputRow}>
+            <View style={[styles.inputRow, birthDateError && styles.inputRowError]}>
               <TextInput
                 style={[styles.input, styles.inputFlex]}
                 value={birthDate}
-                onChangeText={setBirthDate}
+                onChangeText={(v) => {
+                  setBirthDate(formatBirthDate(v));
+                  if (birthDateError) setBirthDateError("");
+                }}
                 placeholder="DD/MM/AAAA"
                 placeholderTextColor="#A1A4B2"
                 keyboardType="numeric"
                 maxLength={10}
               />
-              <Text style={styles.fieldIcon}>🗓</Text>
             </View>
+            {birthDateError ? (
+              <Text style={styles.errorText}>{birthDateError}</Text>
+            ) : null}
           </Field>
 
           <Field label="Numero de celular">
@@ -233,10 +269,13 @@ export default function EditProfileScreen({ navigation }) {
               <TouchableOpacity
                 onPress={() => setShowPassword(!showPassword)}
                 style={styles.eyeButton}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               >
-                <Text style={styles.fieldIcon}>
-                  {showPassword ? "👁️" : "👁️‍🗨️"}
-                </Text>
+                {showPassword ? (
+                  <EyeOffIcon size={20} color="#A1A4B2" />
+                ) : (
+                  <EyeIcon size={20} color="#A1A4B2" />
+                )}
               </TouchableOpacity>
             </View>
           </Field>
@@ -252,6 +291,13 @@ export default function EditProfileScreen({ navigation }) {
               <Text style={styles.saveButtonText}>Salvar</Text>
             )}
           </TouchableOpacity>
+
+          {successMessage ? (
+            <View style={styles.successBox}>
+              <Ionicons name="checkmark-circle" size={18} color="#13A05E" />
+              <Text style={styles.successText}>{successMessage}</Text>
+            </View>
+          ) : null}
 
           <View style={{ height: 40 }} />
         </ScrollView>
@@ -343,6 +389,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#FFFFFF",
     borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "transparent",
+  },
+  inputRowError: {
+    borderColor: "#FF4444",
+  },
+  errorText: {
+    fontSize: 12,
+    fontFamily: "Whyte-Regular",
+    color: "#FF4444",
+    marginTop: 6,
   },
   fieldIcon: {
     fontSize: 18,
@@ -364,5 +421,21 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: "Whyte-Medium",
     fontWeight: "600",
+  },
+  successBox: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#E6F8EE",
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    marginTop: 16,
+    gap: 8,
+  },
+  successText: {
+    flex: 1,
+    fontSize: 13,
+    fontFamily: "Whyte-Medium",
+    color: "#13A05E",
   },
 });

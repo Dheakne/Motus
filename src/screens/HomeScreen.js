@@ -1,3 +1,4 @@
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useEffect, useState } from "react";
 import {
@@ -12,8 +13,39 @@ import {
 } from "react-native";
 import DrawerMenu from "../components/DrawerMenu";
 import WeeklyProgressCard from "../components/WeeklyProgressCard";
-import { ChallengesIcon, HomeIcon, MenuIcon, UserIcon } from "../components/Icons";
+import { MenuIcon } from "../components/Icons";
 import { supabase } from "../services/supabase";
+
+function normalizeText(text) {
+  if (!text) return "";
+  return text
+    .toString()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .trim();
+}
+
+const CATEGORY_VISUALS = {
+  "gratidao": { lib: "ion", name: "heart", iconColor: "#DA289F", bg: "#FFE1EC" },
+  "atencao concentrada": { lib: "ion", name: "hourglass-outline", iconColor: "#2F1ECE", bg: "#DCEEFF" },
+  "meditacao": { lib: "ion", name: "leaf", iconColor: "#83CC1D", bg: "#D9F5E4" },
+  "reflexao": { lib: "mci", name: "head-lightbulb", iconColor: "#F26F29", bg: "#FFE3CC" },
+  "descanso": { lib: "ion", name: "moon", iconColor: "#0AAEC0", bg: "#D6DCF7" },
+  "exercicios semanais": { lib: "ion", name: "book", iconColor: "#EE2525", bg: "#FCDADA" },
+};
+
+function getCategoryVisual(title) {
+  return CATEGORY_VISUALS[normalizeText(title)] || null;
+}
+
+function CategoryVisualIcon({ visual, size = 26 }) {
+  if (!visual) return null;
+  if (visual.lib === "mci") {
+    return <MaterialCommunityIcons name={visual.name} size={size} color={visual.iconColor} />;
+  }
+  return <Ionicons name={visual.name} size={size} color={visual.iconColor} />;
+}
 
 export default function HomeScreen({ navigation }) {
   const [categories, setCategories] = useState([]);
@@ -42,17 +74,17 @@ export default function HomeScreen({ navigation }) {
     }
   }
 
+  function handleExercisesPress() {
+    if (userProfile?.has_seen_tutus) {
+      navigation.navigate("ExerciseList");
+    } else {
+      navigation.navigate("Mascot");
+    }
+  }
+
   async function handleLogout() {
-    Alert.alert("Sair", "Tem certeza que deseja sair?", [
-      { text: "Cancelar", style: "cancel" },
-      {
-        text: "Sair", style: "destructive",
-        onPress: async () => {
-          const { error } = await supabase.auth.signOut();
-          if (!error) navigation.reset({ index: 0, routes: [{ name: "Login" }] });
-        },
-      },
-    ]);
+    const { error } = await supabase.auth.signOut();
+    if (!error) navigation.reset({ index: 0, routes: [{ name: "Login" }] });
   }
 
   if (loading) {
@@ -77,7 +109,7 @@ export default function HomeScreen({ navigation }) {
         >
           <View style={styles.headerRow}>
             <View>
-              <Text style={styles.greetingSmall}>Bem-vindo de volta 👋</Text>
+              <Text style={styles.greetingSmall}>Bem-vindo de volta</Text>
               <Text style={styles.greeting}>
                 Olá, {userProfile?.display_name?.split(" ")[0] || ""}
               </Text>
@@ -107,10 +139,14 @@ export default function HomeScreen({ navigation }) {
               const isLastOdd =
                 audioCategories.length % 2 !== 0 &&
                 index === audioCategories.length - 1;
+              const visual = getCategoryVisual(category.title);
               return (
                 <TouchableOpacity
                   key={category.id}
-                  style={[styles.audioCard, isLastOdd && styles.audioCardFull]}
+                  style={[
+                    styles.audioCard,
+                    isLastOdd && styles.audioCardFull,
+                  ]}
                   onPress={() =>
                     navigation.navigate("Category", {
                       categoryId: category.id,
@@ -122,55 +158,40 @@ export default function HomeScreen({ navigation }) {
                   <View style={styles.audioCardTextWrapper}>
                     <Text style={styles.audioCardTitle}>{category.title}</Text>
                   </View>
-                  <Text style={styles.audioCardIcon}>{category.icon_emoji}</Text>
+                  {visual ? (
+                    <CategoryVisualIcon visual={visual} size={26} />
+                  ) : (
+                    <Text style={styles.audioCardIcon}>{category.icon_emoji}</Text>
+                  )}
                 </TouchableOpacity>
               );
             })}
           </View>
 
-          {exerciseCategory && (
-            <>
-              <Text style={styles.sectionTitle}>Exercícios</Text>
-              <TouchableOpacity
-                style={styles.audioCardFull}
-                onPress={() => navigation.navigate("ExerciseList")}
-              >
-                <View style={styles.audioCardTextWrapper}>
-                  <Text style={styles.audioCardTitle}>{exerciseCategory.title}</Text>
-                </View>
-                <Text style={styles.audioCardIcon}>{exerciseCategory.icon_emoji}</Text>
-              </TouchableOpacity>
-            </>
-          )}
+          {exerciseCategory && (() => {
+            const exerciseVisual = getCategoryVisual(exerciseCategory.title);
+            return (
+              <>
+                <Text style={styles.sectionTitle}>Exercícios</Text>
+                <TouchableOpacity
+                  style={styles.audioCardFull}
+                  onPress={handleExercisesPress}
+                >
+                  <View style={styles.audioCardTextWrapper}>
+                    <Text style={styles.audioCardTitle}>{exerciseCategory.title}</Text>
+                  </View>
+                  {exerciseVisual ? (
+                    <CategoryVisualIcon visual={exerciseVisual} size={26} />
+                  ) : (
+                    <Text style={styles.audioCardIcon}>{exerciseCategory.icon_emoji}</Text>
+                  )}
+                </TouchableOpacity>
+              </>
+            );
+          })()}
 
           <View style={{ height: 20 }} />
         </ScrollView>
-
-        <View style={styles.bottomNav}>
-          <TouchableOpacity
-            style={styles.navItem}
-            onPress={() => navigation.navigate("Challenges")}
-          >
-            <ChallengesIcon size={24} color="#6E6E73" />
-            <Text style={styles.navLabel}>Desafios</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.navItem}>
-            <View style={styles.navIconActive}>
-              <HomeIcon size={26} color="#FFFFFF" filled />
-            </View>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.navItem}
-            onPress={() => navigation.navigate("Profile")}
-          >
-            <UserIcon size={24} color="#6E6E73" />
-            <Text style={styles.navLabel}>
-              {userProfile?.display_name?.split(" ")[0] || "Perfil"}
-            </Text>
-          </TouchableOpacity>
-        </View>
       </SafeAreaView>
 
       <DrawerMenu
@@ -213,18 +234,4 @@ const styles = StyleSheet.create({
   audioCardTextWrapper: { flex: 1, justifyContent: "center", marginRight: 12 },
   audioCardTitle: { fontSize: 15, fontFamily: "Whyte-Regular", color: "#747474", lineHeight: 22 },
   audioCardIcon: { fontSize: 22 },
-  bottomNav: {
-    flexDirection: "row", backgroundColor: "#FDFCF6",
-    paddingVertical: 12, paddingHorizontal: 20,
-    justifyContent: "space-around", alignItems: "center",
-    height: 80, borderTopWidth: 1, borderTopColor: "#F0F0F0",
-  },
-  navItem: { alignItems: "center", justifyContent: "center", flex: 1 },
-  navLabel: { fontSize: 11, fontFamily: "Whyte-Medium", color: "#5A5A5A", marginTop: 4 },
-  navIconActive: {
-    backgroundColor: "#1066E7", width: 60, height: 60, borderRadius: 30,
-    alignItems: "center", justifyContent: "center", marginTop: -36,
-    shadowColor: "#1066E7", shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35, shadowRadius: 8, elevation: 8,
-  },
 });

@@ -31,6 +31,7 @@ import Svg, {
   RadialGradient,
   Stop
 } from 'react-native-svg';
+import { recoveryState } from '../navigation/AppNavigator';
 import { supabase } from '../services/supabase';
 
 // =========================================================
@@ -67,6 +68,10 @@ export default function Splash({
     let cancelled = false;
 
     async function decideRoute() {
+      if (recoveryState.active) {
+        recoveryState.active = false;
+        return;
+      }
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (cancelled) return;

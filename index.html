@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>motus — Splash</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    html, body { margin: 0; padding: 0; background: #0e1020; min-height: 100vh; overflow: hidden; }
+    * { box-sizing: border-box; }
+
+    /* ===== Splash internals ===== */
+    .stage {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      pointer-events: none;
+    }
+    .orbit {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+    }
+    .orbit-1 { animation: spin 60s linear infinite; }
+    .orbit-2 { animation: spinR 80s linear infinite; }
+
+    .floater {
+      position: absolute;
+      transform: translate(var(--dx), var(--dy));
+      filter: drop-shadow(0 8px 18px rgba(60, 30, 120, 0.18));
+    }
+
+    /* ===== Centered hero wordmark ===== */
+    .hero {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      z-index: 2;
+    }
+    .hero-glow {
+      position: absolute;
+      width: 480px;
+      height: 320px;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      filter: blur(20px);
+      pointer-events: none;
+      opacity: 0;
+      animation: glowIn 1s ease 0.4s forwards, glowPulse 4s ease-in-out 1.4s infinite;
+    }
+    .wordmark-hero {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 110px;
+      letter-spacing: -0.05em;
+      line-height: 0.95;
+    }
+    .wordmark-hero .letter {
+      display: inline-block;
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      background-size: 100% 220%;
+      background-position: 0% 0%;
+      opacity: 0;
+      transform-origin: 50% 80%;
+      animation:
+        letterIn 0.7s cubic-bezier(0.34, 1.6, 0.5, 1) both,
+        letterShimmer 3.5s ease-in-out infinite;
+    }
+    .tagline-hero {
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+      opacity: 0;
+      animation: brandIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) 1.4s forwards;
+    }
+
+    /* ===== Loader ===== */
+    .loader {
+      position: absolute;
+      left: 0; right: 0;
+      bottom: 110px;
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      animation: brandIn 0.6s ease 1.5s both;
+    }
+    .loader span {
+      width: 8px; height: 8px; border-radius: 999px;
+      display: block;
+      animation: bounce 1.2s ease-in-out infinite;
+    }
+    .loader span:nth-child(1) { animation-delay: 0s; }
+    .loader span:nth-child(2) { animation-delay: 0.15s; }
+    .loader span:nth-child(3) { animation-delay: 0.3s; }
+
+    /* ===== Replay pill ===== */
+    .replay {
+      position: absolute;
+      right: 16px;
+      top: 60px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 12px 7px 10px;
+      background: rgba(255,255,255,0.7);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(10,15,61,0.08);
+      border-radius: 999px;
+      font: 600 11px/1 'Plus Jakarta Sans', system-ui, sans-serif;
+      color: #0a0f3d;
+      cursor: pointer;
+      opacity: 0;
+      animation: brandIn 0.5s ease 2.2s forwards;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .replay:hover { background: rgba(255,255,255,0.92); }
+    .replay:active { transform: scale(0.95); }
+
+    /* ===== Keyframes (speed-aware via --speed) ===== */
+    @keyframes popIn {
+      0%   { opacity: 0; transform: translate(var(--dx, 0px), var(--dy, 0px)) scale(0.2) rotate(-12deg); }
+      55%  { opacity: 1; transform: translate(var(--dx, 0px), var(--dy, 0px)) scale(1.12) rotate(4deg); }
+      100% { opacity: 1; transform: translate(var(--dx, 0px), var(--dy, 0px)) scale(1) rotate(0deg); }
+    }
+    @keyframes bob {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-8px) rotate(-1.5deg); }
+    }
+    @keyframes wobble {
+      0%, 100% { transform: rotate(0deg); }
+      50% { transform: rotate(8deg); }
+    }
+    @keyframes armL {
+      0%, 100% { transform: rotate(0deg); }
+      50% { transform: rotate(-18deg); }
+    }
+    @keyframes armR {
+      0%, 100% { transform: rotate(0deg); }
+      50% { transform: rotate(18deg); }
+    }
+    @keyframes blink {
+      0%, 92%, 100% { transform: scaleY(0); }
+      94%, 96% { transform: scaleY(1); }
+    }
+    @keyframes floatA {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-10px) rotate(4deg); }
+    }
+    @keyframes floatB {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-14px) rotate(-5deg); }
+    }
+    @keyframes floatC {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-8px) rotate(3deg); }
+    }
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    @keyframes spinR {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(-360deg); }
+    }
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    @keyframes pulseLight {
+      0%, 100% { opacity: 0.5; transform: translateX(-50%) scale(1); }
+      50% { opacity: 0.9; transform: translateX(-50%) scale(1.15); }
+    }
+    @keyframes brandIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes letterIn {
+      0%   { opacity: 0; transform: translateY(40px) scale(0.4) rotate(-8deg); }
+      60%  { opacity: 1; transform: translateY(-6px) scale(1.08) rotate(2deg); }
+      100% { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); }
+    }
+    @keyframes letterShimmer {
+      0%, 100% { background-position: 0% 0%; }
+      50%      { background-position: 0% 100%; }
+    }
+    @keyframes glowIn {
+      from { opacity: 0; transform: translate(-50%, -50%) scale(0.6); }
+      to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    }
+    @keyframes glowPulse {
+      0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.85; }
+      50%      { transform: translate(-50%, -50%) scale(1.12); opacity: 1; }
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); opacity: 0.5; }
+      50% { transform: translateY(-8px); opacity: 1; }
+    }
+    @keyframes drift1 {
+      0%, 100% { transform: translate(0, 0); }
+      50% { transform: translate(20px, 30px); }
+    }
+    @keyframes drift2 {
+      0%, 100% { transform: translate(0, 0); }
+      50% { transform: translate(-30px, 20px); }
+    }
+    @keyframes drift3 {
+      0%, 100% { transform: translate(0, 0); }
+      50% { transform: translate(15px, -25px); }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+  <script type="text/babel" src="tweaks-panel.jsx"></script>
+  <script type="text/babel" src="ios-frame.jsx"></script>
+  <script type="text/babel" src="splash.jsx"></script>
+
+  <script type="text/babel">
+    const { useState } = React;
+    function App() {
+      return (
+        <div style={{
+          minHeight: '100vh',
+          background: '#0e1020',
+          display: 'grid', placeItems: 'center',
+          padding: '20px',
+        }}>
+          <window.IOSDevice>
+            <window.Splash />
+          </window.IOSDevice>
+        </div>
+      );
+    }
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>

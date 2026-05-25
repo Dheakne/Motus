@@ -1,8 +1,7 @@
 // Drawer lateral do menu de navegação do app Motus
 // Desliza da direita para a esquerda com fundo escurecido
 
-import { LinearGradient } from "expo-linear-gradient";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Animated,
   Dimensions,
@@ -13,15 +12,10 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import { supabase } from "../services/supabase";
 import {
-  BellIcon,
-  ChallengesIcon,
   ChevronRightIcon,
-  CloseIcon,
-  EditIcon,
   FlagIcon,
-  HomeIcon,
-  LockIcon,
   LogoutIcon,
   UserIcon,
 } from "./Icons";
@@ -38,6 +32,15 @@ export default function DrawerMenu({
 }) {
   const slideAnim = useRef(new Animated.Value(DRAWER_WIDTH)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  const [email, setEmail] = useState("");
+
+  useEffect(() => {
+    let cancelled = false;
+    supabase.auth.getUser().then(({ data }) => {
+      if (!cancelled) setEmail(data?.user?.email || "");
+    });
+    return () => { cancelled = true; };
+  }, []);
 
   useEffect(() => {
     if (visible) {
@@ -77,133 +80,77 @@ export default function DrawerMenu({
 
   if (!visible && slideAnim._value >= DRAWER_WIDTH) return null;
 
+  const displayName = profile?.full_name || profile?.display_name || "Usuário";
+
   return (
     <View style={styles.overlay} pointerEvents={visible ? "auto" : "none"}>
-      {/* Fundo escurecido — toque fecha o drawer */}
       <TouchableWithoutFeedback onPress={onClose}>
         <Animated.View style={[styles.backdrop, { opacity: fadeAnim }]} />
       </TouchableWithoutFeedback>
 
-      {/* Painel do drawer */}
       <Animated.View
         style={[
           styles.drawer,
           { transform: [{ translateX: slideAnim }] },
         ]}
       >
-        {/* Header com gradiente */}
-        <LinearGradient
-          colors={["#13E698", "#74B8DE"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.drawerHeader}
-        >
-          {/* Botão fechar */}
-          <TouchableOpacity style={styles.closeBtn} onPress={onClose}>
-            <CloseIcon size={22} color="#FFFFFF" />
-          </TouchableOpacity>
-
-          {/* Avatar e nome */}
-          <View style={styles.profileArea}>
-            {profile?.avatar_url ? (
-              <Image
-                source={{ uri: profile.avatar_url }}
-                style={styles.avatar}
-              />
-            ) : (
-              <View style={styles.avatarPlaceholder}>
-                <Text style={styles.avatarLetter}>
-                  {profile?.display_name?.charAt(0).toUpperCase() || "U"}
-                </Text>
-              </View>
-            )}
-            <Text style={styles.drawerName}>
-              {profile?.display_name || "Usuário"}
+        <View style={styles.userSection}>
+          {profile?.avatar_url ? (
+            <Image
+              source={{ uri: profile.avatar_url }}
+              style={styles.avatar}
+            />
+          ) : (
+            <View style={styles.avatarPlaceholder}>
+              <UserIcon size={32} color="#8c8e94" />
+            </View>
+          )}
+          <Text style={styles.userName} numberOfLines={1}>
+            {displayName}
+          </Text>
+          {email ? (
+            <Text style={styles.userEmail} numberOfLines={1}>
+              {email}
             </Text>
-            <Text style={styles.drawerHandle}>
-              @
-              {profile?.display_name?.toLowerCase().replace(/\s/g, "") ||
-                "usuario"}
-            </Text>
-          </View>
-        </LinearGradient>
+          ) : null}
+        </View>
 
-        {/* Lista de itens */}
         <View style={styles.menuList}>
-          <Text style={styles.menuSection}>Navegação</Text>
-
           <DrawerItem
-            icon={<HomeIcon size={20} color="#1066E7" />}
-            label="Início"
-            onPress={() => navigate("Home")}
-          />
-          <DrawerItem
-            icon={<ChallengesIcon size={20} color="#1066E7" />}
-            label="Desafios"
-            onPress={() => navigate("Challenges")}
-          />
-          <DrawerItem
-            icon={<UserIcon size={20} color="#1066E7" />}
-            label="Perfil"
-            onPress={() => navigate("Profile")}
-          />
-
-          <View style={styles.divider} />
-          <Text style={styles.menuSection}>Conta</Text>
-
-          <DrawerItem
-            icon={<EditIcon size={20} color="#1066E7" />}
-            label="Editar Perfil"
+            icon={<UserIcon size={20} color="#535353" />}
+            label="Editar perfil"
             onPress={() => navigate("EditProfile")}
           />
-          <DrawerItem
-            icon={<BellIcon size={20} color="#1066E7" />}
-            label="Notificações"
-            onPress={() => {}}
-          />
-          <DrawerItem
-            icon={<LockIcon size={20} color="#1066E7" />}
-            label="Privacidade"
-            onPress={() => {}}
-          />
-          <DrawerItem
-            icon={<FlagIcon size={20} color="#1066E7" />}
-            label="Reportar problema"
-            onPress={() => {}}
-          />
-
           <View style={styles.divider} />
-
           <DrawerItem
-            icon={<LogoutIcon size={20} color="#FF4444" />}
-            label="Sair"
-            labelColor="#FF4444"
-            onPress={() => {
-              onClose();
-              setTimeout(() => onLogout(), 180);
-            }}
+            icon={<FlagIcon size={20} color="#535353" />}
+            label="Reportar um problema"
+            onPress={() => navigate("ReportProblem")}
           />
         </View>
 
-        {/* Rodapé */}
-        <View style={styles.drawerFooter}>
-          <Text style={styles.footerText}>Motus • v1.0.0</Text>
-        </View>
+        <TouchableOpacity
+          style={styles.logoutItem}
+          onPress={() => {
+            onClose();
+            setTimeout(() => onLogout(), 180);
+          }}
+        >
+          <View style={styles.logoutIcon}>
+            <LogoutIcon size={20} color="#FF4444" />
+          </View>
+          <Text style={styles.logoutLabel}>Sair</Text>
+        </TouchableOpacity>
       </Animated.View>
     </View>
   );
 }
 
-// ──────────────────────────────────────────────
-// Sub-componente: item individual do drawer
-// ──────────────────────────────────────────────
-function DrawerItem({ icon, label, onPress, labelColor = "#3F414E" }) {
+function DrawerItem({ icon, label, onPress }) {
   return (
     <TouchableOpacity style={styles.drawerItem} onPress={onPress}>
       <View style={styles.drawerItemIcon}>{icon}</View>
-      <Text style={[styles.drawerItemLabel, { color: labelColor }]}>
-        {label}
-      </Text>
+      <Text style={styles.drawerItemLabel}>{label}</Text>
       <ChevronRightIcon size={16} color="#BCBCBC" />
     </TouchableOpacity>
   );
@@ -239,82 +186,56 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 20,
   },
-  drawerHeader: {
-    paddingTop: 50,
-    paddingBottom: 28,
-    paddingHorizontal: 20,
-  },
-  closeBtn: {
-    alignSelf: "flex-end",
-    padding: 4,
-    marginBottom: 16,
-  },
-  profileArea: {
+  userSection: {
     alignItems: "center",
+    paddingTop: 64,
+    paddingBottom: 28,
+    paddingHorizontal: 24,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F0F1F5",
   },
   avatar: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    borderWidth: 3,
-    borderColor: "rgba(255,255,255,0.7)",
-    marginBottom: 12,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    marginBottom: 14,
   },
   avatarPlaceholder: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: "rgba(255,255,255,0.3)",
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: "#F0F1F5",
     alignItems: "center",
     justifyContent: "center",
-    borderWidth: 3,
-    borderColor: "rgba(255,255,255,0.6)",
-    marginBottom: 12,
+    marginBottom: 14,
   },
-  avatarLetter: {
-    fontSize: 30,
+  userName: {
+    fontSize: 18,
     fontFamily: "Whyte-Bold",
-    color: "#FFFFFF",
-  },
-  drawerName: {
-    fontSize: 20,
-    fontFamily: "Whyte-Bold",
-    color: "#FFFFFF",
+    color: "#1C1C1E",
     marginBottom: 4,
   },
-  drawerHandle: {
+  userEmail: {
     fontSize: 13,
     fontFamily: "Whyte-Regular",
-    color: "rgba(255,255,255,0.8)",
+    color: "#8E8E93",
   },
   menuList: {
     flex: 1,
     paddingHorizontal: 16,
     paddingTop: 20,
   },
-  menuSection: {
-    fontSize: 11,
-    fontFamily: "Whyte-Medium",
-    color: "#A1A4B2",
-    textTransform: "uppercase",
-    letterSpacing: 1,
-    marginBottom: 8,
-    marginLeft: 8,
-    marginTop: 4,
-  },
   drawerItem: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 13,
+    paddingVertical: 18,
     paddingHorizontal: 12,
-    borderRadius: 12,
-    marginBottom: 2,
   },
   drawerItemIcon: {
     width: 36,
     height: 36,
     borderRadius: 10,
-    backgroundColor: "#EEF3FF",
+    backgroundColor: "#F0F1F5",
     alignItems: "center",
     justifyContent: "center",
     marginRight: 14,
@@ -323,23 +244,33 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 15,
     fontFamily: "Whyte-Medium",
-    color: "#3F414E",
+    color: "#1C1C1E",
   },
   divider: {
     height: 1,
     backgroundColor: "#F0F1F5",
-    marginVertical: 10,
-    marginHorizontal: 8,
+    marginHorizontal: 12,
   },
-  drawerFooter: {
-    paddingHorizontal: 24,
-    paddingBottom: 36,
-    paddingTop: 12,
+  logoutItem: {
+    flexDirection: "row",
     alignItems: "center",
+    paddingVertical: 20,
+    paddingHorizontal: 28,
+    borderTopWidth: 1,
+    borderTopColor: "#F0F1F5",
   },
-  footerText: {
-    fontSize: 12,
-    fontFamily: "Whyte-Regular",
-    color: "#BCBCBC",
+  logoutIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: "#FFE5E5",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 14,
+  },
+  logoutLabel: {
+    fontSize: 15,
+    fontFamily: "Whyte-Medium",
+    color: "#FF4444",
   },
 });

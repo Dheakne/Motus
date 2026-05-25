@@ -11,33 +11,43 @@ import {
 } from "react-native";
 import { supabase } from "../services/supabase";
 
-export default function ForgotPasswordScreen({ navigation }) {
-  const [email, setEmail] = useState("");
+export default function ResetPasswordScreen({ navigation }) {
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
 
-  async function handleSubmit() {
+  async function handleSave() {
     setSuccessMsg(null);
     setErrorMsg(null);
 
-    if (!email.trim()) {
-      setErrorMsg("Informe seu email.");
+    if (!password || !confirmPassword) {
+      setErrorMsg("Preencha os dois campos.");
+      return;
+    }
+    if (password !== confirmPassword) {
+      setErrorMsg("As senhas não coincidem.");
       return;
     }
 
     setLoading(true);
-    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-      redirectTo: "http://localhost:8081",
-    });
-    setLoading(false);
-
+    const { error } = await supabase.auth.updateUser({ password });
     if (error) {
-      setErrorMsg(error.message || "Não foi possível enviar o email.");
-    } else {
-      setSuccessMsg("Email enviado! Verifique sua caixa de entrada.");
-      setEmail("");
+      setLoading(false);
+      setErrorMsg(error.message || "Não foi possível atualizar a senha.");
+      return;
     }
+
+    await supabase.auth.signOut();
+    setLoading(false);
+    setSuccessMsg("Senha alterada com sucesso! Faça login.");
+
+    setTimeout(() => {
+      navigation.reset({ index: 0, routes: [{ name: "Login" }] });
+    }, 1500);
   }
 
   return (
@@ -48,34 +58,52 @@ export default function ForgotPasswordScreen({ navigation }) {
         end={{ x: 0, y: 1 }}
         style={styles.gradient}
       >
-        <Text style={styles.headerTitle}>Recuperar senha</Text>
+        <Text style={styles.headerTitle}>Nova senha</Text>
       </LinearGradient>
 
       <View style={styles.card}>
-        <TouchableOpacity
-          style={styles.backLink}
-          onPress={() => navigation.goBack()}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.backText}>{"< Login"}</Text>
-        </TouchableOpacity>
-
         <Text style={styles.instruction}>
-          Informe seu email para receber o link de recuperação
+          Defina uma nova senha para sua conta
         </Text>
 
-        <Text style={styles.label}>Email</Text>
+        <Text style={styles.label}>Nova senha</Text>
         <View style={styles.inputWrapper}>
-          <Text style={styles.inputIcon}>👤</Text>
+          <Text style={styles.inputIcon}>🔒</Text>
           <TextInput
             style={styles.input}
-            placeholder="seuemail@gmail.com"
+            placeholder="••••••••"
             placeholderTextColor="#A1A4B2"
-            value={email}
-            onChangeText={setEmail}
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry={!showPassword}
             autoCapitalize="none"
-            keyboardType="email-address"
           />
+          <TouchableOpacity
+            style={styles.eyeButton}
+            onPress={() => setShowPassword(!showPassword)}
+          >
+            <Text style={styles.eyeIcon}>{showPassword ? "👁️" : "👁️‍🗨️"}</Text>
+          </TouchableOpacity>
+        </View>
+
+        <Text style={styles.label}>Confirmar nova senha</Text>
+        <View style={styles.inputWrapper}>
+          <Text style={styles.inputIcon}>🔒</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="••••••••"
+            placeholderTextColor="#A1A4B2"
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+            secureTextEntry={!showConfirm}
+            autoCapitalize="none"
+          />
+          <TouchableOpacity
+            style={styles.eyeButton}
+            onPress={() => setShowConfirm(!showConfirm)}
+          >
+            <Text style={styles.eyeIcon}>{showConfirm ? "👁️" : "👁️‍🗨️"}</Text>
+          </TouchableOpacity>
         </View>
 
         {successMsg ? (
@@ -85,14 +113,14 @@ export default function ForgotPasswordScreen({ navigation }) {
 
         <TouchableOpacity
           style={styles.submitButton}
-          onPress={handleSubmit}
+          onPress={handleSave}
           disabled={loading}
           activeOpacity={0.85}
         >
           {loading ? (
             <ActivityIndicator color="#FFFFFF" />
           ) : (
-            <Text style={styles.submitButtonText}>Enviar</Text>
+            <Text style={styles.submitButtonText}>Salvar</Text>
           )}
         </TouchableOpacity>
       </View>
@@ -123,25 +151,14 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 30,
     marginTop: -30,
     paddingHorizontal: 32,
-    paddingTop: 24,
+    paddingTop: 32,
     paddingBottom: 24,
-  },
-  backLink: {
-    alignSelf: "flex-start",
-    paddingVertical: 8,
-    paddingRight: 12,
-  },
-  backText: {
-    fontFamily: "Whyte-Medium",
-    fontSize: 14,
-    color: "#1066E7",
   },
   instruction: {
     fontSize: 14,
     fontFamily: "Whyte-Regular",
     color: "#6E6E73",
     textAlign: "center",
-    marginTop: 12,
     marginBottom: 28,
     lineHeight: 20,
   },
@@ -150,7 +167,7 @@ const styles = StyleSheet.create({
     fontFamily: "Whyte-Regular",
     color: "#1C1C1E",
     marginBottom: 6,
-    marginTop: 4,
+    marginTop: 14,
   },
   inputWrapper: {
     flexDirection: "row",
@@ -171,6 +188,12 @@ const styles = StyleSheet.create({
     fontFamily: "Whyte-Regular",
     color: "#1C1C1E",
     padding: 0,
+  },
+  eyeButton: {
+    padding: 8,
+  },
+  eyeIcon: {
+    fontSize: 16,
   },
   successMsg: {
     fontSize: 13,
