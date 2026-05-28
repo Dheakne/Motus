@@ -28,7 +28,7 @@ export default function ForgotPasswordScreen({ navigation }) {
 
     setLoading(true);
     const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-      redirectTo: "http://localhost:8081",
+      redirectTo: "http://localhost:8081/ResetPassword",
     });
     setLoading(false);
 

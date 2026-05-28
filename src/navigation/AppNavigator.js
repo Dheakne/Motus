@@ -3,7 +3,7 @@
 import { useNavigation } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { useFonts } from "expo-font";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 
 // Importação de todas as telas do app
 import AudioPlayerScreen from "../screens/AudioPlayerScreen";
@@ -31,16 +31,16 @@ const Stack = createNativeStackNavigator();
 // redirect automático).
 export const recoveryState = { active: false };
 
+const hasRecoveryHash = typeof window !== 'undefined' &&
+  window.__motusIsRecovery === true;
+
 // Escuta eventos de auth do Supabase. Quando o usuário clica no link de
 // recuperação de senha, dispara PASSWORD_RECOVERY e redirecionamos para ResetPassword.
 function AuthListener() {
   const navigation = useNavigation();
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "PASSWORD_RECOVERY") {
-        recoveryState.active = true;
-        navigation.navigate("ResetPassword");
-      }
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
+      // PASSWORD_RECOVERY agora é tratado no SplashScreen
     });
     return () => subscription.unsubscribe();
   }, [navigation]);
@@ -62,7 +62,7 @@ export default function AppNavigator() {
   return (
     // Stack.Navigator define as opções globais e a tela inicial
     <Stack.Navigator
-      initialRouteName={skipAuth ? 'Home' : 'Splash'}
+      initialRouteName={hasRecoveryHash ? 'ResetPassword' : (skipAuth ? 'Home' : 'Splash')}
       screenOptions={{ headerShown: false }} // Remove a barra de título em todas as telas
       screenLayout={({ children }) => (
         <>
