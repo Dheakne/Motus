@@ -1,5 +1,6 @@
 // Tela de login. Usa o Supabase Auth para autenticar via e-mail/senha.
 
+import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useState } from "react";
 import {
@@ -19,7 +20,6 @@ export default function LoginScreen({ navigation }) {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
 
   async function handleLogin() {
     if (!email || !password) {
@@ -64,7 +64,7 @@ export default function LoginScreen({ navigation }) {
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Email</Text>
           <View style={styles.inputContainer}>
-            <Text style={styles.inputIcon}>👤</Text>
+            <Ionicons name="person-outline" size={16} color="#9CA3AF" />
             <TextInput
               style={styles.input}
               placeholder="seuemail@gmail.com"
@@ -81,7 +81,7 @@ export default function LoginScreen({ navigation }) {
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Senha</Text>
           <View style={styles.inputContainer}>
-            <Text style={styles.inputIcon}>🔒</Text>
+            <Ionicons name="lock-closed-outline" size={16} color="#9CA3AF" />
             <TextInput
               style={styles.input}
               placeholder="••••••••"
@@ -99,24 +99,13 @@ export default function LoginScreen({ navigation }) {
           </View>
         </View>
 
-        {/* Lembrar de mim e Esqueceu senha */}
-        <View style={styles.optionsRow}>
-          <TouchableOpacity
-            style={styles.rememberMe}
-            onPress={() => setRememberMe(!rememberMe)}
-          >
-            <View style={styles.checkbox}>
-              {rememberMe && <View style={styles.checkboxFilled} />}
-            </View>
-            <Text style={styles.rememberMeText}>Lembrar de mim</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={() => navigation.navigate("ForgotPassword")}
-          >
-            <Text style={styles.forgotPassword}>Esqueceu sua senha?</Text>
-          </TouchableOpacity>
-        </View>
+        {/* Esqueceu senha */}
+        <TouchableOpacity
+          style={styles.forgotPasswordContainer}
+          onPress={() => navigation.navigate("ForgotPassword")}
+        >
+          <Text style={styles.forgotPassword}>Esqueceu sua senha?</Text>
+        </TouchableOpacity>
 
         {/* Divisor */}
         <View style={styles.divider}>
@@ -207,10 +196,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 16,
   },
-  inputIcon: {
-    fontSize: 16,
-    marginRight: 10,
-  },
   input: {
     flex: 1,
     paddingVertical: 14,
@@ -224,37 +209,10 @@ const styles = StyleSheet.create({
   eyeIcon: {
     fontSize: 16,
   },
-  optionsRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+  forgotPasswordContainer: {
+    alignItems: "flex-end",
     marginBottom: 32,
     marginTop: 8,
-  },
-  rememberMe: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  checkbox: {
-    width: 18,
-    height: 18,
-    borderRadius: 4,
-    borderWidth: 2,
-    borderColor: "#D1D1D6",
-    marginRight: 8,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  checkboxFilled: {
-    width: 10,
-    height: 10,
-    borderRadius: 2,
-    backgroundColor: "#1066E7",
-  },
-  rememberMeText: {
-    fontSize: 13,
-    fontFamily: "Whyte-Regular",
-    color: "#1C1C1E",
   },
   forgotPassword: {
     fontSize: 13,

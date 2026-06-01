@@ -33,17 +33,23 @@ export default function DrawerMenu({
   const slideAnim = useRef(new Animated.Value(DRAWER_WIDTH)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const [email, setEmail] = useState("");
+  const [shouldRender, setShouldRender] = useState(visible);
 
   useEffect(() => {
     let cancelled = false;
-    supabase.auth.getUser().then(({ data }) => {
-      if (!cancelled) setEmail(data?.user?.email || "");
-    });
+    supabase.auth.getUser()
+      .then(({ data }) => {
+        if (!cancelled) setEmail(data?.user?.email || "");
+      })
+      .catch(() => {
+        if (!cancelled) setEmail("");
+      });
     return () => { cancelled = true; };
   }, []);
 
   useEffect(() => {
     if (visible) {
+      setShouldRender(true);
       Animated.parallel([
         Animated.spring(slideAnim, {
           toValue: 0,
@@ -69,7 +75,7 @@ export default function DrawerMenu({
           duration: 200,
           useNativeDriver: true,
         }),
-      ]).start();
+      ]).start(() => setShouldRender(false));
     }
   }, [visible]);
 
@@ -78,7 +84,7 @@ export default function DrawerMenu({
     setTimeout(() => navigation.navigate(screen), 180);
   }
 
-  if (!visible && slideAnim._value >= DRAWER_WIDTH) return null;
+  if (!shouldRender) return null;
 
   const displayName = profile?.full_name || profile?.display_name || "Usuário";
 

@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import { BackIcon, EyeIcon, EyeOffIcon } from "../components/Icons";
 import { supabase } from "../services/supabase";
+import { convertToSQLDate } from "../utils/dateFormat";
 
 // Aplica máscara DD/MM/AAAA enquanto o usuário digita
 function formatBirthDate(value) {
@@ -21,24 +22,6 @@ function formatBirthDate(value) {
   if (digits.length <= 2) return digits;
   if (digits.length <= 4) return `${digits.slice(0, 2)}/${digits.slice(2)}`;
   return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
-}
-
-// Função para converter data DD/MM/YYYY para YYYY-MM-DD
-function convertToSQLDate(dateString) {
-  if (!dateString || dateString.length < 8) return null;
-
-  // Remove caracteres especiais
-  const cleaned = dateString.replace(/\D/g, "");
-
-  // Espera formato DDMMYYYY
-  if (cleaned.length === 8) {
-    const day = cleaned.substring(0, 2);
-    const month = cleaned.substring(2, 4);
-    const year = cleaned.substring(4, 8);
-    return `${year}-${month}-${day}`; // Formato SQL
-  }
-
-  return null;
 }
 
 export default function SignUpScreen({ navigation }) {
@@ -51,6 +34,8 @@ export default function SignUpScreen({ navigation }) {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [acceptedHealth, setAcceptedHealth] = useState(false);
 
   //Função de CADASTRO
   async function handleSignUp() {
@@ -88,6 +73,9 @@ export default function SignUpScreen({ navigation }) {
             level: 1, // Nível inicial
             total_points: 0, // Pontuação inicial
             has_seen_tutus: false, // Flag de tutorial (tutus é o mascote do app)
+            consent_terms: true,
+            consent_health_data: true,
+            consented_at: new Date().toISOString(),
           },
         ]);
 
@@ -108,8 +96,6 @@ export default function SignUpScreen({ navigation }) {
           }),
       },
     ]);
-
-    navigation.replace("Home");
   }
 
   return (
@@ -222,10 +208,71 @@ export default function SignUpScreen({ navigation }) {
             </TouchableOpacity>
           </View>
 
+          <View style={styles.checkboxGroup}>
+            <TouchableOpacity
+              style={styles.checkboxRow}
+              onPress={() => setAcceptedTerms((v) => !v)}
+              activeOpacity={0.8}
+            >
+              <View
+                style={[
+                  styles.checkbox,
+                  acceptedTerms && styles.checkboxChecked,
+                ]}
+              >
+                {acceptedTerms && (
+                  <Text style={styles.checkmark}>✓</Text>
+                )}
+              </View>
+              <Text style={styles.checkboxLabel}>
+                Li e aceito os{" "}
+                <Text
+                  style={styles.link}
+                  onPress={() => navigation.navigate("Terms")}
+                >
+                  Termos de Uso
+                </Text>
+                {" "}e a{" "}
+                <Text
+                  style={styles.link}
+                  onPress={() => navigation.navigate("Privacy")}
+                >
+                  Política de Privacidade
+                </Text>
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.checkboxRow}
+              onPress={() => setAcceptedHealth((v) => !v)}
+              activeOpacity={0.8}
+            >
+              <View
+                style={[
+                  styles.checkbox,
+                  acceptedHealth && styles.checkboxChecked,
+                ]}
+              >
+                {acceptedHealth && (
+                  <Text style={styles.checkmark}>✓</Text>
+                )}
+              </View>
+              <Text style={styles.checkboxLabel}>
+                Consinto com o tratamento dos meus dados relacionados a saúde
+                mental, conforme descrito na Política de Privacidade (art. 11
+                LGPD)
+              </Text>
+            </TouchableOpacity>
+          </View>
+
           <TouchableOpacity
-            style={[styles.registerButton, loading && styles.registerButtonDisabled]}
+            style={[
+              styles.registerButton,
+              (loading || !acceptedTerms || !acceptedHealth) &&
+                styles.registerButtonDisabled,
+            ]}
             onPress={handleSignUp}
-            disabled={loading}
+            disabled={loading || !acceptedTerms || !acceptedHealth}
             activeOpacity={0.85}
           >
             <Text style={styles.registerButtonText}>
@@ -328,5 +375,45 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: "Whyte-Bold",
     fontWeight: "700",
+  },
+  checkboxGroup: {
+    marginTop: 20,
+    marginBottom: 8,
+    gap: 14,
+  },
+  checkboxRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 12,
+  },
+  checkbox: {
+    width: 22,
+    height: 22,
+    borderRadius: 6,
+    borderWidth: 2,
+    borderColor: "#A1A4B2",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 1,
+  },
+  checkboxChecked: {
+    backgroundColor: "#1066E7",
+    borderColor: "#1066E7",
+  },
+  checkmark: {
+    color: "#FFFFFF",
+    fontSize: 13,
+    fontWeight: "700",
+  },
+  checkboxLabel: {
+    flex: 1,
+    fontSize: 13,
+    fontFamily: "Whyte-Regular",
+    color: "#1C1C1E",
+    lineHeight: 20,
+  },
+  link: {
+    color: "#1066E7",
+    fontFamily: "Whyte-Medium",
   },
 });

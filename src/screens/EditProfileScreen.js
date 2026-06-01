@@ -7,6 +7,7 @@ import {
   Alert,
   SafeAreaView,
   ScrollView,
+  Share,
   StyleSheet,
   Text,
   TextInput,
@@ -14,10 +15,14 @@ import {
   View,
 } from "react-native";
 import { supabase } from "../services/supabase";
+import { convertToSQLDate } from "../utils/dateFormat";
 
 export default function EditProfileScreen({ navigation }) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [exporting, setExporting] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const [userId, setUserId] = useState(null);
   const [username, setUsername] = useState("");
@@ -62,7 +67,7 @@ export default function EditProfileScreen({ navigation }) {
           );
         }
       }
-    } catch (error) {
+    } catch (_error) {
       Alert.alert("Erro", "Não foi possível carregar seus dados");
     } finally {
       setLoading(false);
@@ -81,15 +86,6 @@ export default function EditProfileScreen({ navigation }) {
     if (digits.length <= 2) return digits;
     if (digits.length <= 4) return `${digits.slice(0, 2)}/${digits.slice(2)}`;
     return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
-  }
-
-  function convertToSQLDate(dateString) {
-    if (!dateString || dateString.length < 8) return null;
-    const cleaned = dateString.replace(/\D/g, "");
-    if (cleaned.length === 8) {
-      return `${cleaned.substring(4, 8)}-${cleaned.substring(2, 4)}-${cleaned.substring(0, 2)}`;
-    }
-    return null;
   }
 
   function isValidBirthDate(dateString) {
@@ -145,10 +141,55 @@ export default function EditProfileScreen({ navigation }) {
 
       setSuccessMessage("Perfil atualizado com sucesso!");
       setTimeout(() => setSuccessMessage(""), 3000);
-    } catch (error) {
+    } catch (_error) {
       Alert.alert("Erro", "Não foi possível salvar as alterações");
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleExportData() {
+    setExporting(true);
+    try {
+      const { data, error } = await supabase.rpc("export_user_data", {
+        target_user_id: userId,
+      });
+      if (error) throw error;
+
+      const formatted = JSON.stringify(data, null, 2);
+      await Share.share({
+        message: `Meus dados Motus:\n\n${formatted}`,
+        title: "Exportar meus dados",
+      });
+    } catch (error) {
+      Alert.alert("Erro", "Não foi possível exportar seus dados.");
+      console.error("Export error:", error);
+    } finally {
+      setExporting(false);
+    }
+  }
+
+  async function handleDeleteAccount() {
+    setDeleting(true);
+    try {
+      const { error } = await supabase.rpc("delete_user_account", {
+        target_user_id: userId,
+      });
+      if (error) throw error;
+
+      await supabase.auth.signOut();
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "Login" }],
+      });
+    } catch (error) {
+      Alert.alert(
+        "Erro",
+        "Não foi possível excluir a conta. Tente novamente."
+      );
+      console.error("Delete error:", error);
+      setDeleting(false);
+      setShowDeleteConfirm(false);
     }
   }
 
@@ -299,6 +340,52 @@ export default function EditProfileScreen({ navigation }) {
             </View>
           ) : null}
 
+          <TouchableOpacity
+            style={styles.exportButton}
+            onPress={handleExportData}
+            disabled={exporting}
+          >
+            {exporting ? (
+              <ActivityIndicator color="#1066E7" size="small" />
+            ) : (
+              <Text style={styles.exportButtonText}>Exportar meus dados</Text>
+            )}
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.deleteButton}
+            onPress={() => setShowDeleteConfirm(true)}
+          >
+            <Text style={styles.deleteButtonText}>Excluir minha conta</Text>
+          </TouchableOpacity>
+
+          {showDeleteConfirm && (
+            <View style={styles.deleteConfirmBox}>
+              <Text style={styles.deleteConfirmText}>
+                Tem certeza? Todos os seus dados serão permanentemente excluídos. Esta ação não pode ser desfeita.
+              </Text>
+              <View style={styles.deleteConfirmButtons}>
+                <TouchableOpacity
+                  style={styles.cancelButton}
+                  onPress={() => setShowDeleteConfirm(false)}
+                >
+                  <Text style={styles.cancelButtonText}>Cancelar</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.confirmDeleteButton}
+                  onPress={handleDeleteAccount}
+                  disabled={deleting}
+                >
+                  {deleting ? (
+                    <ActivityIndicator color="#fff" size="small" />
+                  ) : (
+                    <Text style={styles.confirmDeleteText}>Excluir permanentemente</Text>
+                  )}
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+
           <View style={{ height: 40 }} />
         </ScrollView>
       </View>
@@ -437,5 +524,76 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontFamily: "Whyte-Medium",
     color: "#13A05E",
+  },
+  exportButton: {
+    borderRadius: 28,
+    paddingVertical: 16,
+    alignItems: "center",
+    marginTop: 24,
+    borderWidth: 1.5,
+    borderColor: "#1066E7",
+  },
+  exportButtonText: {
+    color: "#1066E7",
+    fontSize: 16,
+    fontFamily: "Whyte-Medium",
+    fontWeight: "600",
+  },
+  deleteButton: {
+    borderRadius: 28,
+    paddingVertical: 16,
+    alignItems: "center",
+    marginTop: 12,
+    borderWidth: 1.5,
+    borderColor: "#FF3B30",
+  },
+  deleteButtonText: {
+    color: "#FF3B30",
+    fontSize: 16,
+    fontFamily: "Whyte-Medium",
+    fontWeight: "600",
+  },
+  deleteConfirmBox: {
+    backgroundColor: "#FFF5F5",
+    borderRadius: 16,
+    padding: 18,
+    marginTop: 16,
+    borderWidth: 1,
+    borderColor: "#FFCDD2",
+  },
+  deleteConfirmText: {
+    fontSize: 14,
+    fontFamily: "Whyte-Regular",
+    color: "#1C1C1E",
+    lineHeight: 22,
+    marginBottom: 16,
+  },
+  deleteConfirmButtons: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  cancelButton: {
+    flex: 1,
+    borderRadius: 22,
+    paddingVertical: 12,
+    alignItems: "center",
+    backgroundColor: "#E5E5EA",
+  },
+  cancelButtonText: {
+    color: "#1C1C1E",
+    fontSize: 14,
+    fontFamily: "Whyte-Medium",
+  },
+  confirmDeleteButton: {
+    flex: 1,
+    borderRadius: 22,
+    paddingVertical: 12,
+    alignItems: "center",
+    backgroundColor: "#FF3B30",
+  },
+  confirmDeleteText: {
+    color: "#FFFFFF",
+    fontSize: 14,
+    fontFamily: "Whyte-Medium",
   },
 });

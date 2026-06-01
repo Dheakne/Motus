@@ -5,7 +5,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import Slider from "@react-native-community/slider";
 import { Audio } from "expo-av";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -21,6 +21,7 @@ import { supabase } from "../services/supabase";
 export default function AudioPlayerScreen({ route, navigation }) {
   const { session, categoryTitle } = route.params;
 
+  const soundRef = useRef(null);
   const [sound, setSound] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -32,8 +33,9 @@ export default function AudioPlayerScreen({ route, navigation }) {
     setupAudio();
 
     return () => {
-      if (sound) {
-        sound.unloadAsync();
+      if (soundRef.current) {
+        soundRef.current.unloadAsync();
+        soundRef.current = null;
       }
     };
   }, []);
@@ -62,14 +64,13 @@ export default function AudioPlayerScreen({ route, navigation }) {
         return;
       }
 
-      console.log("Carregando áudio de:", session.audio_url);
-
       const { sound: newSound } = await Audio.Sound.createAsync(
         { uri: session.audio_url },
         { shouldPlay: true, volume },
         onPlaybackStatusUpdate,
       );
 
+      soundRef.current = newSound;
       setSound(newSound);
       setIsPlaying(true);
       setIsLoading(false);

@@ -28,7 +28,7 @@ export default function ForgotPasswordScreen({ navigation }) {
 
     setLoading(true);
     const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-      redirectTo: "http://localhost:8081/ResetPassword",
+      redirectTo: `${process.env.EXPO_PUBLIC_APP_URL || 'exp://127.0.0.1:8081'}/--/ResetPassword`,
     });
     setLoading(false);
 

@@ -259,7 +259,8 @@ function Floater({
   // Pop-in
   const pop = useRef(new Animated.Value(0)).current;
   // Continuous float
-  const bob = useLoop(4500 + Math.random() * 1500);
+  const bobDurationRef = useRef(4500 + Math.random() * 1500);
+  const bob = useLoop(bobDurationRef.current);
 
   useEffect(() => {
     Animated.timing(pop, {

@@ -4,5 +4,4 @@
 if (typeof window !== 'undefined' &&
     window.location.hash.includes('type=recovery')) {
   window.__motusIsRecovery = true;
-  console.log('[RECOVERY DETECT] Flag setada: type=recovery encontrado');
 }

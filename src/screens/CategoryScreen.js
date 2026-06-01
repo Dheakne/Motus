@@ -10,7 +10,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { BackIcon } from "../components/Icons";
 import { supabase } from "../services/supabase";
 
 export default function CategoryScreen({ route, navigation }) {
@@ -33,6 +32,12 @@ export default function CategoryScreen({ route, navigation }) {
       };
 
       const categoryValue = categoryMap[categoryTitle];
+
+      if (!categoryValue) {
+        console.error("Categoria inválida:", categoryTitle);
+        setLoading(false);
+        return;
+      }
 
       const { data } = await supabase
         .from("sessions")
@@ -67,12 +72,7 @@ export default function CategoryScreen({ route, navigation }) {
         style={styles.gradient}
       >
         <View style={styles.headerRow}>
-          <TouchableOpacity
-            onPress={() => navigation.goBack()}
-            style={styles.backButton}
-          >
-            <BackIcon size={24} color="#FFFFFF" />
-          </TouchableOpacity>
+          <View style={styles.backButton} />
           <Text style={styles.headerTitle}>{categoryTitle}</Text>
           <View style={styles.backButton} />
         </View>

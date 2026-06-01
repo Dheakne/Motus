@@ -3,6 +3,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -12,8 +13,7 @@ import {
 } from "react-native";
 import { BackIcon } from "../components/Icons";
 import { supabase } from "../services/supabase";
-
-const DAY_COLUMNS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+import { DAY_COLUMNS } from '../utils/dayColumns';
 
 function getWeekStart() {
   const today = new Date();
@@ -82,6 +82,7 @@ export default function ExerciseListScreen({ navigation }) {
   const [streak, setStreak] = useState(0);
   const [loading, setLoading] = useState(true);
   const [showFreemium, setShowFreemium] = useState(false);
+  const [alreadyChosenId, setAlreadyChosenId] = useState(null);
 
   useEffect(() => {
     load();
@@ -125,7 +126,7 @@ export default function ExerciseListScreen({ navigation }) {
     }
   }
 
-  async function handleExercisePress(exercise) {
+  async function checkAndChooseExercise(exercise) {
     if (!exercise.is_free) {
       setShowFreemium(true);
       return;
@@ -136,9 +137,21 @@ export default function ExerciseListScreen({ navigation }) {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
+      const { data: existing } = await supabase
+        .from("user_challenge_progress")
+        .select("challenge_id")
+        .eq("user_id", user.id)
+        .eq("week_start", weekStart)
+        .maybeSingle();
+
+      if (existing) {
+        setAlreadyChosenId(existing.challenge_id);
+        return;
+      }
+
       const { error: insertErr } = await supabase
         .from("user_challenge_progress")
-        .insert({
+        .insert([{
           user_id: user.id,
           challenge_id: exercise.id,
           week_start: weekStart,
@@ -149,10 +162,16 @@ export default function ExerciseListScreen({ navigation }) {
           friday: false,
           saturday: false,
           sunday: false,
-        });
+        }]);
 
       if (insertErr) {
+        if (insertErr.code === '23505') {
+          setAlreadyChosenId(exercise.id);
+          return;
+        }
         console.error("[ExerciseListScreen] insert error:", insertErr);
+        Alert.alert("Erro", "Não foi possível salvar o exercício. Tente novamente.");
+        return;
       }
 
       navigation.replace("Challenges", { exercise });
@@ -183,13 +202,7 @@ export default function ExerciseListScreen({ navigation }) {
               onPress={() => navigation.goBack()}
               style={styles.backButton}
             >
-              <BackIcon size={24} color="#FFFFFF" />
             </TouchableOpacity>
-
-            <View style={styles.streakBadge}>
-              <MaterialCommunityIcons name="fire" size={16} color="#FFB020" />
-              <Text selectable={false} style={styles.streakText}>{streak} dias</Text>
-            </View>
           </View>
 
           <Text selectable={false} style={styles.headerTitle}>Exercícios semanais</Text>
@@ -220,27 +233,22 @@ export default function ExerciseListScreen({ navigation }) {
             return (
               <TouchableOpacity
                 key={exercise.id}
-                style={[
-                  styles.exerciseCard,
-                  !isFree && styles.exerciseCardLocked,
-                ]}
-                onPress={() => handleExercisePress(exercise)}
+                style={styles.exerciseCard}
+                onPress={() => checkAndChooseExercise(exercise)}
                 activeOpacity={0.85}
               >
                 <View
                   style={[
                     styles.iconContainer,
                     {
-                      backgroundColor: isFree
-                        ? iconDef.color + "22"
-                        : "#F0F1F5",
+                      backgroundColor: isFree ? "#FFFFFF" : "#E5E7EB",
                     },
                   ]}
                 >
                   {isFree ? (
-                    <ExerciseIcon exercise={exercise} size={26} />
+                    <ExerciseIcon exercise={exercise} size={28} />
                   ) : (
-                    <Ionicons name="lock-closed" size={22} color="#A1A4B2" />
+                    <Ionicons name="lock-closed" size={24} color="#9CA3AF" />
                   )}
                 </View>
 
@@ -276,11 +284,6 @@ export default function ExerciseListScreen({ navigation }) {
                           !isFree && styles.pillLocked,
                         ]}
                       >
-                        <Ionicons
-                          name="time-outline"
-                          size={11}
-                          color={isFree ? "#6E6E73" : "#A1A4B2"}
-                        />
                         <Text
                           selectable={false}
                           style={[
@@ -313,13 +316,15 @@ export default function ExerciseListScreen({ navigation }) {
                   </View>
                 </View>
 
-                <View style={styles.rightIndicator}>
-                  {isFree ? (
-                    <View style={styles.greenDot} />
-                  ) : (
-                    <Ionicons name="lock-closed" size={18} color="#C7C7CC" />
-                  )}
-                </View>
+                {isFree && (
+                  <View style={styles.rightIndicator}>
+                    <MaterialCommunityIcons
+                      name="check-circle"
+                      size={27}
+                      color="#22C55E"
+                    />
+                  </View>
+                )}
               </TouchableOpacity>
             );
           })}
@@ -356,6 +361,38 @@ export default function ExerciseListScreen({ navigation }) {
           </View>
         </TouchableOpacity>
       )}
+
+      {alreadyChosenId && (
+        <TouchableOpacity
+          style={styles.overlay}
+          onPress={() => setAlreadyChosenId(null)}
+          activeOpacity={1}
+        >
+          <View style={styles.alreadyChosenCard}>
+            <Text style={styles.alreadyChosenTitle}>
+              Você já escolheu um exercício!
+            </Text>
+            <Text style={styles.alreadyChosenText}>
+              Você já escolheu um exercício para esta semana. Continue com ele para construir seu progresso.
+            </Text>
+            <TouchableOpacity
+              style={styles.continueButton}
+              onPress={() => {
+                setAlreadyChosenId(null);
+                navigation.replace("Challenges", { exercise: { id: alreadyChosenId } });
+              }}
+            >
+              <Text style={styles.continueButtonText}>Ir para meu exercício</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.closeAlreadyChosen}
+              onPress={() => setAlreadyChosenId(null)}
+            >
+              <Text style={styles.closeAlreadyChosenText}>Fechar</Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      )}
     </View>
   );
 }
@@ -363,40 +400,24 @@ export default function ExerciseListScreen({ navigation }) {
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: "#13E698" },
   loadingContainer: { alignItems: "center", justifyContent: "center" },
-  gradient: { paddingHorizontal: 24, paddingBottom: 40, paddingTop: 8 },
+  gradient: { paddingHorizontal: 24, paddingBottom: 65, paddingTop: 8 },
   topRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 16,
+    marginBottom: 20,
   },
   backButton: { width: 40, height: 40, justifyContent: "center", cursor: "default" },
-  streakBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "rgba(255,255,255,0.22)",
-    borderRadius: 16,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    gap: 6,
-  },
-  streakText: {
-    color: "#FFFFFF",
-    fontFamily: "Whyte-Medium",
-    fontSize: 13,
-    fontWeight: "600",
-  },
   headerTitle: {
-    fontSize: 28,
+    fontSize: 24,
     fontFamily: "Whyte-Bold",
-    fontWeight: "700",
     color: "#FFFFFF",
-    marginBottom: 4,
+    marginBottom: 9,
   },
   headerSubtitle: {
-    fontSize: 14,
+    fontSize: 18,
     fontFamily: "Whyte-Regular",
-    color: "rgba(255,255,255,0.9)",
+    color: "#FFFFFF",
   },
   card: {
     flex: 1,
@@ -409,62 +430,62 @@ const styles = StyleSheet.create({
   breadcrumb: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 16,
+    marginBottom: 26,
     paddingVertical: 4,
     cursor: "default",
   },
   breadcrumbText: {
-    fontSize: 14,
+    fontSize: 18,
     fontFamily: "Whyte-Medium",
     color: "#1066E7",
     marginLeft: 4,
   },
   sectionTitle: {
-    fontSize: 20,
+    fontSize: 22,
     fontFamily: "Whyte-Bold",
     fontWeight: "700",
-    color: "#1C1C1E",
-    marginBottom: 16,
+    color: "#6E6E73",
+    marginBottom: 26,
   },
   exerciseCard: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#FFFFFF",
-    borderRadius: 16,
-    padding: 14,
-    marginBottom: 12,
+    backgroundColor: "#F0F1F5",
+    borderRadius: 21,
+    height: 115,
+    marginBottom: 16,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 2,
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 3,
     cursor: "default",
   },
-  exerciseCardLocked: { backgroundColor: "#F7F7F9" },
   iconContainer: {
-    width: 52,
-    height: 52,
-    borderRadius: 14,
+    width: 70,
+    height: 70,
+    borderRadius: 9,
     alignItems: "center",
     justifyContent: "center",
-    marginRight: 14,
+    marginLeft: 20,
+    marginRight: 0,
   },
-  exerciseInfo: { flex: 1 },
+  exerciseInfo: { flex: 1, marginLeft: 21, justifyContent: "center", marginBottom: 10, },
   exerciseTitle: {
-    fontSize: 15,
+    fontSize: 16,
     fontFamily: "Whyte-Bold",
-    fontWeight: "700",
-    color: "#1C1C1E",
-    marginBottom: 2,
+    color: "#333333",
+    marginBottom: 13,
+    marginTop: 13,
   },
-  exerciseTitleLocked: { color: "#A1A4B2" },
+  exerciseTitleLocked: { color: "#9CA3AF" },
   exerciseDesc: {
-    fontSize: 12,
+    fontSize: 13,
     fontFamily: "Whyte-Regular",
-    color: "#6E6E73",
+    color: "#94979A",
     marginBottom: 8,
   },
-  exerciseDescLocked: { color: "#C7C7CC" },
+  exerciseDescLocked: { color: "#C4C4C4" },
   pillsRow: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -473,17 +494,17 @@ const styles = StyleSheet.create({
   pill: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#F0F1F5",
-    borderRadius: 10,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    gap: 4,
+    backgroundColor: "#d8e0ef",
+    borderRadius: 18,
+    paddingHorizontal: 17,
+    paddingVertical: 6,
+    gap: 7,
   },
-  pillLocked: { backgroundColor: "#EFEFF1" },
+  pillLocked: { backgroundColor: "#eaeaee" },
   pillText: {
-    fontSize: 11,
-    fontFamily: "Whyte-Medium",
-    color: "#6E6E73",
+    fontSize: 13,
+    fontFamily: "Whyte-Regular",
+    color: "#8f8fbe",
   },
   pillTextLocked: { color: "#C7C7CC" },
   rightIndicator: {
@@ -496,7 +517,7 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: "#13E698",
+    backgroundColor: "#25e613",
   },
   overlay: {
     position: "absolute",
@@ -555,5 +576,49 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: "Whyte-Regular",
     color: "#A1A4B2",
+  },
+  alreadyChosenCard: {
+    backgroundColor: "#E6F0FF",
+    borderRadius: 16,
+    padding: 24,
+    marginHorizontal: 24,
+    borderWidth: 1,
+    borderColor: "#B8D4F1",
+  },
+  alreadyChosenTitle: {
+    fontSize: 18,
+    fontFamily: "Whyte-Bold",
+    fontWeight: "700",
+    color: "#1066E7",
+    marginBottom: 12,
+  },
+  alreadyChosenText: {
+    fontSize: 14,
+    fontFamily: "Whyte-Regular",
+    color: "#1066E7",
+    lineHeight: 22,
+    marginBottom: 20,
+  },
+  continueButton: {
+    backgroundColor: "#1066E7",
+    borderRadius: 12,
+    paddingVertical: 14,
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  continueButtonText: {
+    color: "#FFFFFF",
+    fontSize: 15,
+    fontFamily: "Whyte-Medium",
+    fontWeight: "600",
+  },
+  closeAlreadyChosen: {
+    paddingVertical: 12,
+    alignItems: "center",
+  },
+  closeAlreadyChosenText: {
+    color: "#1066E7",
+    fontSize: 14,
+    fontFamily: "Whyte-Medium",
   },
 });

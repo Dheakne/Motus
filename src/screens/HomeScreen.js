@@ -219,7 +219,7 @@ const styles = StyleSheet.create({
   },
   card: { flex: 1, backgroundColor: "#FFFFFF", borderTopLeftRadius: 30, borderTopRightRadius: 30, marginTop: -30 },
   cardContent: { paddingHorizontal: 24, paddingTop: 44, paddingBottom: 100 },
-  sectionTitle: { fontSize: 18, fontFamily: "Whyte-Bold", color: "#1C1C1E", marginBottom: 14, marginTop: 8 },
+  sectionTitle: { fontSize: 20, fontFamily: "Whyte-Bold", color: "#1C1C1E", marginBottom: 20, marginTop: 8 },
   audioGrid: { flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between", marginBottom: 8 },
   audioCard: {
     width: "48%", height: 83, backgroundColor: "#F0F1F5",

@@ -11,7 +11,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { BackIcon } from "../components/Icons";
 import WeeklyProgressCard from "../components/WeeklyProgressCard";
 import { supabase } from "../services/supabase";
 
@@ -85,12 +84,7 @@ export default function ChallengesScreen({ route, navigation }) {
         style={styles.gradient}
       >
         <View style={styles.headerRow}>
-          <TouchableOpacity
-            onPress={() => navigation.goBack()}
-            style={styles.backButton}
-          >
-            <BackIcon size={24} color="#FFFFFF" />
-          </TouchableOpacity>
+          <View style={styles.backButton} />
           <Text style={styles.headerTitle} numberOfLines={1}>
             {headerTitle}
           </Text>
@@ -227,7 +221,7 @@ const styles = StyleSheet.create({
   },
   card: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F0F1F5",
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     marginTop: -30,
@@ -270,9 +264,11 @@ const styles = StyleSheet.create({
     color: "#6E6E73",
     lineHeight: 18,
   },
-  mascot: {
-    width: 96,
-    height: 96,
+  mascotPlaceholder: {
+    width: 80,
+    height: 80,
+    backgroundColor: "#F0F1F5",
+    borderRadius: 16,
   },
   exerciseTitle: {
     fontSize: 22,

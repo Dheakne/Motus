@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../services/supabase';
-
-const DAY_COLUMNS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+import { DAY_COLUMNS } from '../utils/dayColumns';
+import { getWeekStart } from '../utils/weekStart';
 
 const EMPTY_PROGRESS = {
   monday: false,
@@ -12,18 +12,6 @@ const EMPTY_PROGRESS = {
   saturday: false,
   sunday: false,
 };
-
-function getWeekStart() {
-  const today = new Date();
-  const dow = today.getDay();
-  const daysBack = dow === 0 ? 6 : dow - 1;
-  const monday = new Date(today);
-  monday.setDate(today.getDate() - daysBack);
-  const y = monday.getFullYear();
-  const m = String(monday.getMonth() + 1).padStart(2, '0');
-  const d = String(monday.getDate()).padStart(2, '0');
-  return `${y}-${m}-${d}`;
-}
 
 export function useWeeklyChallenge() {
   const [progress, setProgress] = useState(EMPTY_PROGRESS);

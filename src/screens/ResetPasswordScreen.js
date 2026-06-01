@@ -1,5 +1,5 @@
 import { LinearGradient } from "expo-linear-gradient";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   SafeAreaView,
@@ -19,6 +19,15 @@ export default function ResetPasswordScreen({ navigation }) {
   const [loading, setLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
+  const timeoutRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   async function handleSave() {
     setSuccessMsg(null);
@@ -45,7 +54,7 @@ export default function ResetPasswordScreen({ navigation }) {
     setLoading(false);
     setSuccessMsg("Senha alterada com sucesso! Faça login.");
 
-    setTimeout(() => {
+    timeoutRef.current = setTimeout(() => {
       navigation.reset({ index: 0, routes: [{ name: "Login" }] });
     }, 1500);
   }
@@ -58,6 +67,12 @@ export default function ResetPasswordScreen({ navigation }) {
         end={{ x: 0, y: 1 }}
         style={styles.gradient}
       >
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.backButton}
+        >
+          <Text style={styles.backText}>{"< Voltar"}</Text>
+        </TouchableOpacity>
         <Text style={styles.headerTitle}>Nova senha</Text>
       </LinearGradient>
 
@@ -221,5 +236,17 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: "Whyte-Medium",
     fontWeight: "600",
+  },
+  backButton: {
+    position: 'absolute',
+    top: 16,
+    left: 16,
+    padding: 8,
+    zIndex: 10,
+  },
+  backText: {
+    color: '#fff',
+    fontSize: 16,
+    fontFamily: 'Whyte-Regular',
   },
 });

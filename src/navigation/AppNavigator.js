@@ -15,10 +15,12 @@ import ForgotPasswordScreen from "../screens/ForgotPasswordScreen";
 import HomeScreen from "../screens/HomeScreen";
 import LoginScreen from "../screens/LoginScreen";
 import MascotScreen from "../screens/MascotScreen";
+import PrivacyScreen from "../screens/PrivacyScreen";
 import ReportProblemScreen from "../screens/ReportProblemScreen";
 import ResetPasswordScreen from "../screens/ResetPasswordScreen";
 import SignUpScreen from "../screens/SignUpScreen";
 import SplashScreen from "../screens/SplashScreen";
+import TermsScreen from "../screens/TermsScreen";
 import { supabase } from "../services/supabase";
 
 // Cria o objeto de navegação em pilha (Stack Navigator)
@@ -79,6 +81,8 @@ export default function AppNavigator() {
       <Stack.Screen name="SignUp" component={SignUpScreen} />
       <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
       <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
+      <Stack.Screen name="Terms" component={TermsScreen} />
+      <Stack.Screen name="Privacy" component={PrivacyScreen} />
       <Stack.Screen name="Home" component={HomeScreen} />
       <Stack.Screen name="ExerciseList" component={ExerciseListScreen} />
       <Stack.Screen name="Category" component={CategoryScreen} />

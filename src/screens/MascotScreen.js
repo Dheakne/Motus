@@ -14,13 +14,16 @@ export default function MascotScreen({ navigation }) {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        await supabase
+        const { error } = await supabase
           .from("user_profiles")
           .update({ has_seen_tutus: true })
           .eq("user_id", user.id);
+        if (error) {
+          console.error("Erro ao marcar has_seen_tutus:", error);
+        }
       }
     } catch (error) {
-      console.error("Erro ao marcar has_seen_tutus:", error);
+      console.error("Erro na atualização:", error);
     } finally {
       navigation.navigate("ExerciseList");
     }
