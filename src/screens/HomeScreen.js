@@ -14,6 +14,7 @@ import {
 import DrawerMenu from "../components/DrawerMenu";
 import WeeklyProgressCard from "../components/WeeklyProgressCard";
 import { MenuIcon } from "../components/Icons";
+import { clearSession } from "../api/authApi";
 import { supabase } from "../services/supabase";
 
 function normalizeText(text) {
@@ -83,8 +84,13 @@ export default function HomeScreen({ navigation }) {
   }
 
   async function handleLogout() {
-    const { error } = await supabase.auth.signOut();
-    if (!error) navigation.reset({ index: 0, routes: [{ name: "Login" }] });
+    try {
+      await clearSession();
+      await supabase.auth.signOut();
+    } catch (_) {
+      // ignora erros de signOut — redireciona de qualquer forma
+    }
+    navigation.reset({ index: 0, routes: [{ name: "Login" }] });
   }
 
   if (loading) {

@@ -1,8 +1,6 @@
-// Tela de login. Usa o Supabase Auth para autenticar via e-mail/senha.
-
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -13,7 +11,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { supabase } from "../services/supabase";
+import { login } from "../api/authApi";
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState("");
@@ -28,19 +26,17 @@ export default function LoginScreen({ navigation }) {
     }
 
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    setLoading(false);
-
-    if (error) {
-      Alert.alert("Erro no login", error.message);
-    } else {
-      navigation.reset({
-        index: 0,
-        routes: [{ name: "Home" }],
-      });
+    try {
+      await login(email, password);
+      navigation.reset({ index: 0, routes: [{ name: "Home" }] });
+    } catch (err) {
+      const msg =
+        err.error === "INVALID_CREDENTIALS"
+          ? "Email ou senha incorretos"
+          : err.message || "Erro no login";
+      Alert.alert("Erro no login", msg);
+    } finally {
+      setLoading(false);
     }
   }
 

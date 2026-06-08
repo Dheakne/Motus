@@ -1,5 +1,3 @@
-// Tela de cadastro de novo usuário. Cria a conta no Supabase Auth e insere o perfil na tabela user_profiles do banco de dados.
-
 import { useState } from "react";
 import {
   Alert,
@@ -12,9 +10,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { register } from "../api/authApi";
 import { BackIcon, EyeIcon, EyeOffIcon } from "../components/Icons";
-import { supabase } from "../services/supabase";
-import { convertToSQLDate } from "../utils/dateFormat";
 
 // Aplica máscara DD/MM/AAAA enquanto o usuário digita
 function formatBirthDate(value) {
@@ -25,7 +22,6 @@ function formatBirthDate(value) {
 }
 
 export default function SignUpScreen({ navigation }) {
-  // Estados dos campos do formulário
   const [name, setName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -37,7 +33,6 @@ export default function SignUpScreen({ navigation }) {
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [acceptedHealth, setAcceptedHealth] = useState(false);
 
-  //Função de CADASTRO
   async function handleSignUp() {
     if (!name || !lastName || !email || !password) {
       Alert.alert("Erro", "Preencha os campos obrigatórios");
@@ -45,57 +40,27 @@ export default function SignUpScreen({ navigation }) {
     }
 
     setLoading(true);
-
-    // 1. Cria a conta de autenticação no Supabase Auth
-    const { data: authData, error: authError } = await supabase.auth.signUp({
-      email,
-      password,
-    });
-
-    if (authError) {
+    try {
+      await register({
+        email,
+        password,
+        name,
+        lastName,
+        phone: phone || undefined,
+        birthDate: birthDate || undefined,
+      });
+      navigation.reset({ index: 0, routes: [{ name: "Home" }] });
+    } catch (err) {
+      const msg =
+        err.error === "EMAIL_ALREADY_EXISTS"
+          ? "Este email já está cadastrado"
+          : err.error === "INVALID_BIRTH_DATE"
+            ? "Data de nascimento inválida. Use o formato DD/MM/AAAA"
+            : err.message || "Erro ao criar conta";
+      Alert.alert("Erro no cadastro", msg);
+    } finally {
       setLoading(false);
-      Alert.alert("Erro no cadastro", authError.message);
-      return;
     }
-
-    // 2. Cria o perfil do usuário na tabela user_profiles
-    // É separado da autenticação e guarda dados extras do usuário
-    if (authData.user) {
-      const { error: profileError } = await supabase
-        .from("user_profiles")
-        .insert([
-          {
-            user_id: authData.user.id,
-            display_name: name, // Nome exibido no app
-            full_name: `${name} ${lastName}`, // Nome completo
-            phone: phone,
-            birth_date: birthDate ? convertToSQLDate(birthDate) : null,
-            level: 1, // Nível inicial
-            total_points: 0, // Pontuação inicial
-            has_seen_tutus: false, // Flag de tutorial (tutus é o mascote do app)
-            consent_terms: true,
-            consent_health_data: true,
-            consented_at: new Date().toISOString(),
-          },
-        ]);
-
-      if (profileError) {
-        // Loga o erro mas não bloqueia o fluxo
-        console.error("Erro ao criar perfil:", profileError);
-      }
-    }
-
-    setLoading(false);
-    Alert.alert("Sucesso!", "Conta criada com sucesso!", [
-      {
-        text: "OK",
-        onPress: () =>
-          navigation.reset({
-            index: 0,
-            routes: [{ name: "Login" }],
-          }),
-      },
-    ]);
   }
 
   return (
@@ -220,9 +185,7 @@ export default function SignUpScreen({ navigation }) {
                   acceptedTerms && styles.checkboxChecked,
                 ]}
               >
-                {acceptedTerms && (
-                  <Text style={styles.checkmark}>✓</Text>
-                )}
+                {acceptedTerms && <Text style={styles.checkmark}>✓</Text>}
               </View>
               <Text style={styles.checkboxLabel}>
                 Li e aceito os{" "}
@@ -231,8 +194,8 @@ export default function SignUpScreen({ navigation }) {
                   onPress={() => navigation.navigate("Terms")}
                 >
                   Termos de Uso
-                </Text>
-                {" "}e a{" "}
+                </Text>{" "}
+                e a{" "}
                 <Text
                   style={styles.link}
                   onPress={() => navigation.navigate("Privacy")}
@@ -253,9 +216,7 @@ export default function SignUpScreen({ navigation }) {
                   acceptedHealth && styles.checkboxChecked,
                 ]}
               >
-                {acceptedHealth && (
-                  <Text style={styles.checkmark}>✓</Text>
-                )}
+                {acceptedHealth && <Text style={styles.checkmark}>✓</Text>}
               </View>
               <Text style={styles.checkboxLabel}>
                 Consinto com o tratamento dos meus dados relacionados a saúde
