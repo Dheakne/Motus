@@ -7,6 +7,7 @@ Execute cada arquivo em ordem no **Supabase SQL Editor** (painel do projeto → 
 | `001_add_is_premium_columns.sql` | Adiciona `is_premium` em `user_profiles` e `sessions`; adiciona `category_id` em `sessions` |
 | `002_add_updated_at_columns.sql` | Adiciona `updated_at` em `user_profiles` e `user_challenge_progress`; cria índice de busca por usuário/semana |
 | `003_make_optional_columns_nullable.sql` | Torna `phone` e `birth_date` nullable em `user_profiles` (campos opcionais no cadastro) |
+| `004_add_consent_columns.sql` | Adiciona `consent_terms`, `consent_health_data` e `consented_at` em `user_profiles` (consentimento LGPD gravado no cadastro) |
 
 ## Como executar
 

@@ -38,6 +38,7 @@ Execute as migrations no **Supabase SQL Editor** antes de subir o servidor:
 migrations/001_add_is_premium_columns.sql
 migrations/002_add_updated_at_columns.sql
 migrations/003_make_optional_columns_nullable.sql
+migrations/004_add_consent_columns.sql
 ```
 
 Veja [migrations/README.md](migrations/README.md) para detalhes.
