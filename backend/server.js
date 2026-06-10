@@ -36,6 +36,15 @@ app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/exercises', exerciseRoutes);
 app.use('/api/sessions', sessionRoutes);
 
+// 404 para rotas não registradas (JSON padronizado, antes do errorHandler)
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    error: 'NOT_FOUND',
+    message: 'Rota não encontrada',
+  });
+});
+
 app.use(errorHandler);
 
 if (require.main === module) {
