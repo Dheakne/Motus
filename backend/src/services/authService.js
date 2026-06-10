@@ -24,7 +24,7 @@ exports.loginUser = async (email, password) => {
     .from('user_profiles')
     .select('*')
     .eq('user_id', session.user.id)
-    .single();
+    .maybeSingle();
 
   if (profileError) {
     const err = new Error('Erro ao buscar perfil do usuário');
