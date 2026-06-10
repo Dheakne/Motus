@@ -28,7 +28,9 @@ exports.markTodayProgress = async (userId) => {
     )
     .eq('user_id', userId)
     .eq('week_start', weekStart)
-    .single();
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
 
   if (fetchError || !row) {
     const err = new Error(
