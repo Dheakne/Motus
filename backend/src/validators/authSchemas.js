@@ -34,4 +34,6 @@ exports.registerSchema = Joi.object({
     .messages({
       'string.pattern.base': 'Data de nascimento inválida. Use o formato DD/MM/YYYY',
     }),
+  consent_terms: Joi.boolean(),
+  consent_health_data: Joi.boolean(),
 });

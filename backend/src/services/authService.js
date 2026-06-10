@@ -58,7 +58,16 @@ exports.loginUser = async (email, password) => {
  * @param {string} [params.birthDate] - formato DD/MM/YYYY
  * @returns {Promise<object>} Sessão Supabase + perfil criado
  */
-exports.registerUser = async ({ email, password, name, lastName, phone, birthDate }) => {
+exports.registerUser = async ({
+  email,
+  password,
+  name,
+  lastName,
+  phone,
+  birthDate,
+  consent_terms,
+  consent_health_data,
+}) => {
   let parsedBirthDate = null;
   if (birthDate) {
     const parts = birthDate.split('/');
@@ -69,8 +78,14 @@ exports.registerUser = async ({ email, password, name, lastName, phone, birthDat
       throw err;
     }
     const [day, month, year] = parts;
-    const date = new Date(`${year}-${month}-${day}`);
-    if (isNaN(date.getTime())) {
+    const date = new Date(Number(year), Number(month) - 1, Number(day));
+    // Rejeita datas que "rolam" para o mês seguinte (ex.: 30/02, 31/04).
+    if (
+      isNaN(date.getTime()) ||
+      date.getDate() !== Number(day) ||
+      date.getMonth() !== Number(month) - 1 ||
+      date.getFullYear() !== Number(year)
+    ) {
       const err = new Error('Data de nascimento inválida. Use o formato DD/MM/YYYY');
       err.code = 'INVALID_BIRTH_DATE';
       err.status = 400;
@@ -125,9 +140,10 @@ exports.registerUser = async ({ email, password, name, lastName, phone, birthDat
         total_points: 0,
         has_seen_tutus: false,
         is_premium: false,
-        consent_terms: true,
-        consent_health_data: true,
-        consented_at: new Date().toISOString(),
+        consent_terms: consent_terms || false,
+        consent_health_data: consent_health_data || false,
+        consented_at:
+          consent_terms && consent_health_data ? new Date().toISOString() : null,
       },
     ])
     .select()

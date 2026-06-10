@@ -24,8 +24,18 @@ exports.login = async (req, res, next) => {
  */
 exports.register = async (req, res, next) => {
   try {
-    const { email, password, name, lastName, phone, birthDate } = req.body;
-    const data = await registerUser({ email, password, name, lastName, phone, birthDate });
+    const { email, password, name, lastName, phone, birthDate, consent_terms, consent_health_data } =
+      req.body;
+    const data = await registerUser({
+      email,
+      password,
+      name,
+      lastName,
+      phone,
+      birthDate,
+      consent_terms,
+      consent_health_data,
+    });
     return success(res, data, 201);
   } catch (err) {
     if (err.status && err.code) {

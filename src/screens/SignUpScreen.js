@@ -48,6 +48,8 @@ export default function SignUpScreen({ navigation }) {
         lastName,
         phone: phone || undefined,
         birthDate: birthDate || undefined,
+        consent_terms: acceptedTerms,
+        consent_health_data: acceptedHealth,
       });
       navigation.reset({ index: 0, routes: [{ name: "Home" }] });
     } catch (err) {
