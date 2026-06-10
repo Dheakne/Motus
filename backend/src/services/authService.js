@@ -100,6 +100,16 @@ exports.registerUser = async ({ email, password, name, lastName, phone, birthDat
     throw err;
   }
 
+  // Supabase retorna sucesso obfuscado (identities vazio) quando o email já existe.
+  // Sem isso, o código seguiria para o insert em user_profiles e quebraria com 500
+  // por colisão de PK em vez de retornar 409.
+  if (session.user?.identities?.length === 0) {
+    const err = new Error('Este email já está cadastrado');
+    err.code = 'EMAIL_ALREADY_EXISTS';
+    err.status = 409;
+    throw err;
+  }
+
   const userId = session.user.id;
 
   const { data: profile, error: profileError } = await supabase
