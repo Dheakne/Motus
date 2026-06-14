@@ -289,6 +289,7 @@ const styles = StyleSheet.create({
     fontFamily: "Whyte-Bold",
     fontWeight: "700",
     color: "#FFFFFF",
+    lineHeight: 31,
   },
   card: {
     flex: 1,
@@ -296,6 +297,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     marginTop: -30,
+    marginBottom: -35,
   },
   cardContent: { paddingHorizontal: 24, paddingTop: 24 },
   breadcrumb: {
@@ -309,6 +311,7 @@ const styles = StyleSheet.create({
     fontFamily: "Whyte-Medium",
     color: "#1066E7",
     marginLeft: 4,
+    lineHeight: 16,
   },
   label: {
     fontSize: 13,
@@ -316,6 +319,7 @@ const styles = StyleSheet.create({
     color: "#1C1C1E",
     marginBottom: 6,
     marginTop: 14,
+    lineHeight: 25,
   },
   inputWrapper: {
     flexDirection: "row",
@@ -333,9 +337,9 @@ const styles = StyleSheet.create({
     flex: 1,
     height: "100%",
     fontSize: 15,
-    fontFamily: "Whyte-Regular",
     color: "#1C1C1E",
     padding: 0,
+    
   },
   inputReadOnlyText: { color: "#6E6E73" },
   textareaWrapper: {
@@ -352,6 +356,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontFamily: "Whyte-Regular",
     color: "#1C1C1E",
+     lineHeight: 21,
   },
   pickerPlaceholder: { color: "#A1A4B2" },
   errorText: {
@@ -359,6 +364,7 @@ const styles = StyleSheet.create({
     fontFamily: "Whyte-Regular",
     color: "#FF4444",
     marginTop: 6,
+     lineHeight: 15,
   },
   successBox: {
     flexDirection: "row",
@@ -375,6 +381,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontFamily: "Whyte-Medium",
     color: "#13A05E",
+     lineHeight: 15,
   },
   errorBox: {
     flexDirection: "row",
@@ -391,6 +398,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontFamily: "Whyte-Medium",
     color: "#D32F2F",
+     lineHeight: 15,
   },
   submitButton: {
     backgroundColor: "#1066E7",
@@ -405,6 +413,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: "Whyte-Bold",
     fontWeight: "700",
+     lineHeight: 20,
   },
   modalBackdrop: {
     flex: 1,
@@ -429,6 +438,7 @@ const styles = StyleSheet.create({
     paddingBottom: 8,
     textTransform: "uppercase",
     letterSpacing: 0.5,
+     lineHeight: 21,
   },
   modalOption: {
     flexDirection: "row",
@@ -442,10 +452,12 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontFamily: "Whyte-Regular",
     color: "#1C1C1E",
+     lineHeight: 20,
   },
   modalOptionTextSelected: {
     color: "#1066E7",
     fontFamily: "Whyte-Medium",
     fontWeight: "600",
+     lineHeight: 21,
   },
 });

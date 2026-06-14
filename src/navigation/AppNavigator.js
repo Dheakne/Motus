@@ -4,6 +4,7 @@ import { useNavigation } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { useFonts } from "expo-font";
 import { useEffect } from "react";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 // Importação de todas as telas do app
 import AudioPlayerScreen from "../screens/AudioPlayerScreen";
@@ -62,8 +63,9 @@ export default function AppNavigator() {
   const skipAuth = process.env.EXPO_PUBLIC_SKIP_AUTH === 'true';
 
   return (
-    // Stack.Navigator define as opções globais e a tela inicial
-    <Stack.Navigator
+    <SafeAreaProvider>
+      {/* Stack.Navigator define as opções globais e a tela inicial */}
+      <Stack.Navigator
       initialRouteName={hasRecoveryHash ? 'ResetPassword' : (skipAuth ? 'Home' : 'Splash')}
       screenOptions={{ headerShown: false }} // Remove a barra de título em todas as telas
       screenLayout={({ children }) => (
@@ -92,5 +94,6 @@ export default function AppNavigator() {
       <Stack.Screen name="ReportProblem" component={ReportProblemScreen} />
       <Stack.Screen name="Mascot" component={MascotScreen} />
     </Stack.Navigator>
+    </SafeAreaProvider>
   );
 }

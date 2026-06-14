@@ -49,7 +49,7 @@
         }
       ],
       "expo-web-browser",
-      "expo-status-bar"
+      ["expo-av", { "microphonePermission": false }]
     ],
     "experiments": {
       "reactCompiler": true

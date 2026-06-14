@@ -102,12 +102,14 @@ const styles = StyleSheet.create({
     fontFamily: "Whyte-Medium",
     color: "#FFFFFF",
     fontWeight: "600",
+     lineHeight: 20,
   },
   headerTitle: {
     fontSize: 20,
     fontFamily: "Whyte-Bold",
     fontWeight: "700",
     color: "#FFFFFF",
+     lineHeight: 21,
   },
   card: {
     flex: 1,

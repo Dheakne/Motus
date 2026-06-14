@@ -141,8 +141,8 @@ export default function ChallengesScreen({ route, navigation }) {
         {discoveries.length > 0 ? (
           <View style={styles.sectionCard}>
             <View style={styles.sectionHeader}>
-              <View style={[styles.sectionIconBox, { backgroundColor: "#FFE3CC" }]}>
-                <Ionicons name="sparkles" size={18} color="#F97316" />
+              <View style={[styles.sectionIconBox, { backgroundColor: "#fae5f3" }]}>
+                <Ionicons name="sparkles" size={18} color="#e353ba" />
               </View>
               <Text style={styles.sectionTitle}>O que você vai descobrir</Text>
             </View>
@@ -166,13 +166,11 @@ export default function ChallengesScreen({ route, navigation }) {
               <Text style={styles.sectionTitle}>Dicas para fazer</Text>
             </View>
             {tips.map((tip, idx) => (
-              <View key={idx}>
-                <View style={styles.tipRow}>
-                  <Text style={styles.tipText}>{tip}</Text>
+              <View key={idx} style={styles.tipRow}>
+                <View style={styles.discoveryNumber}>
+                  <Text style={styles.discoveryNumberText}>{idx + 1}</Text>
                 </View>
-                {idx < tips.length - 1 ? (
-                  <View style={styles.tipSeparator} />
-                ) : null}
+                <Text style={styles.tipText}>{tip}</Text>
               </View>
             ))}
           </View>
@@ -218,13 +216,15 @@ const styles = StyleSheet.create({
     fontFamily: "Whyte-Bold",
     fontWeight: "700",
     color: "#FFFFFF",
+    lineHeight: 31,
   },
   card: {
     flex: 1,
-    backgroundColor: "#F0F1F5",
+    backgroundColor: "#ffffff",
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     marginTop: -30,
+    marginBottom:-35,
   },
   cardContent: {
     paddingHorizontal: 24,
@@ -237,10 +237,11 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   breadcrumbText: {
-    fontSize: 14,
+    fontSize: 16,
     fontFamily: "Whyte-Medium",
     color: "#1066E7",
     marginLeft: 4,
+    lineHeight: 20,
   },
   welcomeRow: {
     flexDirection: "row",
@@ -257,18 +258,13 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: "#1C1C1E",
     marginBottom: 6,
+     lineHeight: 25,
   },
   welcomeSubtitle: {
-    fontSize: 13,
+    fontSize: 15,
     fontFamily: "Whyte-Regular",
     color: "#6E6E73",
-    lineHeight: 18,
-  },
-  mascotPlaceholder: {
-    width: 80,
-    height: 80,
-    backgroundColor: "#F0F1F5",
-    borderRadius: 16,
+    lineHeight: 17,
   },
   exerciseTitle: {
     fontSize: 22,
@@ -277,6 +273,7 @@ const styles = StyleSheet.create({
     color: "#1C1C1E",
     marginTop: 8,
     marginBottom: 16,
+    lineHeight: 31,
   },
   sectionCard: {
     backgroundColor: "#FFFFFF",
@@ -297,21 +294,22 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   sectionIconBox: {
-    width: 32,
-    height: 32,
+    width: 40,
+    height: 40,
     borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
     marginRight: 10,
   },
   sectionTitle: {
-    fontSize: 15,
+    fontSize: 16,
     fontFamily: "Whyte-Bold",
     fontWeight: "700",
     color: "#1C1C1E",
+     lineHeight: 20,
   },
   sectionBody: {
-    fontSize: 13,
+    fontSize: 15,
     fontFamily: "Whyte-Regular",
     color: "#3F414E",
     lineHeight: 20,
@@ -325,38 +323,43 @@ const styles = StyleSheet.create({
     padding: 12,
   },
   discoveryNumber: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: "#E0EAFB",
+    width: 35,
+    height: 35,
+    borderRadius: 6,
+    backgroundColor: "#ffffff",
     alignItems: "center",
     justifyContent: "center",
     marginRight: 12,
   },
   discoveryNumberText: {
-    fontSize: 12,
+    fontSize: 18,
     fontFamily: "Whyte-Bold",
     fontWeight: "700",
     color: "#1066E7",
-  },
+    marginBottom: -8,
+    lineHeight: 20,
+  },   
   discoveryText: {
     flex: 1,
-    fontSize: 13,
+    fontSize: 14,
     fontFamily: "Whyte-Regular",
     color: "#3F414E",
-    lineHeight: 18,
+    lineHeight: 20,
   },
   tipRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    marginBottom: 10,
     backgroundColor: "#F5F7FB",
-    borderRadius: 10,
-    paddingVertical: 12,
-    paddingHorizontal: 14,
-    marginBottom: 8,
+    borderRadius: 12,
+    padding: 12,
   },
   tipText: {
-    fontSize: 13,
-    fontFamily: "Whyte-Medium",
-    color: "#1C1C1E",
+    flex: 1,
+    fontSize: 14,
+    fontFamily: "Whyte-Regular",
+    color: "#3F414E",
+    lineHeight: 22,
   },
   tipSeparator: {
     height: 0,

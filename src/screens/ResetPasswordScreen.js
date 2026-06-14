@@ -10,6 +10,7 @@ import {
   View,
 } from "react-native";
 import { supabase } from "../services/supabase";
+import { EyeIcon, EyeOffIcon } from "../components/Icons";
 
 export default function ResetPasswordScreen({ navigation }) {
   const [password, setPassword] = useState("");
@@ -97,7 +98,11 @@ export default function ResetPasswordScreen({ navigation }) {
             style={styles.eyeButton}
             onPress={() => setShowPassword(!showPassword)}
           >
-            <Text style={styles.eyeIcon}>{showPassword ? "👁️" : "👁️‍🗨️"}</Text>
+            {showPassword ? (
+              <EyeOffIcon size={20} color="#A1A4B2" />
+            ) : (
+              <EyeIcon size={20} color="#A1A4B2" />
+            )}
           </TouchableOpacity>
         </View>
 
@@ -117,7 +122,11 @@ export default function ResetPasswordScreen({ navigation }) {
             style={styles.eyeButton}
             onPress={() => setShowConfirm(!showConfirm)}
           >
-            <Text style={styles.eyeIcon}>{showConfirm ? "👁️" : "👁️‍🗨️"}</Text>
+            {showConfirm ? (
+              <EyeOffIcon size={20} color="#A1A4B2" />
+            ) : (
+              <EyeIcon size={20} color="#A1A4B2" />
+            )}
           </TouchableOpacity>
         </View>
 

@@ -220,11 +220,13 @@ const styles = StyleSheet.create({
     fontFamily: "Whyte-Bold",
     color: "#1C1C1E",
     marginBottom: 4,
+    lineHeight: 20,
   },
   userEmail: {
-    fontSize: 13,
+    fontSize: 16,
     fontFamily: "Whyte-Regular",
     color: "#8E8E93",
+     lineHeight: 20,
   },
   menuList: {
     flex: 1,
@@ -251,6 +253,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontFamily: "Whyte-Medium",
     color: "#1C1C1E",
+     lineHeight: 20,
   },
   divider: {
     height: 1,
@@ -278,5 +281,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontFamily: "Whyte-Medium",
     color: "#FF4444",
+     lineHeight: 21,
   },
 });

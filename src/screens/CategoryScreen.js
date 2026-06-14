@@ -88,7 +88,7 @@ export default function CategoryScreen({ route, navigation }) {
           onPress={() => navigation.goBack()}
           activeOpacity={0.7}
         >
-          <Ionicons name="chevron-back" size={16} color="#1066E7" />
+          <Ionicons name="chevron-back" size={25} color="#1066E7" />
           <Text style={styles.breadcrumbText}>Áudios</Text>
         </TouchableOpacity>
 
@@ -177,6 +177,7 @@ const styles = StyleSheet.create({
     fontFamily: "Whyte-Bold",
     fontWeight: "700",
     color: "#FFFFFF",
+    lineHeight:31,
   },
   card: {
     flex: 1,
@@ -184,6 +185,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     marginTop: -30,
+    marginBottom: -33,
   },
   cardContent: {
     paddingHorizontal: 24,
@@ -196,10 +198,11 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   breadcrumbText: {
-    fontSize: 14,
+    fontSize: 16,
     fontFamily: "Whyte-Medium",
     color: "#1066E7",
     marginLeft: 4,
+    lineHeight:31,
   },
   emptyState: {
     paddingVertical: 60,
@@ -209,6 +212,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: "Whyte-Regular",
     color: "#A1A4B2",
+    lineHeight:31,
   },
   sessionItem: {
     flexDirection: "row",
@@ -229,16 +233,18 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   sessionTitle: {
-    fontSize: 15,
+    fontSize: 18,
     fontFamily: "Whyte-Bold",
     fontWeight: "700",
     color: "#1C1C1E",
-    marginBottom: 2,
+    marginBottom: -6,
+    lineHeight:31,
   },
   sessionDuration: {
-    fontSize: 12,
+    fontSize: 16,
     fontFamily: "Whyte-Regular",
     color: "#6E6E73",
+    lineHeight:31,
   },
   separator: {
     height: 1,

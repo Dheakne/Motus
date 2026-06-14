@@ -2,6 +2,6 @@
 // limpar. Este arquivo DEVE ser importado antes de qualquer módulo
 // que inicialize o Supabase.
 if (typeof window !== 'undefined' &&
-    window.location.hash.includes('type=recovery')) {
+    window.location?.hash?.includes('type=recovery')) {
   window.__motusIsRecovery = true;
 }

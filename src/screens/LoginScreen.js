@@ -12,6 +12,7 @@ import {
   View,
 } from "react-native";
 import { login } from "../api/authApi";
+import { EyeIcon, EyeOffIcon } from "../components/Icons";
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState("");
@@ -90,7 +91,11 @@ export default function LoginScreen({ navigation }) {
               style={styles.eyeButton}
               onPress={() => setShowPassword(!showPassword)}
             >
-              <Text style={styles.eyeIcon}>{showPassword ? "👁️" : "👁️‍🗨️"}</Text>
+              {showPassword ? (
+                <EyeOffIcon size={20} color="#A1A4B2" />
+              ) : (
+                <EyeIcon size={20} color="#A1A4B2" />
+              )}
             </TouchableOpacity>
           </View>
         </View>
@@ -160,18 +165,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
     paddingTop: 56,
     paddingBottom: 24,
+    marginBottom: -33,
   },
   title: {
     fontSize: 28,
     fontWeight: "bold",
     fontFamily: "Whyte-Bold",
+    lineHeight: 31,
     color: "#1C1C1E",
     textAlign: "center",
     marginBottom: 8,
   },
   subtitle: {
-    fontSize: 14,
+    fontSize: 16,
     fontFamily: "Whyte-Regular",
+    lineHeight: 31,
     color: "#6E6E73",
     textAlign: "center",
     marginBottom: 36,
@@ -180,23 +188,24 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   label: {
-    fontSize: 13,
+    fontSize: 15,
     fontFamily: "Whyte-Regular",
+    lineHeight: 31,
     color: "#6E6E73",
-    marginBottom: 8,
+    marginBottom: 5,
   },
   inputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#F0F1F5",
+    backgroundColor: "#F5F5F5",
     borderRadius: 12,
     paddingHorizontal: 16,
+    minHeight: 50,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
   },
   input: {
     flex: 1,
-    paddingVertical: 14,
     fontSize: 15,
-    fontFamily: "Whyte-Regular",
     color: "#1C1C1E",
   },
   eyeButton: {
@@ -211,8 +220,9 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   forgotPassword: {
-    fontSize: 13,
+    fontSize: 15,
     fontFamily: "Whyte-Regular",
+    lineHeight: 31,
     color: "#1066E7",
   },
   divider: {
@@ -229,6 +239,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     fontSize: 13,
     fontFamily: "Whyte-Regular",
+    lineHeight: 31,
     color: "#6E6E73",
   },
   googleButton: {
@@ -238,6 +249,7 @@ const styles = StyleSheet.create({
   googleButtonText: {
     fontSize: 15,
     fontFamily: "Whyte-Medium",
+    lineHeight: 31,
     color: "#1C1C1E",
     fontWeight: "600",
   },
@@ -253,6 +265,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: "Whyte-Medium",
     fontWeight: "600",
+    lineHeight: 31,
   },
   signupContainer: {
     flexDirection: "row",
@@ -260,13 +273,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   signupText: {
-    fontSize: 14,
+    fontSize: 17,
     fontFamily: "Whyte-Regular",
     color: "#6E6E73",
+    lineHeight: 31,
   },
   signupLink: {
-    fontSize: 14,
+    fontSize: 17,
     fontFamily: "Whyte-Medium",
+    lineHeight: 31,
     color: "#1066E7",
     fontWeight: "600",
   },

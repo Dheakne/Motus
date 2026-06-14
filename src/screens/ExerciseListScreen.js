@@ -315,16 +315,6 @@ export default function ExerciseListScreen({ navigation }) {
                     ) : null}
                   </View>
                 </View>
-
-                {isFree && (
-                  <View style={styles.rightIndicator}>
-                    <MaterialCommunityIcons
-                      name="check-circle"
-                      size={27}
-                      color="#22C55E"
-                    />
-                  </View>
-                )}
               </TouchableOpacity>
             );
           })}
@@ -413,18 +403,21 @@ const styles = StyleSheet.create({
     fontFamily: "Whyte-Bold",
     color: "#FFFFFF",
     marginBottom: 9,
+    lineHeight:25,
   },
   headerSubtitle: {
     fontSize: 18,
     fontFamily: "Whyte-Regular",
     color: "#FFFFFF",
+    lineHeight:20,
   },
   card: {
     flex: 1,
     backgroundColor: "#FFFFFF",
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
-    marginTop: -30,
+    marginTop: -40,
+    marginBottom: -33,
   },
   cardContent: { paddingHorizontal: 24, paddingTop: 24 },
   breadcrumb: {
@@ -439,13 +432,15 @@ const styles = StyleSheet.create({
     fontFamily: "Whyte-Medium",
     color: "#1066E7",
     marginLeft: 4,
+     lineHeight: 20,
   },
   sectionTitle: {
     fontSize: 22,
     fontFamily: "Whyte-Bold",
     fontWeight: "700",
-    color: "#6E6E73",
+    color: "#252525",
     marginBottom: 26,
+    lineHeight:31,
   },
   exerciseCard: {
     flexDirection: "row",
@@ -454,36 +449,32 @@ const styles = StyleSheet.create({
     borderRadius: 21,
     height: 115,
     marginBottom: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 3,
-    cursor: "default",
   },
   iconContainer: {
-    width: 70,
-    height: 70,
+    width: 65,
+    height: 65,
     borderRadius: 9,
     alignItems: "center",
     justifyContent: "center",
     marginLeft: 20,
     marginRight: 0,
   },
-  exerciseInfo: { flex: 1, marginLeft: 21, justifyContent: "center", marginBottom: 10, },
+  exerciseInfo: { flex: 1, marginLeft: 21, justifyContent: "center", marginBottom: 10, marginRight:21, },
   exerciseTitle: {
-    fontSize: 16,
+    fontSize: 17,
     fontFamily: "Whyte-Bold",
     color: "#333333",
-    marginBottom: 13,
+    marginBottom: 0,
     marginTop: 13,
+    lineHeight:31,
   },
   exerciseTitleLocked: { color: "#9CA3AF" },
   exerciseDesc: {
-    fontSize: 13,
+    fontSize: 14,
     fontFamily: "Whyte-Regular",
     color: "#94979A",
-    marginBottom: 8,
+    marginBottom: 11,
+    lineHeight:16,
   },
   exerciseDescLocked: { color: "#C4C4C4" },
   pillsRow: {
@@ -497,14 +488,15 @@ const styles = StyleSheet.create({
     backgroundColor: "#d8e0ef",
     borderRadius: 18,
     paddingHorizontal: 17,
-    paddingVertical: 6,
-    gap: 7,
+    paddingVertical: 9,
   },
   pillLocked: { backgroundColor: "#eaeaee" },
   pillText: {
-    fontSize: 13,
+    fontSize: 14,
     fontFamily: "Whyte-Regular",
     color: "#8f8fbe",
+    lineHeight: 14,
+  
   },
   pillTextLocked: { color: "#C7C7CC" },
   rightIndicator: {
@@ -512,12 +504,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     width: 24,
-  },
-  greenDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: "#25e613",
   },
   overlay: {
     position: "absolute",
@@ -548,6 +534,7 @@ const styles = StyleSheet.create({
     fontFamily: "Whyte-Bold",
     color: "#1C1C1E",
     marginBottom: 12,
+     lineHeight: 21,
   },
   freemiumText: {
     fontSize: 14,
@@ -570,6 +557,7 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 16,
     fontFamily: "Whyte-Medium",
+     lineHeight: 20,
   },
   closeButton: { paddingVertical: 10, cursor: "default" },
   closeButtonText: {
@@ -578,26 +566,27 @@ const styles = StyleSheet.create({
     color: "#A1A4B2",
   },
   alreadyChosenCard: {
-    backgroundColor: "#E6F0FF",
+    backgroundColor: "#ffffff",
     borderRadius: 16,
     padding: 24,
-    marginHorizontal: 24,
-    borderWidth: 1,
     borderColor: "#B8D4F1",
+    
   },
   alreadyChosenTitle: {
     fontSize: 18,
     fontFamily: "Whyte-Bold",
     fontWeight: "700",
-    color: "#1066E7",
+    color: "#282a2d",
     marginBottom: 12,
+    lineHeight:31,
   },
   alreadyChosenText: {
     fontSize: 14,
     fontFamily: "Whyte-Regular",
-    color: "#1066E7",
+    color: "#393c40",
     lineHeight: 22,
     marginBottom: 20,
+    lineHeight:31,
   },
   continueButton: {
     backgroundColor: "#1066E7",
@@ -611,6 +600,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontFamily: "Whyte-Medium",
     fontWeight: "600",
+    lineHeight:31,
   },
   closeAlreadyChosen: {
     paddingVertical: 12,
@@ -620,5 +610,6 @@ const styles = StyleSheet.create({
     color: "#1066E7",
     fontSize: 14,
     fontFamily: "Whyte-Medium",
+    lineHeight:31,
   },
 });

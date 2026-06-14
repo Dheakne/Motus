@@ -338,6 +338,7 @@ const styles = StyleSheet.create({
     color: "#1C1C1E",
     textAlign: "center",
     marginBottom: 32,
+    lineHeight:31,
   },
   progressSection: {
     width: "100%",
@@ -363,6 +364,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontFamily: "Whyte-Medium",
     color: "#6E6E6E",
+    lineHeight:31,
   },
   controls: {
     flexDirection: "row",

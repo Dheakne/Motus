@@ -84,14 +84,16 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   title: {
-    fontSize: 14,
+    fontSize: 16,
     fontFamily: 'Whyte-Regular',
     color: '#1C1C1E',
+     lineHeight: 20,
   },
   count: {
-    fontSize: 14,
+    fontSize: 16,
     fontFamily: 'Whyte-Medium',
     color: '#1066E7',
+    lineHeight: 31,
   },
   barBg: {
     height: 8,
@@ -123,10 +125,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: 'Whyte-Medium',
     color: '#6E6E73',
+    lineHeight: 15,
   },
   circleLabelToday: {
     color: '#1066E7',
     fontFamily: 'Whyte-Bold',
+    lineHeight: 31,
   },
   button: {
     backgroundColor: '#1066E7',
@@ -140,6 +144,7 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 15,
     fontFamily: 'Whyte-Medium',
+    lineHeight: 20,
   },
   errorText: {
     color: '#D32F2F',
