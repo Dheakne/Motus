@@ -1,3 +1,7 @@
+/**
+ * LoginScreen - tela de login por email e senha.
+ */
+
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useState } from "react";

@@ -1,9 +1,12 @@
+/**
+ * ExerciseListScreen - lista os exercícios semanais disponíveis.
+ */
+
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -149,32 +152,9 @@ export default function ExerciseListScreen({ navigation }) {
         return;
       }
 
-      const { error: insertErr } = await supabase
-        .from("user_challenge_progress")
-        .insert([{
-          user_id: user.id,
-          challenge_id: exercise.id,
-          week_start: weekStart,
-          monday: false,
-          tuesday: false,
-          wednesday: false,
-          thursday: false,
-          friday: false,
-          saturday: false,
-          sunday: false,
-        }]);
-
-      if (insertErr) {
-        if (insertErr.code === '23505') {
-          setAlreadyChosenId(exercise.id);
-          return;
-        }
-        console.error("[ExerciseListScreen] insert error:", insertErr);
-        Alert.alert("Erro", "Não foi possível salvar o exercício. Tente novamente.");
-        return;
-      }
-
-      navigation.replace("Challenges", { exercise });
+      // A escolha (INSERT) acontece na ChallengesScreen, ao tocar em
+      // "Escolher este exercício". Aqui apenas navegamos com o exercício.
+      navigation.navigate("Challenges", { exercise });
     } catch (err) {
       console.error("[ExerciseListScreen] press error:", err);
     }

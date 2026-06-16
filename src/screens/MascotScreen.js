@@ -1,3 +1,6 @@
+/**
+ * MascotScreen - onboarding animado do mascote Tutus.
+ */
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
@@ -38,7 +41,7 @@ export default function MascotScreen({ navigation }) {
   const cur = SCRIPT[step];
   const isLast = step === SCRIPT.length - 1;
 
-  // ----- entrance -----
+  // ----- entrada -----
   const mascotIn = useRef(new Animated.Value(0)).current;
   const bubbleIn = useRef(new Animated.Value(0)).current;
 
@@ -57,7 +60,7 @@ export default function MascotScreen({ navigation }) {
     } catch (e) {
       console.error('Erro ao marcar has_seen_tutus:', e);
     } finally {
-      navigation.navigate('ExerciseList');
+      navigation.replace('ExerciseList');
     }
   }
 
@@ -71,7 +74,7 @@ export default function MascotScreen({ navigation }) {
     }).start();
   }, [mascotIn]);
 
-  // ----- bubble re-enters on each step + mascot hop -----
+  // ----- balão reaparece a cada passo + pulinho do mascote -----
   useEffect(() => {
     setTypingDone(false);
     setHop((h) => h + 1);
@@ -98,14 +101,14 @@ export default function MascotScreen({ navigation }) {
 
   return (
     <Pressable style={styles.root} onPress={cur.cta ? undefined : advance}>
-      {/* Background layers */}
+      {/* Camadas de fundo */}
       <Nebula />
       <Bokeh />
       <Traffic />
       <Starfield />
       <CenterGlow />
 
-      {/* Skip */}
+      {/* Botão pular */}
       {!isLast && (
         <Pressable
           style={[styles.skip, { top: insets.top + 18 }]}
@@ -116,7 +119,7 @@ export default function MascotScreen({ navigation }) {
         </Pressable>
       )}
 
-      {/* Stage: bubble + mascot */}
+      {/* Palco: balão + mascote */}
       <View style={styles.stage} pointerEvents="box-none">
         <SpeechBubble anim={bubbleIn}>
           <Typewriter
@@ -130,7 +133,7 @@ export default function MascotScreen({ navigation }) {
         <Mascot enterAnim={mascotIn} hopKey={hop} />
       </View>
 
-      {/* Bottom: dots + button */}
+      {/* Rodapé: indicadores + botão */}
       <View style={[styles.bottom, { paddingBottom: insets.bottom + 36 }]} pointerEvents="box-none">
         <View style={styles.dots}>
           {SCRIPT.map((_, i) => (
@@ -156,7 +159,7 @@ export default function MascotScreen({ navigation }) {
 }
 
 // =========================================================
-//   Center glow behind mascot
+//   Brilho central atrás do mascote
 // =========================================================
 function CenterGlow() {
   const t = useRef(new Animated.Value(0)).current;
@@ -198,7 +201,7 @@ function CenterGlow() {
 }
 
 // =========================================================
-//   Mascot — entrance pop + continuous bob + hop on each step
+//   Mascote — entrada com pop + balanço contínuo + pulinho a cada passo
 // =========================================================
 function Mascot({ enterAnim, hopKey }) {
   const bob = useRef(new Animated.Value(0)).current;
@@ -220,7 +223,7 @@ function Mascot({ enterAnim, hopKey }) {
     ).start();
   }, [bob, aura]);
 
-  // hop whenever hopKey changes
+  // Pula sempre que hopKey muda
   useEffect(() => {
     hop.setValue(0);
     Animated.timing(hop, {
@@ -275,7 +278,7 @@ function Mascot({ enterAnim, hopKey }) {
         </Svg>
       </Animated.View>
 
-      {/* bob + hop wrapper */}
+      {/* wrapper do balanço + pulinho */}
       <Animated.View style={{ flex: 1, transform: [{ translateY: Animated.add(bobTY, hopTY) }, { rotate: bobRot }] }}>
         <Image source={MASCOT} style={styles.mascotImg} resizeMode="contain" />
       </Animated.View>
@@ -284,7 +287,7 @@ function Mascot({ enterAnim, hopKey }) {
 }
 
 // =========================================================
-//   Speech bubble — frosted glass
+//   Balão de fala — vidro fosco
 // =========================================================
 function SpeechBubble({ anim, children }) {
   const ty = anim.interpolate({ inputRange: [0, 1], outputRange: [16, 0] });
@@ -294,14 +297,14 @@ function SpeechBubble({ anim, children }) {
       <BlurView intensity={28} tint="dark" style={styles.bubble}>
         {children}
       </BlurView>
-      {/* tail */}
+      {/* rabinho do balão */}
       <View style={styles.tail} />
     </Animated.View>
   );
 }
 
 // =========================================================
-//   Typewriter
+//   Efeito de máquina de escrever
 // =========================================================
 function Typewriter({ text, forceComplete, onDone, speed = 32 }) {
   const [shown, setShown] = useState('');
@@ -353,7 +356,7 @@ function Typewriter({ text, forceComplete, onDone, speed = 32 }) {
 }
 
 // =========================================================
-//   Progress dot
+//   Indicador de progresso (ponto)
 // =========================================================
 function Dot({ active, done }) {
   const w = useRef(new Animated.Value(active ? 1 : 0)).current;
@@ -384,7 +387,7 @@ function Dot({ active, done }) {
 }
 
 // =========================================================
-//   CTA button
+//   Botão de ação (CTA)
 // =========================================================
 function CtaButton({ visible, onPress }) {
   const a = useRef(new Animated.Value(0)).current;
@@ -417,7 +420,7 @@ function CtaButton({ visible, onPress }) {
 }
 
 // =========================================================
-//   Styles
+//   Estilos
 // =========================================================
 const styles = StyleSheet.create({
   root: {

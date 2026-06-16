@@ -1,3 +1,7 @@
+/**
+ * SignUpScreen - tela de cadastro de novo usuário.
+ */
+
 import { useState } from "react";
 import {
   Alert,
@@ -13,7 +17,9 @@ import {
 import { register } from "../api/authApi";
 import { BackIcon, EyeIcon, EyeOffIcon } from "../components/Icons";
 
-// Aplica máscara DD/MM/AAAA enquanto o usuário digita
+/**
+ * Aplica a máscara DD/MM/AAAA enquanto o usuário digita.
+ */
 function formatBirthDate(value) {
   const digits = value.replace(/\D/g, "").slice(0, 8);
   if (digits.length <= 2) return digits;

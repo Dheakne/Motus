@@ -1,3 +1,7 @@
+/**
+ * ReportProblemScreen - formulário para o usuário relatar um problema.
+ */
+
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useEffect, useState } from "react";

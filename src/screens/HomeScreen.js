@@ -1,6 +1,11 @@
+/**
+ * HomeScreen - tela inicial com progresso semanal, áudios e exercícios.
+ */
+
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
+import { useFocusEffect } from "@react-navigation/native";
 import {
   ActivityIndicator,
   Alert,
@@ -53,6 +58,13 @@ export default function HomeScreen({ navigation }) {
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [cardKey, setCardKey] = useState(0);
+
+  useFocusEffect(
+    useCallback(() => {
+      setCardKey((k) => k + 1);
+    }, [])
+  );
 
   useEffect(() => { loadData(); }, []);
 
@@ -136,7 +148,7 @@ export default function HomeScreen({ navigation }) {
         >
           <Text style={styles.sectionTitle}>Meu exercício semanal</Text>
 
-          <WeeklyProgressCard readOnly />
+          <WeeklyProgressCard key={cardKey} readOnly onChoosePress={handleExercisesPress} />
 
           <Text style={styles.sectionTitle}>Áudios</Text>
 

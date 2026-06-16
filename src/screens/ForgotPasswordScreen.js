@@ -1,3 +1,8 @@
+/**
+ * ForgotPasswordScreen - solicita o envio do email de recuperação de senha.
+ */
+
+import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useState } from "react";
 import {
@@ -28,7 +33,7 @@ export default function ForgotPasswordScreen({ navigation }) {
 
     setLoading(true);
     const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-      redirectTo: `${process.env.EXPO_PUBLIC_APP_URL || 'exp://127.0.0.1:8081'}/--/ResetPassword`,
+      redirectTo: 'motusapp://ResetPassword',
     });
     setLoading(false);
 
@@ -66,7 +71,7 @@ export default function ForgotPasswordScreen({ navigation }) {
 
         <Text style={styles.label}>Email</Text>
         <View style={styles.inputWrapper}>
-          <Text style={styles.inputIcon}>👤</Text>
+          <Ionicons name="person-outline" size={16} color="#9CA3AF" />
           <TextInput
             style={styles.input}
             placeholder="seuemail@gmail.com"

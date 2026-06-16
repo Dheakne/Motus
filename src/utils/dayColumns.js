@@ -1,12 +1,12 @@
 // Ordem padrão dos dias da semana no app (domingo = 0)
 export const DAY_COLUMNS = [
-  'sunday',    // 0
-  'monday',    // 1
-  'tuesday',   // 2
-  'wednesday', // 3
-  'thursday',  // 4
-  'friday',    // 5
-  'saturday',  // 6
+  'sunday',
+  'monday',
+  'tuesday',
+  'wednesday',
+  'thursday',
+  'friday',
+  'saturday',
 ];
 
 // Mapeamento de nome para índice

@@ -1,5 +1,6 @@
-// Drawer lateral do menu de navegação do app Motus
-// Desliza da direita para a esquerda com fundo escurecido
+/**
+ * DrawerMenu - menu lateral de navegação que desliza da direita com fundo escurecido.
+ */
 
 import React, { useEffect, useRef, useState } from "react";
 import {

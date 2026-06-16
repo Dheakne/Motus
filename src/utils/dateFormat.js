@@ -1,4 +1,6 @@
-// Converte data DD/MM/YYYY para YYYY-MM-DD (formato SQL)
+/**
+ * Converte data DD/MM/YYYY para YYYY-MM-DD (formato SQL).
+ */
 export function convertToSQLDate(dateString) {
   if (!dateString || dateString.length < 8) return null;
 
@@ -14,7 +16,9 @@ export function convertToSQLDate(dateString) {
   return null;
 }
 
-// Formata data YYYY-MM-DD para DD/MM/YYYY
+/**
+ * Formata data YYYY-MM-DD para DD/MM/YYYY.
+ */
 export function formatDate(dateString) {
   if (!dateString) return "";
   const [year, month, day] = dateString.split("-");

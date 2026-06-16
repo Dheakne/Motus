@@ -1,4 +1,6 @@
-// Responsável por controlar o fluxo de navegação do app. Usa React Navigation com uma pilha de telas (Stack).
+/**
+ * AppNavigator - controla o fluxo de navegação do app via React Navigation (Stack).
+ */
 
 import { useNavigation } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -6,7 +8,6 @@ import { useFonts } from "expo-font";
 import { useEffect } from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
-// Importação de todas as telas do app
 import AudioPlayerScreen from "../screens/AudioPlayerScreen";
 import CategoryScreen from "../screens/CategoryScreen";
 import ChallengesScreen from "../screens/ChallengesScreen";
@@ -24,8 +25,6 @@ import SplashScreen from "../screens/SplashScreen";
 import TermsScreen from "../screens/TermsScreen";
 import { supabase } from "../services/supabase";
 
-// Cria o objeto de navegação em pilha (Stack Navigator)
-// Pilha = empilha telas, botão "voltar" desfaz a pilha
 const Stack = createNativeStackNavigator();
 
 // Flag global de fluxo de recuperação. Setada quando PASSWORD_RECOVERY chega
@@ -57,17 +56,16 @@ export default function AppNavigator() {
     "Whyte-Medium": require("../../assets/fonts/Whyte-Medium.ttf"),
   });
 
-  // Aguarda carregamento das fontes para evitar flash de texto sem estilo
+  // Aguarda o carregamento das fontes para evitar flash de texto sem estilo
   if (!fontsLoaded) return null;
 
   const skipAuth = process.env.EXPO_PUBLIC_SKIP_AUTH === 'true';
 
   return (
     <SafeAreaProvider>
-      {/* Stack.Navigator define as opções globais e a tela inicial */}
       <Stack.Navigator
       initialRouteName={hasRecoveryHash ? 'ResetPassword' : (skipAuth ? 'Home' : 'Splash')}
-      screenOptions={{ headerShown: false }} // Remove a barra de título em todas as telas
+      screenOptions={{ headerShown: false }}
       screenLayout={({ children }) => (
         <>
           <AuthListener />
@@ -75,9 +73,6 @@ export default function AppNavigator() {
         </>
       )}
     >
-      {/* Cada Stack.Screen registra uma tela no sistema de navegação */}
-      {/* name = nome usado no navigation.navigate('NomeDaTela') */}
-      {/* component = o componente React que será renderizado */}
       <Stack.Screen name="Splash" component={SplashScreen} />
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="SignUp" component={SignUpScreen} />

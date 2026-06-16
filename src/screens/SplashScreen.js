@@ -1,15 +1,5 @@
 /**
- * motus — Splash Screen (React Native / Expo)
- *
- * Dependencies (install once):
- *   npx expo install react-native-svg expo-linear-gradient
- *
- * (If you're on bare RN: `yarn add react-native-svg react-native-linear-gradient`
- *  and swap the `expo-linear-gradient` import below for `react-native-linear-gradient`.)
- *
- * Usage:
- *   import Splash from './Splash';
- *   <Splash onDone={() => navigation.replace('Home')} duration={2800} />
+ * SplashScreen - tela de abertura animada do Motus (React Native / Expo).
  */
 
 import MaskedView from '@react-native-masked-view/masked-view';
@@ -35,7 +25,7 @@ import { recoveryState } from '../navigation/AppNavigator';
 import { supabase } from '../services/supabase';
 
 // =========================================================
-//   Palette
+//   Paleta
 // =========================================================
 const C = {
   c1: '#1fc77a',
@@ -93,22 +83,21 @@ export default function Splash({
 
   return (
     <View style={styles.root}>
-      {/* Background gradient */}
+      {/* Gradiente de fundo */}
       <LinearGradient
         colors={[C.bg1, C.bg2, C.bg3]}
         locations={[0, 0.6, 1]}
         style={StyleSheet.absoluteFill}
       />
 
-      {/* Ambient blobs */}
+      {/* Blobs de ambiente */}
       <Blob color={C.c1} size={320} left={-SCREEN_W * 0.2} top={SCREEN_H * 0.1} delay={0} />
       <Blob color={C.c3} size={360} left={SCREEN_W * 0.65} top={SCREEN_H * 0.3} delay={400} />
       <Blob color={C.c2} size={280} left={SCREEN_W * 0.2} top={SCREEN_H * 0.75} delay={800} />
 
-      {/* Starfield */}
       <Starfield />
 
-      {/* Orbital decorations */}
+      {/* Decorações orbitais */}
       <OrbitRing duration={60000}>
         <Floater dx={-130} dy={-180} delay={250}>
           <PurpleStar size={86} />
@@ -136,21 +125,21 @@ export default function Splash({
         </Floater>
       </OrbitRing>
 
-      {/* Hero wordmark */}
+      {/* Logotipo principal */}
       <View style={styles.hero} pointerEvents="none">
         <HeroGlow />
         <Wordmark text={appName} />
         <Tagline text={tagline} />
       </View>
 
-      {/* Loader dots */}
+      {/* Pontos de carregamento */}
       <LoaderDots />
     </View>
   );
 }
 
 // =========================================================
-//   Background blobs
+//   Blobs de fundo
 // =========================================================
 function Blob({
   color,
@@ -181,7 +170,7 @@ function Blob({
 }
 
 // =========================================================
-//   Starfield — twinkles
+//   Starfield — cintilações
 // =========================================================
 function Starfield() {
   const stars = useMemo(
@@ -224,7 +213,7 @@ function Star({ x, y, r, delay, dur }) {
 }
 
 // =========================================================
-//   Orbital decoration system
+//   Sistema de decoração orbital
 // =========================================================
 function OrbitRing({
   duration,
@@ -256,9 +245,9 @@ function Floater({
   delay,
   children,
 }) {
-  // Pop-in
+  // Entrada (pop-in)
   const pop = useRef(new Animated.Value(0)).current;
-  // Continuous float
+  // Flutuação contínua
   const bobDurationRef = useRef(4500 + Math.random() * 1500);
   const bob = useLoop(bobDurationRef.current);
 
@@ -303,7 +292,7 @@ function Floater({
 }
 
 // =========================================================
-//   Hero glow halo (behind text)
+//   Halo de brilho atrás do logotipo
 // =========================================================
 function HeroGlow() {
   const fade = useRef(new Animated.Value(0)).current;
@@ -342,7 +331,7 @@ function HeroGlow() {
 }
 
 // =========================================================
-//   Wordmark — each letter staggered with gradient fill (via MaskedView)
+//   Logotipo — cada letra entra escalonada com preenchimento em gradiente (via MaskedView)
 // =========================================================
 function Wordmark({ text }) {
   return (
@@ -406,7 +395,7 @@ function Letter({ ch, delay }) {
 }
 
 // =========================================================
-//   Tagline — fades up after letters land
+//   Tagline — surge em fade depois que as letras assentam
 // =========================================================
 function Tagline({ text }) {
   const anim = useRef(new Animated.Value(0)).current;
@@ -428,7 +417,7 @@ function Tagline({ text }) {
 }
 
 // =========================================================
-//   Loader dots
+//   Pontos de carregamento
 // =========================================================
 function LoaderDots() {
   const fade = useRef(new Animated.Value(0)).current;
@@ -462,7 +451,7 @@ function Dot({ color, delay }) {
 }
 
 // =========================================================
-//   SVG icons
+//   Ícones SVG
 // =========================================================
 function PurpleStar({ size }) {
   return (
@@ -570,7 +559,7 @@ function Bubble({ size, hue }) {
 }
 
 // =========================================================
-//   useLoop — single-shot animated value that ping-pongs 0→1
+//   useLoop — valor animado de uma passada que vai e volta entre 0 e 1
 // =========================================================
 function useLoop(duration, delay = 0) {
   const value = useRef(new Animated.Value(0)).current;

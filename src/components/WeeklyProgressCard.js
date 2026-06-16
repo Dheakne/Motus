@@ -1,3 +1,7 @@
+/**
+ * WeeklyProgressCard - card de progresso semanal do exercício escolhido.
+ */
+
 import React from 'react';
 import {
   ActivityIndicator,
@@ -12,13 +16,30 @@ import { useWeeklyChallenge } from '../hooks/useWeeklyChallenge';
 const WEEK_LABELS = ['S', 'T', 'Q', 'Q', 'S', 'S', 'D'];
 const WEEK_COLUMNS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 
-export default function WeeklyProgressCard({ readOnly = false }) {
-  const { progress, todayColumn, completedCount, toggleToday, loading, error } = useWeeklyChallenge();
+export default function WeeklyProgressCard({ readOnly = false, onChoosePress }) {
+  const { progress, todayColumn, completedCount, toggleToday, hasChosen, loading, error } = useWeeklyChallenge();
 
   if (loading) {
     return (
       <View style={[styles.card, styles.loadingCard]}>
         <ActivityIndicator color="#1066E7" />
+      </View>
+    );
+  }
+
+  if (!hasChosen) {
+    return (
+      <View style={styles.card}>
+        <View style={styles.emptyMessage}>
+          <Text style={styles.emptyMessageText}>
+            Você ainda não escolheu um exercício para esta semana.
+          </Text>
+        </View>
+        {onChoosePress ? (
+          <TouchableOpacity style={styles.button} onPress={onChoosePress} activeOpacity={0.8}>
+            <Text style={styles.buttonText}>Escolher exercício</Text>
+          </TouchableOpacity>
+        ) : null}
       </View>
     );
   }
@@ -87,7 +108,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Whyte-Regular',
     color: '#1C1C1E',
-     lineHeight: 20,
+    lineHeight: 20,
   },
   count: {
     fontSize: 16,
@@ -152,5 +173,16 @@ const styles = StyleSheet.create({
     fontFamily: 'Whyte-Regular',
     marginTop: 8,
     textAlign: 'center',
+  },
+  emptyMessage: {
+    backgroundColor: '#E6F0FF',
+    borderRadius: 12,
+    padding: 16,
+  },
+  emptyMessageText: {
+    fontSize: 15,
+    fontFamily: 'Whyte-Regular',
+    color: '#1066E7',
+    lineHeight: 22,
   },
 });

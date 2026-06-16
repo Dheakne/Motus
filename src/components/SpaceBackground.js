@@ -1,5 +1,5 @@
 /**
- * SpaceBackground.js — fundo espacial etéreo do Tutus (React Native)
+ * SpaceBackground - fundo espacial etéreo do Tutus (React Native).
  *
  * Recria, em componentes nativos:
  *   - Nebulosas coloridas com falloff suave (RadialGradient)
@@ -26,7 +26,7 @@ import Svg, {
 
 const { width: SCREEN_W, height: SCREEN_H } = Dimensions.get('window');
 
-// ---------- helper: looping 0–1 driver ----------
+// Auxiliar: driver de animação em loop de 0 a 1.
 function useLoop(duration, delay = 0) {
   const v = useRef(new Animated.Value(0)).current;
   useEffect(() => {
@@ -46,10 +46,10 @@ function useLoop(duration, delay = 0) {
 }
 
 // =========================================================
-//   Nebula — base gradient + colored cloud glows
+//   Nebula — gradiente base + brilhos coloridos de nuvem
 // =========================================================
 export function Nebula() {
-  // gentle drift on each cloud
+  // Leve deriva em cada nuvem
   const d1 = useLoop(16000);
   const d2 = useLoop(20000);
   const d3 = useLoop(18000);
@@ -63,7 +63,7 @@ export function Nebula() {
 
   return (
     <View style={StyleSheet.absoluteFill} pointerEvents="none">
-      {/* deep-space base */}
+      {/* base do espaço profundo */}
       <Svg style={StyleSheet.absoluteFill} width={SCREEN_W} height={SCREEN_H}>
         <Defs>
           <RadialGradient id="base" cx="50%" cy="30%" r="80%">
@@ -77,7 +77,7 @@ export function Nebula() {
         <Rect x="0" y="0" width={SCREEN_W} height={SCREEN_H} fill="url(#base)" />
       </Svg>
 
-      {/* colored cloud glows — soft radial falloff reads as "blur" */}
+      {/* brilhos coloridos de nuvem — falloff radial suave dá efeito de "blur" */}
       <Animated.View style={[styles.neb, { left: -SCREEN_W * 0.12, top: SCREEN_H * 0.06 }, drift(d1, 36, 28)]}>
         <Cloud size={360} color="31,199,122" />
       </Animated.View>
@@ -91,7 +91,7 @@ export function Nebula() {
         <Cloud size={300} color="214,77,170" />
       </Animated.View>
 
-      {/* vignette */}
+      {/* vinheta */}
       <Svg style={StyleSheet.absoluteFill} width={SCREEN_W} height={SCREEN_H}>
         <Defs>
           <RadialGradient id="vig" cx="50%" cy="45%" r="75%">
@@ -122,7 +122,7 @@ function Cloud({ size, color }) {
 }
 
 // =========================================================
-//   Starfield — two depths + 4-point sparkles
+//   Starfield — duas profundidades + brilhos de 4 pontas
 // =========================================================
 export function Starfield() {
   const { far, near, sparkles } = useMemo(() => {
@@ -209,7 +209,7 @@ function SparkleStar({ x, y, s, dur, delay, hue }) {
 }
 
 // =========================================================
-//   Bokeh — soft orbs rising upward
+//   Bokeh — orbes suaves subindo
 // =========================================================
 export function Bokeh() {
   const orbs = useMemo(
@@ -265,7 +265,7 @@ function RisingOrb({ x, size, delay, dur, hue, op }) {
 }
 
 // =========================================================
-//   Space traffic — planets & rockets crossing behind Tutus
+//   Tráfego espacial — planetas e foguetes cruzando atrás do Tutus
 // =========================================================
 export function Traffic() {
   return (
@@ -297,7 +297,7 @@ function Crosser({ top, dur, delay, dir, opacity, children }) {
     inputRange: [0, 1],
     outputRange: dir === 'LR' ? [from, to] : [to, from],
   });
-  // gentle vertical bob layered on top
+  // Leve balanço vertical sobreposto
   const bob = useLoop(5000);
   const translateY = bob.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0, -10, 0] });
 
@@ -350,7 +350,7 @@ function Planet({ size, hue, ring = false }) {
 
 function Rocket({ size, flip = false }) {
   const flame = useLoop(400);
-  // flicker by toggling opacity quickly
+  // Cintila alternando a opacidade rapidamente
   const flameOp = flame.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0.6, 1, 0.6] });
   return (
     <Animated.View style={{ transform: [{ scaleX: flip ? -1 : 1 }, { rotate: '-7deg' }] }}>

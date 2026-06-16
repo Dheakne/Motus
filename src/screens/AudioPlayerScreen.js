@@ -1,6 +1,8 @@
-// Player de áudio para as sessões de meditação.
-// Recebe os dados da sessão via route.params, vindos da tela de categoria.
-// O player usa Expo AV para controle real de áudio (play, pause, barra de progresso).
+/**
+ * AudioPlayerScreen - player de áudio das sessões de meditação.
+ * Recebe os dados da sessão via route.params e usa Expo AV para controle real
+ * de áudio (play, pause, barra de progresso).
+ */
 
 import { Ionicons } from "@expo/vector-icons";
 import Slider from "@react-native-community/slider";

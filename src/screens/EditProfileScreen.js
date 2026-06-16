@@ -1,3 +1,7 @@
+/**
+ * EditProfileScreen - edição de perfil, exportação e exclusão de conta.
+ */
+
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useEffect, useState } from "react";
@@ -379,7 +383,9 @@ export default function EditProfileScreen({ navigation }) {
                   {deleting ? (
                     <ActivityIndicator color="#fff" size="small" />
                   ) : (
-                    <Text style={styles.confirmDeleteText}>Excluir permanentemente</Text>
+                    <Text style={styles.confirmDeleteText} numberOfLines={1}>
+                      Excluir permanentemente
+                    </Text>
                   )}
                 </TouchableOpacity>
               </View>
@@ -577,31 +583,35 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   deleteConfirmButtons: {
-    flexDirection: "row",
+    flexDirection: "column",
     gap: 12,
   },
   cancelButton: {
-    flex: 1,
+    width: "100%",
+    height: 48,
     borderRadius: 22,
-    paddingVertical: 12,
     alignItems: "center",
+    justifyContent: "center",
     backgroundColor: "#E5E5EA",
   },
   cancelButtonText: {
     color: "#1C1C1E",
     fontSize: 14,
     fontFamily: "Whyte-Medium",
+    lineHeight: 15,
   },
   confirmDeleteButton: {
-    flex: 1,
+    width: "100%",
+    height: 48,
     borderRadius: 22,
-    paddingVertical: 12,
     alignItems: "center",
+    justifyContent: "center",
     backgroundColor: "#FF3B30",
   },
   confirmDeleteText: {
     color: "#FFFFFF",
     fontSize: 14,
+    lineHeight: 25,
     fontFamily: "Whyte-Medium",
   },
 });

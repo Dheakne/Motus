@@ -1,8 +1,13 @@
+/**
+ * ChallengesScreen - detalhe do exercício semanal e escolha do desafio.
+ */
+
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   Image,
   SafeAreaView,
   ScrollView,
@@ -13,6 +18,17 @@ import {
 } from "react-native";
 import WeeklyProgressCard from "../components/WeeklyProgressCard";
 import { supabase } from "../services/supabase";
+import { getWeekStart } from "../utils/weekStart";
+
+const EMPTY_PROGRESS = {
+  monday: false,
+  tuesday: false,
+  wednesday: false,
+  thursday: false,
+  friday: false,
+  saturday: false,
+  sunday: false,
+};
 
 function parseList(text) {
   if (!text) return [];
@@ -32,6 +48,8 @@ function parseDiscoveries(text) {
 export default function ChallengesScreen({ route, navigation }) {
   const [exercise, setExercise] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [hasChosen, setHasChosen] = useState(false);
+  const [choosing, setChoosing] = useState(false);
 
   useEffect(() => {
     loadExercise();
@@ -56,10 +74,69 @@ export default function ChallengesScreen({ route, navigation }) {
       const { data, error } = await query.maybeSingle();
       if (error) throw error;
       setExercise(data);
+
+      // Verifica se já existe progresso desta semana para este usuário.
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: row } = await supabase
+          .from("user_challenge_progress")
+          .select("challenge_id")
+          .eq("user_id", user.id)
+          .eq("week_start", getWeekStart())
+          .maybeSingle();
+        setHasChosen(!!row);
+      }
     } catch (err) {
       console.error("[ChallengesScreen] load error:", err);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function chooseExercise() {
+    if (choosing) return;
+    const exerciseId = exercise?.id;
+    if (!exerciseId) return;
+
+    setChoosing(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        Alert.alert("Atenção", "Faça login para escolher um exercício.");
+        return;
+      }
+
+      const { data: insertData, error: insertErr } = await supabase
+        .from("user_challenge_progress")
+        .insert([{
+          user_id: user.id,
+          challenge_id: exerciseId,
+          week_start: getWeekStart(),
+          ...EMPTY_PROGRESS,
+        }])
+        .select("challenge_id,monday,tuesday,wednesday,thursday,friday,saturday,sunday")
+        .single();
+
+      if (insertErr) {
+        if (insertErr.code === "23505") {
+          // Já existe um exercício escolhido para esta semana.
+          setHasChosen(true);
+          Alert.alert("Tudo certo", "Você já escolheu um exercício para esta semana.");
+          return;
+        }
+        console.error("[ChallengesScreen] choose error:", insertErr);
+        Alert.alert("Erro", "Não foi possível escolher o exercício. Tente novamente.");
+        return;
+      }
+
+      // O WeeklyProgressCard busca os dados pelo hook (user_id + week_start),
+      // então ao montar com hasChosen=true ele já encontra esta linha.
+      setHasChosen(true);
+    } catch (err) {
+      console.error("[ChallengesScreen] choose error:", err);
+      Alert.alert("Erro", "Não foi possível escolher o exercício. Tente novamente.");
+    } finally {
+      setChoosing(false);
     }
   }
 
@@ -120,7 +197,29 @@ export default function ChallengesScreen({ route, navigation }) {
           />
         </View>
 
-        <WeeklyProgressCard />
+        {hasChosen ? (
+          <WeeklyProgressCard />
+        ) : (
+          <View style={styles.chooseWrapper}>
+            <View style={styles.chooseMessage}>
+              <Text style={styles.chooseMessageText}>
+                Você ainda não escolheu um exercício para esta semana.
+              </Text>
+            </View>
+            <TouchableOpacity
+              style={styles.chooseButton}
+              onPress={chooseExercise}
+              activeOpacity={0.85}
+              disabled={choosing}
+            >
+              {choosing ? (
+                <ActivityIndicator color="#FFFFFF" />
+              ) : (
+                <Text style={styles.chooseButtonText}>Escolher este exercício</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+        )}
 
         {exercise?.title ? (
           <Text style={styles.exerciseTitle}>{exercise.title}</Text>
@@ -241,6 +340,35 @@ const styles = StyleSheet.create({
     fontFamily: "Whyte-Medium",
     color: "#1066E7",
     marginLeft: 4,
+    lineHeight: 20,
+  },
+  chooseWrapper: {
+    marginBottom: 28,
+  },
+  chooseMessage: {
+    backgroundColor: "#E6F0FF",
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 16,
+  },
+  chooseMessageText: {
+    fontSize: 15,
+    fontFamily: "Whyte-Regular",
+    color: "#1066E7",
+    lineHeight: 22,
+  },
+  chooseButton: {
+    backgroundColor: "#1066E7",
+    borderRadius: 18,
+    height: 55,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  chooseButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontFamily: "Whyte-Bold",
+    fontWeight: "700",
     lineHeight: 20,
   },
   welcomeRow: {

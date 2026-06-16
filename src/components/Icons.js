@@ -1,3 +1,7 @@
+/**
+ * Icons - ícones SVG customizados usados no app.
+ */
+
 import React from "react";
 import Svg, {
   Circle,

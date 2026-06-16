@@ -1,6 +1,7 @@
-// src/utils/weekStart.js
-// Cópia exata da lógica de getWeekStart() que hoje vive dentro de
-// src/hooks/useWeeklyChallenge.js, extraída para ser testável isoladamente.
+/**
+ * Retorna a segunda-feira da semana de referência no formato YYYY-MM-DD.
+ * Extraída de useWeeklyChallenge para ser testável isoladamente.
+ */
 export function getWeekStart(referenceDate = new Date()) {
   const today = new Date(referenceDate);
   const dow = today.getDay();

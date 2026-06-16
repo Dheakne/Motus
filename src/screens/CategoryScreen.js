@@ -1,3 +1,7 @@
+/**
+ * CategoryScreen - lista as sessões de áudio de uma categoria.
+ */
+
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useEffect, useState } from "react";

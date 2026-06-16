@@ -1,3 +1,7 @@
+/**
+ * TermsScreen - exibe os termos de uso do app.
+ */
+
 import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
@@ -97,12 +101,15 @@ const styles = StyleSheet.create({
     fontFamily: "Whyte-Medium",
     color: "#FFFFFF",
     fontWeight: "600",
+    lineHeight: 20,
   },
   headerTitle: {
     fontSize: 20,
     fontFamily: "Whyte-Bold",
     fontWeight: "700",
     color: "#FFFFFF",
+    lineHeight: 20,
+
   },
   card: {
     flex: 1,
@@ -110,6 +117,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     marginTop: -30,
+    marginBottom: -35,
   },
   scrollContent: {
     paddingHorizontal: 24,
@@ -123,6 +131,8 @@ const styles = StyleSheet.create({
     color: "#1C1C1E",
     marginBottom: 10,
     marginTop: 16,
+    lineHeight: 20,
+
   },
   sectionText: {
     fontSize: 14,
@@ -130,5 +140,7 @@ const styles = StyleSheet.create({
     color: "#6E6E73",
     lineHeight: 22,
     marginBottom: 12,
+    lineHeight: 20,
+
   },
 });

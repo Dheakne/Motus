@@ -1,3 +1,7 @@
+/**
+ * ResetPasswordScreen - redefinição de senha após o link de recuperação.
+ */
+
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useEffect, useRef, useState } from "react";
 import {
