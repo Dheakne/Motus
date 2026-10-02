@@ -55,6 +55,30 @@ npm start
 
 Servidor sobe em `http://localhost:3000` por padrão.
 
+## Produção
+
+O backend está em deploy no Render: **https://motus-dm29.onrender.com**
+
+Configuração do serviço no Render:
+
+| Campo | Valor |
+|---|---|
+| Root Directory | `backend` |
+| Build Command | `npm install` |
+| Start Command | `npm start` |
+| Plano | Free |
+
+Variáveis de ambiente configuradas no dashboard do Render (iguais ao `.env` local, exceto `PORT`, que o Render injeta automaticamente, e `SUPABASE_ANON_KEY`, que não é usada pelo backend):
+`SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_JWT_SECRET`, `SUPABASE_STORAGE_BUCKET`, `FRONTEND_URL`, `NODE_ENV=production`.
+
+> **Plano free "dorme" após inatividade.** A primeira requisição depois de um tempo sem uso pode levar 30-50s para responder enquanto o serviço acorda — não é bug.
+
+No app mobile, aponte `EXPO_PUBLIC_API_URL` (em `.env`, na raiz do projeto) para essa URL em vez de `localhost`.
+
+### Troubleshooting: "só funciona no meu celular"
+
+Se o login/cadastro só funciona no celular de uma pessoa específica da equipe, o motivo quase sempre é `EXPO_PUBLIC_API_URL=http://localhost:3000` no `.env` dela. Em um **dispositivo físico**, `localhost` aponta para o próprio celular, não para o computador — então isso só "funciona" em emulador/simulador, ou se o `.env` tiver sido trocado manualmente para o IP da rede local de quem testou (o que só funciona na rede Wi-Fi dessa pessoa). Usar a URL de produção do Render acima resolve isso para qualquer rede.
+
 ## Rotas disponíveis
 
 | Método | Rota | Auth | Descrição |
