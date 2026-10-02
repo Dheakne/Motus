@@ -564,9 +564,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: "Whyte-Regular",
     color: "#393c40",
-    lineHeight: 22,
     marginBottom: 20,
-    lineHeight:31,
+    lineHeight: 31,
   },
   continueButton: {
     backgroundColor: "#1066E7",

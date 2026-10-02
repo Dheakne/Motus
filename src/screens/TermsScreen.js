@@ -138,9 +138,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: "Whyte-Regular",
     color: "#6E6E73",
-    lineHeight: 22,
     marginBottom: 12,
     lineHeight: 20,
-
   },
 });
