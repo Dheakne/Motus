@@ -29,6 +29,7 @@ cp .env.example .env
 | `SUPABASE_JWT_SECRET` | Settings → API → JWT Secret → Reveal |
 | `SUPABASE_STORAGE_BUCKET` | Nome do bucket de áudio (ex.: `audio`) |
 | `FRONTEND_URL` | URL do app Expo — use `*` em desenvolvimento |
+| `ADMIN_FRONTEND_URL` | Origens do painel admin, separadas por vírgula (padrão: `http://localhost:5173`). Nunca `*` |
 
 ## Banco de dados
 
@@ -39,6 +40,8 @@ migrations/001_add_is_premium_columns.sql
 migrations/002_add_updated_at_columns.sql
 migrations/003_make_optional_columns_nullable.sql
 migrations/004_add_consent_columns.sql
+migrations/005_add_admin_users.sql
+migrations/006_add_admin_audit_log.sql
 ```
 
 Veja [migrations/README.md](migrations/README.md) para detalhes.
@@ -87,6 +90,8 @@ Se o login/cadastro só funciona no celular de uma pessoa específica da equipe,
 | POST | `/api/auth/login` | — | Autentica usuário |
 | PATCH | `/api/exercises/progress/mark-today` | Bearer token | Marca dia do exercício semanal |
 | GET | `/api/sessions/:id` | Bearer token | Retorna sessão de áudio |
+| GET | `/api/admin/me` | Bearer token + admin | Confirma acesso ao painel e retorna o papel |
+| GET | `/api/admin/metrics/overview` | Bearer token + admin | KPIs gerais (total de usuários, premium) |
 
 ## Testes
 

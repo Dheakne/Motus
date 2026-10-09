@@ -16,4 +16,9 @@ module.exports = {
   jwtSecret: process.env.SUPABASE_JWT_SECRET,
   storageBucket: process.env.SUPABASE_STORAGE_BUCKET,
   frontendUrl: process.env.FRONTEND_URL || '*',
+  // Origens permitidas para o painel admin (separadas por vírgula). Nunca '*'.
+  adminFrontendUrls: (process.env.ADMIN_FRONTEND_URL || 'http://localhost:5173')
+    .split(',')
+    .map((url) => url.trim())
+    .filter(Boolean),
 };

@@ -8,6 +8,8 @@ Execute cada arquivo em ordem no **Supabase SQL Editor** (painel do projeto → 
 | `002_add_updated_at_columns.sql` | Adiciona `updated_at` em `user_profiles` e `user_challenge_progress`; cria índice de busca por usuário/semana |
 | `003_make_optional_columns_nullable.sql` | Torna `phone` e `birth_date` nullable em `user_profiles` (campos opcionais no cadastro) |
 | `004_add_consent_columns.sql` | Adiciona `consent_terms`, `consent_health_data` e `consented_at` em `user_profiles` (consentimento LGPD gravado no cadastro) |
+| `005_add_admin_users.sql` | Cria `admin_users` (quem acessa o painel admin, com papel `admin`/`superadmin`). RLS sem policies: só o backend lê |
+| `006_add_admin_audit_log.sql` | Cria `admin_audit_log` (registro das ações feitas pelo painel). RLS sem policies: só o backend lê |
 
 ## Como executar
 
@@ -17,6 +19,16 @@ Execute cada arquivo em ordem no **Supabase SQL Editor** (painel do projeto → 
 4. Copie e cole o conteúdo do arquivo `.sql`
 5. Clique em **Run**
 6. Repita para cada migration em ordem numérica
+
+## Primeiro administrador
+
+Depois de rodar a 005, conceda acesso ao painel manualmente (o usuário precisa já ter conta no app):
+
+```sql
+INSERT INTO admin_users (user_id, role)
+SELECT id, 'superadmin' FROM auth.users WHERE email = 'seu-email@exemplo.com'
+ON CONFLICT (user_id) DO UPDATE SET role = EXCLUDED.role;
+```
 
 ## Observações
 
