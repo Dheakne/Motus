@@ -31,7 +31,7 @@ export default function Overview() {
       <h2 className="page-title">Visão geral</h2>
 
       {error && (
-        <div className="card error-card">
+        <div className="error-card">
           <p>{error}</p>
           <button className="btn btn-ghost" onClick={load}>
             Tentar de novo
@@ -62,7 +62,7 @@ export default function Overview() {
 
 function KpiCard({ label, value, loading }: { label: string; value: string | null; loading: boolean }) {
   return (
-    <div className="card kpi-card">
+    <div className="kpi-card">
       <span className="kpi-label">{label}</span>
       <span className="kpi-value">{loading ? '…' : (value ?? '—')}</span>
     </div>

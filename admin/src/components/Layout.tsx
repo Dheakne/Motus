@@ -8,20 +8,24 @@ export default function Layout() {
   return (
     <div className="layout">
       <header className="topbar">
-        <span className="brand">
-          Motus <span className="brand-tag">Admin</span>
-        </span>
-        <div className="topbar-user">
-          <span className="muted">{state.admin.email}</span>
-          <span className="role-badge">{state.admin.role}</span>
-          <button className="btn btn-ghost" onClick={logout}>
-            Sair
-          </button>
+        <div className="topbar-inner">
+          <span className="brand">
+            Motus <span className="brand-tag">Admin</span>
+          </span>
+          <div className="topbar-user">
+            <span className="topbar-email">{state.admin.email}</span>
+            <span className="role-badge">{state.admin.role}</span>
+            <button className="btn btn-ghost" onClick={logout}>
+              Sair
+            </button>
+          </div>
         </div>
       </header>
-      <main className="content">
-        <Outlet />
-      </main>
+      <div className="sheet">
+        <main className="content">
+          <Outlet />
+        </main>
+      </div>
     </div>
   );
 }

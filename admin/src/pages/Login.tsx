@@ -30,7 +30,7 @@ export default function Login() {
   }
 
   return (
-    <div className="center-screen">
+    <div className="center-screen login-screen">
       <form className="card login-card" onSubmit={handleSubmit}>
         <h1 className="brand brand-lg">
           Motus <span className="brand-tag">Admin</span>
