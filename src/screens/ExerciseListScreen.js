@@ -15,6 +15,7 @@ import {
   View,
 } from "react-native";
 import { BackIcon } from "../components/Icons";
+import { usePremium } from "../hooks/usePremium";
 import { supabase } from "../services/supabase";
 import { DAY_COLUMNS } from '../utils/dayColumns';
 
@@ -86,6 +87,7 @@ export default function ExerciseListScreen({ navigation }) {
   const [loading, setLoading] = useState(true);
   const [showFreemium, setShowFreemium] = useState(false);
   const [alreadyChosenId, setAlreadyChosenId] = useState(null);
+  const { isPremium, loading: premiumLoading } = usePremium();
 
   useEffect(() => {
     load();
@@ -130,7 +132,7 @@ export default function ExerciseListScreen({ navigation }) {
   }
 
   async function checkAndChooseExercise(exercise) {
-    if (!exercise.is_free) {
+    if (!exercise.is_free && !isPremium) {
       setShowFreemium(true);
       return;
     }
@@ -160,7 +162,7 @@ export default function ExerciseListScreen({ navigation }) {
     }
   }
 
-  if (loading) {
+  if (loading || premiumLoading) {
     return (
       <SafeAreaView style={[styles.safeArea, styles.loadingContainer]}>
         <ActivityIndicator size="large" color="#FFFFFF" />
@@ -207,7 +209,7 @@ export default function ExerciseListScreen({ navigation }) {
 
           {exercises.map((exercise) => {
             const iconDef = getExerciseIcon(exercise);
-            const isFree = !!exercise.is_free;
+            const isLocked = !exercise.is_free && !isPremium;
             const descPreview = (exercise.description || "").split("\n")[0];
 
             return (
@@ -221,11 +223,11 @@ export default function ExerciseListScreen({ navigation }) {
                   style={[
                     styles.iconContainer,
                     {
-                      backgroundColor: isFree ? "#FFFFFF" : "#E5E7EB",
+                      backgroundColor: isLocked ? "#E5E7EB" : "#FFFFFF",
                     },
                   ]}
                 >
-                  {isFree ? (
+                  {!isLocked ? (
                     <ExerciseIcon exercise={exercise} size={28} />
                   ) : (
                     <Ionicons name="lock-closed" size={24} color="#9CA3AF" />
@@ -237,7 +239,7 @@ export default function ExerciseListScreen({ navigation }) {
                     selectable={false}
                     style={[
                       styles.exerciseTitle,
-                      !isFree && styles.exerciseTitleLocked,
+                      isLocked && styles.exerciseTitleLocked,
                     ]}
                     numberOfLines={1}
                   >
@@ -248,7 +250,7 @@ export default function ExerciseListScreen({ navigation }) {
                       selectable={false}
                       style={[
                         styles.exerciseDesc,
-                        !isFree && styles.exerciseDescLocked,
+                        isLocked && styles.exerciseDescLocked,
                       ]}
                       numberOfLines={1}
                     >
@@ -261,14 +263,14 @@ export default function ExerciseListScreen({ navigation }) {
                       <View
                         style={[
                           styles.pill,
-                          !isFree && styles.pillLocked,
+                          isLocked && styles.pillLocked,
                         ]}
                       >
                         <Text
                           selectable={false}
                           style={[
                             styles.pillText,
-                            !isFree && styles.pillTextLocked,
+                            isLocked && styles.pillTextLocked,
                           ]}
                         >
                           {exercise.duration_minutes} min
@@ -279,14 +281,14 @@ export default function ExerciseListScreen({ navigation }) {
                       <View
                         style={[
                           styles.pill,
-                          !isFree && styles.pillLocked,
+                          isLocked && styles.pillLocked,
                         ]}
                       >
                         <Text
                           selectable={false}
                           style={[
                             styles.pillText,
-                            !isFree && styles.pillTextLocked,
+                            isLocked && styles.pillTextLocked,
                           ]}
                         >
                           {exercise.category}
@@ -318,7 +320,10 @@ export default function ExerciseListScreen({ navigation }) {
             </Text>
             <TouchableOpacity
               style={styles.premiumButton}
-              onPress={() => setShowFreemium(false)}
+              onPress={() => {
+                setShowFreemium(false);
+                navigation.navigate("Plans");
+              }}
             >
               <Text selectable={false} style={styles.premiumButtonText}>Ver planos</Text>
             </TouchableOpacity>

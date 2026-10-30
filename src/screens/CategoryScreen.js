@@ -14,12 +14,14 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { usePremium } from "../hooks/usePremium";
 import { supabase } from "../services/supabase";
 
 export default function CategoryScreen({ route, navigation }) {
   const { categoryTitle, categoryColor } = route.params;
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { isPremium } = usePremium();
 
   useEffect(() => {
     loadSessions();
@@ -105,11 +107,16 @@ export default function CategoryScreen({ route, navigation }) {
         ) : (
           sessions.map((session, index) => {
             const isLast = index === sessions.length - 1;
+            const isLocked = session.is_premium && !isPremium;
             return (
               <View key={session.id}>
                 <TouchableOpacity
                   style={styles.sessionItem}
                   onPress={() => {
+                    if (isLocked) {
+                      navigation.navigate("Plans");
+                      return;
+                    }
                     navigation.navigate("AudioPlayer", {
                       session: session,
                       categoryColor: categoryColor,
@@ -119,7 +126,11 @@ export default function CategoryScreen({ route, navigation }) {
                   activeOpacity={0.7}
                 >
                   <View style={styles.iconBox}>
-                    <Ionicons name="musical-note" size={24} color="#6E6E6E" />
+                    <Ionicons
+                      name={isLocked ? "lock-closed" : "musical-note"}
+                      size={24}
+                      color={isLocked ? "#9CA3AF" : "#6E6E6E"}
+                    />
                   </View>
                   <View style={styles.sessionInfo}>
                     <Text

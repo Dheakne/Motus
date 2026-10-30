@@ -76,6 +76,15 @@ This is a **transitional architecture mixing Expo Router with legacy React Navig
 - Tracks playback time, duration, and shows progress bar
 - Cleanup on unmount prevents memory leaks
 
+### Premium & Payments
+
+- **Stripe in test mode** (college project, never published to the stores — no real charges, no App Store/Play in-app purchase)
+- Plans: monthly R$ 13,00 and annual R$ 104,90; created in Stripe by `backend/scripts/stripe-setup.js` (`npm run stripe:setup`), looked up by `lookup_key`
+- **Only the backend writes `user_profiles.is_premium`** (`premiumService.syncUserPremium`); it is derived from `premium_subscriptions` (premium = any row with status `active`, source `stripe` or `admin`). A DB trigger (migration 007) rejects app-side changes to `is_premium`
+- App: `PlansScreen` (checkout via expo-web-browser), `usePremium` hook for gating, `src/api/billingApi.js`
+- Gating: weekly challenges with `is_free = false` (also enforced by a DB trigger) and sessions with `is_premium = true` (audio URL fetched through `GET /api/sessions/:id`)
+- Full details, setup and admin-panel contract: PLANO_PREMIUM.md
+
 ### Animations & Gestures
 
 - **DrawerMenu** uses Animated.Value and Animated.timing for slide-in/out
@@ -128,6 +137,7 @@ Key tables used by the app:
 - **user_sessions** - Tracks user progress on each session
 - **challenges** - Weekly challenges with completion tracking
 - **gratidao** - Gratitude journal entries
+- **premium_subscriptions** - Premium history (Stripe subscriptions and admin grants); source of `user_profiles.is_premium`
 
 Queries are made directly in screen components (no ORM or query builder abstraction).
 

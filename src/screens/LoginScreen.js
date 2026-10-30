@@ -8,6 +8,7 @@ import { useState } from "react";
 import {
   ActivityIndicator,
   Alert,
+  Platform,
   SafeAreaView,
   StyleSheet,
   Text,
@@ -270,6 +271,9 @@ const styles = StyleSheet.create({
     fontFamily: "Whyte-Medium",
     fontWeight: "600",
     lineHeight: 31,
+    includeFontPadding: false,
+    textAlignVertical: "center",
+    ...(Platform.OS === "android" ? { transform: [{ translateY: 2 }] } : {}),
   },
   signupContainer: {
     flexDirection: "row",

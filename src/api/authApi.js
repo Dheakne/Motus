@@ -37,6 +37,11 @@ export async function getStoredToken() {
   return AsyncStorage.getItem('access_token');
 }
 
+export async function getAuthToken() {
+  const { data } = await supabase.auth.getSession();
+  return data?.session?.access_token || getStoredToken();
+}
+
 export async function getStoredProfile() {
   const raw = await AsyncStorage.getItem('user_profile');
   return raw ? JSON.parse(raw) : null;

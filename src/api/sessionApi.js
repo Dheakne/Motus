@@ -1,7 +1,6 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { api } from './api';
+import { getAuthToken } from './authApi';
 
 export async function getSession(sessionId) {
-  const token = await AsyncStorage.getItem('access_token');
-  return api.get(`/api/sessions/${sessionId}`, token);
+  return api.get(`/api/sessions/${sessionId}`, await getAuthToken());
 }

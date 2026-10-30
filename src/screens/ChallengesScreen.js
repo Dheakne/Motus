@@ -124,6 +124,10 @@ export default function ChallengesScreen({ route, navigation }) {
           Alert.alert("Tudo certo", "Você já escolheu um exercício para esta semana.");
           return;
         }
+        if (insertErr.code === "42501") {
+          navigation.replace("Plans");
+          return;
+        }
         console.error("[ChallengesScreen] choose error:", insertErr);
         Alert.alert("Erro", "Não foi possível escolher o exercício. Tente novamente.");
         return;

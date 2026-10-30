@@ -8,6 +8,8 @@ Execute cada arquivo em ordem no **Supabase SQL Editor** (painel do projeto → 
 | `002_add_updated_at_columns.sql` | Adiciona `updated_at` em `user_profiles` e `user_challenge_progress`; cria índice de busca por usuário/semana |
 | `003_make_optional_columns_nullable.sql` | Torna `phone` e `birth_date` nullable em `user_profiles` (campos opcionais no cadastro) |
 | `004_add_consent_columns.sql` | Adiciona `consent_terms`, `consent_health_data` e `consented_at` em `user_profiles` (consentimento LGPD gravado no cadastro) |
+| `005` e `006` | Tabelas do painel admin (`admin_users`, `admin_audit_log`) — estão na branch `feature` |
+| `007_add_premium_subscriptions.sql` | Cria `premium_subscriptions` (histórico de assinaturas Stripe e liberações do painel); trigger que impede o app de alterar `is_premium`; trigger que impede escolher exercício premium sem ser premium |
 
 ## Como executar
 

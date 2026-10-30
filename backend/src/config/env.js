@@ -16,4 +16,7 @@ module.exports = {
   jwtSecret: process.env.SUPABASE_JWT_SECRET,
   storageBucket: process.env.SUPABASE_STORAGE_BUCKET,
   frontendUrl: process.env.FRONTEND_URL || '*',
+  stripeSecretKey: process.env.STRIPE_SECRET_KEY,
+  stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
+  apiPublicUrl: process.env.API_PUBLIC_URL,
 };
