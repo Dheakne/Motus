@@ -29,7 +29,7 @@ afterAll(async () => {
 });
 
 describe('Relatos', () => {
-  it('200 — lista com contagem por status (migration 007)', async () => {
+  it('200 — lista com contagem por status (migration 008)', async () => {
     const res = await request(app).get('/api/admin/reports').query({ status: 'open' }).set(admin.auth);
     expect(res.status).toBe(200);
     expect(res.body.data.items.some((r) => r.id === reportId)).toBe(true);

@@ -7,7 +7,7 @@ Passo a passo para colocar o painel administrativo (`admin/`) e as rotas novas d
 | Etapa | Onde | Quem pode fazer |
 |---|---|---|
 | 0. Reativar o Supabase (se estiver pausado) | Supabase | Quem é dono do projeto |
-| 1. Rodar as migrations 007 a 010 | Supabase → SQL Editor | Qualquer pessoa com acesso ao projeto |
+| 1. Rodar as migrations 008 a 011 | Supabase → SQL Editor | Qualquer pessoa com acesso ao projeto |
 | 2. Conferir o bucket de áudio | Supabase → Storage | Idem |
 | 3. Testar tudo localmente | Seu computador | Quem tem o `backend/.env` |
 | 4. Levar a branch `feature` para a `main` | GitHub | Quem tem permissão no repositório |
@@ -30,14 +30,14 @@ Projetos do plano gratuito são **pausados** depois de alguns dias sem uso. Quan
 
 ## 1. Rodar as migrations
 
-As migrations 005 e 006 já foram rodadas na Fase 1. Faltam quatro, **nesta ordem**:
+As migrations 005 e 006 (painel) e 007 (premium, da branch `feature-premium`) já foram rodadas. Faltam quatro, **nesta ordem**:
 
 | Arquivo | O que faz | Risco |
 |---|---|---|
-| `backend/migrations/007_add_reports_status.sql` | Coluna `status` nos relatos (todos os existentes ficam "em aberto") | Nenhum: só adiciona coluna com valor padrão |
-| `backend/migrations/008_create_user_sessions.sql` | Cria a tabela de sessões concluídas, que o app já tentava usar mas não existia | Nenhum: cria tabela nova. A partir daí, as conclusões de áudio passam a ser registradas |
-| `backend/migrations/009_add_sessions_is_active.sql` | Coluna `is_active` nas sessões (todas as existentes ficam ativas) | Nenhum: só adiciona coluna com valor padrão |
-| `backend/migrations/010_add_metrics_indexes.sql` | Índices para as métricas ficarem rápidas | Nenhum: só cria índices |
+| `backend/migrations/008_add_reports_status.sql` | Coluna `status` nos relatos (todos os existentes ficam "em aberto") | Nenhum: só adiciona coluna com valor padrão |
+| `backend/migrations/009_create_user_sessions.sql` | Cria a tabela de sessões concluídas, que o app já tentava usar mas não existia | Nenhum: cria tabela nova. A partir daí, as conclusões de áudio passam a ser registradas |
+| `backend/migrations/010_add_sessions_is_active.sql` | Coluna `is_active` nas sessões (todas as existentes ficam ativas) | Nenhum: só adiciona coluna com valor padrão |
+| `backend/migrations/011_add_metrics_indexes.sql` | Índices para as métricas ficarem rápidas | Nenhum: só cria índices |
 
 Para cada uma:
 
@@ -56,7 +56,7 @@ WHERE (table_name = 'reports' AND column_name IN ('status', 'updated_at'))
 
 Deve listar **4 linhas**: `status`, `updated_at`, `is_active` e `completed_at`.
 
-> A 009 precisa rodar **antes** do app mobile novo ser publicado (etapa 10): o app passa a filtrar sessões por `is_active`. Rodando agora, já fica garantido.
+> A 010 precisa rodar **antes** do app mobile novo ser publicado (etapa 10): o app passa a filtrar sessões por `is_active`. Rodando agora, já fica garantido.
 
 ## 2. Conferir o bucket de áudio
 
@@ -71,7 +71,7 @@ O app toca o áudio direto da URL gravada em `sessions.audio_url`. O painel envi
 
 Com o backend (`cd backend && npm run dev`) e o painel (`cd admin && npm run dev`) rodando, entre em http://localhost:5173 e percorra:
 
-- [ ] **Visão geral**: os 6 números aparecem e o gráfico de crescimento carrega. "Relatos em aberto" mostra um número (se mostrar "Rode a migration 007", a etapa 1 não pegou).
+- [ ] **Visão geral**: os 6 números aparecem e o gráfico de crescimento carrega. "Relatos em aberto" mostra um número (se mostrar "Rode a migration 008", a etapa 1 não pegou).
 - [ ] **Engajamento**: troque entre 7, 30 e 90 dias; os gráficos mudam.
 - [ ] **Usuários**: busque pelo seu email; abra o seu usuário; os históricos aparecem.
 - [ ] **Usuários → ativar premium**: teste **só na sua conta**, depois remova.
@@ -185,9 +185,9 @@ https://motus-admin.onrender.com,http://localhost:5173
 | Tela branca com "Defina VITE_SUPABASE_URL…" | Variáveis do Static Site faltando; cadastre e faça **Manual Deploy** |
 | 404 ao recarregar a página | Regra de Rewrite faltando (etapa 6, item 7) |
 | "Email ou senha inválidos…" com a senha certa | Sua conta não está em `admin_users` |
-| "Relatos em aberto: Rode a migration 007" | Migration 007 não foi rodada |
-| Erro ao listar sessões de áudio | Migration 009 não foi rodada |
-| Erro na Visão geral, Engajamento ou Detalhe do usuário | Migration 008 (`user_sessions`) não foi rodada |
+| "Relatos em aberto: Rode a migration 008" | Migration 008 não foi rodada |
+| Erro ao listar sessões de áudio | Migration 010 não foi rodada |
+| Erro na Visão geral, Engajamento ou Detalhe do usuário | Migration 009 (`user_sessions`) não foi rodada |
 | Áudio enviado não toca no app | Bucket não é público (etapa 2) |
 
 ## 9. Dar acesso ao time
@@ -203,7 +203,7 @@ A pessoa precisa já ter conta no app. Ninguém consegue alterar ou revogar o pr
 
 O app ganhou uma mudança pequena: a tela de categoria só mostra sessões **ativas** (para "Desativar" no painel funcionar). Ela chega aos usuários na próxima versão do app (`eas build` / atualização). Quem usa Expo Go em desenvolvimento recebe ao fazer `git pull`.
 
-Como a migration 009 já foi rodada na etapa 1, não há ordem a respeitar aqui.
+Como a migration 010 já foi rodada na etapa 1, não há ordem a respeitar aqui.
 
 ---
 

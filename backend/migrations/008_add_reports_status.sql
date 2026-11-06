@@ -1,4 +1,4 @@
--- Migration 007: status de atendimento nos relatos (fila da tela de Relatos do painel)
+-- Migration 008: status de atendimento nos relatos (fila da tela de Relatos do painel)
 -- Relatos existentes ficam como 'open'. O app continua inserindo sem informar status.
 -- Executar no Supabase SQL Editor
 

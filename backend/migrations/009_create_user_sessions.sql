@@ -1,4 +1,4 @@
--- Migration 008: cria a tabela user_sessions (sessões de áudio concluídas)
+-- Migration 009: cria a tabela user_sessions (sessões de áudio concluídas)
 -- O app já grava nela ao terminar um áudio (AudioPlayerScreen.markSessionAsComplete),
 -- mas a tabela não existia no banco: a gravação falhava em silêncio e nenhuma
 -- conclusão ficava registrada. Estrutura conforme PLANO_BACKEND.md.

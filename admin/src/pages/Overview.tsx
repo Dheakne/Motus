@@ -46,7 +46,7 @@ export default function Overview() {
         <KpiCard
           label="Relatos em aberto"
           value={data ? formatNumber(data.open_reports) : null}
-          hint={data && data.open_reports === null ? 'Rode a migration 007' : 'Abrir a fila de relatos'}
+          hint={data && data.open_reports === null ? 'Rode a migration 008' : 'Abrir a fila de relatos'}
           loading={isPending}
           to="/reports"
         />

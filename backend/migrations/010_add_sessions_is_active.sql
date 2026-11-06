@@ -1,4 +1,4 @@
--- Migration 009: permite desativar sessões de áudio pelo painel (soft delete)
+-- Migration 010: permite desativar sessões de áudio pelo painel (soft delete)
 -- Sessões existentes continuam ativas (DEFAULT true). Desativar esconde do app
 -- sem apagar o histórico de quem já ouviu (user_sessions).
 -- RODAR ANTES de publicar a versão do app que filtra por is_active.

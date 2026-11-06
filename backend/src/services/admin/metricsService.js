@@ -15,7 +15,7 @@ const { getWeekStart } = require('../../utils/dateUtils');
 const GROWTH_DAYS = 30;
 
 /**
- * Relatos em aberto. Depende da migration 007 (coluna reports.status):
+ * Relatos em aberto. Depende da migration 008 (coluna reports.status):
  * se ela ainda não foi rodada, devolve null em vez de derrubar o dashboard inteiro.
  * @returns {Promise<number|null>}
  */
@@ -23,7 +23,7 @@ async function countOpenReports() {
   try {
     return await countRows('reports', (q) => q.eq('status', 'open'));
   } catch (err) {
-    logger.warn({ err }, 'Não foi possível contar reports abertos (migration 007 rodada?)');
+    logger.warn({ err }, 'Não foi possível contar reports abertos (migration 008 rodada?)');
     return null;
   }
 }

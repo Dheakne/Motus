@@ -17,6 +17,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { getSession } from "../api/sessionApi";
 import { BackIcon } from "../components/Icons";
 import { supabase } from "../services/supabase";
 
@@ -66,8 +67,14 @@ export default function AudioPlayerScreen({ route, navigation }) {
         return;
       }
 
+      let audioUrl = session.audio_url;
+      if (session.is_premium) {
+        const { session: allowed } = await getSession(session.id);
+        audioUrl = allowed.audio_url;
+      }
+
       const { sound: newSound } = await Audio.Sound.createAsync(
-        { uri: session.audio_url },
+        { uri: audioUrl },
         { shouldPlay: true, volume },
         onPlaybackStatusUpdate,
       );
@@ -77,9 +84,13 @@ export default function AudioPlayerScreen({ route, navigation }) {
       setIsPlaying(true);
       setIsLoading(false);
     } catch (error) {
+      setIsLoading(false);
+      if (error?.error === "PREMIUM_REQUIRED") {
+        navigation.replace("Plans");
+        return;
+      }
       console.error("Erro ao carregar áudio:", error);
       Alert.alert("Erro", "Não foi possível carregar o áudio");
-      setIsLoading(false);
     }
   }
 

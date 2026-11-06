@@ -1,4 +1,4 @@
--- Migration 010: índices para as consultas de série temporal do painel admin
+-- Migration 011: índices para as consultas de série temporal do painel admin
 -- (crescimento de usuários, usuários ativos por dia, sessões concluídas por dia)
 -- Só cria índices: não altera dados. Executar no Supabase SQL Editor
 

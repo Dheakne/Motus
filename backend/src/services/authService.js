@@ -1,4 +1,5 @@
 const supabase = require('../config/supabase');
+const createAuthClient = require('../config/supabaseAuth');
 const logger = require('../utils/logger');
 
 /**
@@ -8,7 +9,7 @@ const logger = require('../utils/logger');
  * @returns {Promise<object>} Sessão Supabase + perfil do usuário
  */
 exports.loginUser = async (email, password) => {
-  const { data: session, error: authError } = await supabase.auth.signInWithPassword({
+  const { data: session, error: authError } = await createAuthClient().auth.signInWithPassword({
     email,
     password,
   });
@@ -94,7 +95,7 @@ exports.registerUser = async ({
     parsedBirthDate = `${year}-${month}-${day}`;
   }
 
-  const { data: session, error: authError } = await supabase.auth.signUp({
+  const { data: session, error: authError } = await createAuthClient().auth.signUp({
     email,
     password,
   });

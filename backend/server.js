@@ -7,6 +7,9 @@ const authRoutes = require('./src/routes/auth');
 const exerciseRoutes = require('./src/routes/exercises');
 const sessionRoutes = require('./src/routes/sessions');
 const adminRoutes = require('./src/routes/admin');
+const premiumRoutes = require('./src/routes/premium');
+const billingRoutes = require('./src/routes/billing');
+const webhookRoutes = require('./src/routes/webhooks');
 const errorHandler = require('./src/middleware/errorHandler');
 
 const { port, frontendUrl, adminFrontendUrls } = require('./src/config/env');
@@ -14,6 +17,7 @@ const { port, frontendUrl, adminFrontendUrls } = require('./src/config/env');
 const app = express();
 
 app.use(helmet());
+app.use('/api/webhooks', webhookRoutes);
 app.use(express.json());
 
 // CORS manual (evita dep extra)
@@ -53,6 +57,8 @@ app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/exercises', exerciseRoutes);
 app.use('/api/sessions', sessionRoutes);
 app.use('/api/admin', adminLimiter, adminRoutes);
+app.use('/api/premium', premiumRoutes);
+app.use('/api/billing', billingRoutes);
 
 // 404 para rotas não registradas (JSON padronizado, antes do errorHandler)
 app.use((req, res) => {

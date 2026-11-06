@@ -17,6 +17,7 @@ import ForgotPasswordScreen from "../screens/ForgotPasswordScreen";
 import HomeScreen from "../screens/HomeScreen";
 import LoginScreen from "../screens/LoginScreen";
 import MascotScreen from "../screens/MascotScreen";
+import PlansScreen from "../screens/PlansScreen";
 import PrivacyScreen from "../screens/PrivacyScreen";
 import ReportProblemScreen from "../screens/ReportProblemScreen";
 import ResetPasswordScreen from "../screens/ResetPasswordScreen";
@@ -88,6 +89,7 @@ export default function AppNavigator() {
       <Stack.Screen name="EditProfile" component={EditProfileScreen} />
       <Stack.Screen name="ReportProblem" component={ReportProblemScreen} />
       <Stack.Screen name="Mascot" component={MascotScreen} />
+      <Stack.Screen name="Plans" component={PlansScreen} />
     </Stack.Navigator>
     </SafeAreaProvider>
   );

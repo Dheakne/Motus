@@ -2,10 +2,12 @@
  * DrawerMenu - menu lateral de navegação que desliza da direita com fundo escurecido.
  */
 
+import { Ionicons } from "@expo/vector-icons";
 import React, { useEffect, useRef, useState } from "react";
 import {
   Animated,
   Dimensions,
+  Easing,
   Image,
   StyleSheet,
   Text,
@@ -52,10 +54,10 @@ export default function DrawerMenu({
     if (visible) {
       setShouldRender(true);
       Animated.parallel([
-        Animated.spring(slideAnim, {
+        Animated.timing(slideAnim, {
           toValue: 0,
-          damping: 20,
-          stiffness: 200,
+          duration: 250,
+          easing: Easing.out(Easing.cubic),
           useNativeDriver: true,
         }),
         Animated.timing(fadeAnim, {
@@ -123,6 +125,12 @@ export default function DrawerMenu({
         </View>
 
         <View style={styles.menuList}>
+          <DrawerItem
+            icon={<Ionicons name="diamond-outline" size={20} color="#1066E7" />}
+            label={profile?.is_premium ? "Minha assinatura" : "Seja Premium"}
+            onPress={() => navigate("Plans")}
+          />
+          <View style={styles.divider} />
           <DrawerItem
             icon={<UserIcon size={20} color="#535353" />}
             label="Editar perfil"
