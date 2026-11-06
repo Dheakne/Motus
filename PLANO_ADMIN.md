@@ -465,7 +465,7 @@ admin/
 - Página `Reports` + tela de visualização do `admin_audit_log` (somente leitura, para `superadmin`).
 - Gestão de administradores (`/api/admin/admins`) + página `Admins`.
 - Restringir CORS (`ADMIN_FRONTEND_URL`), revisar rate limiting.
-- Deploy: backend (se ainda não estiver hospedado) em Render/Railway/Fly.io; painel como estático em Vercel/Netlify.
+- Deploy: backend (se ainda não estiver hospedado) em Render/Railway/Fly.io; painel como Static Site no Render (mesma conta do backend; ver `admin/README.md`).
 - **Critério de conclusão:** painel completo em produção, acesso restrito, nenhum secret exposto no bundle do frontend.
 
 ---

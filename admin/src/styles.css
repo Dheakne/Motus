@@ -82,6 +82,7 @@ h1, h2, p { margin: 0; }
   background: var(--input);
 }
 .field input:focus { outline: 2px solid var(--primary); outline-offset: 0; }
+.form-hint { font-size: 14px; text-align: center; }
 .form-error {
   font-size: 14px;
   color: var(--danger);

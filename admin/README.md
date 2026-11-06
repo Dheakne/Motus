@@ -33,3 +33,29 @@ Quem não estiver em `admin_users` recebe "Email ou senha inválidos, ou conta s
 | `npm run dev` | Servidor de desenvolvimento na porta 5173 |
 | `npm run build` | Checa tipos e gera `dist/` |
 | `npm run typecheck` | Só checagem de tipos |
+
+## Produção
+
+O painel é publicado como **Static Site no Render**, na mesma conta do backend. Site estático no Render não "dorme" (só o backend do plano free dorme).
+
+Configuração em **Render → New → Static Site**, apontando para o repositório:
+
+| Campo | Valor |
+|---|---|
+| Branch | `main` |
+| Root Directory | `admin` |
+| Build Command | `npm install && npm run build` |
+| Publish Directory | `dist` |
+
+**Environment** (lidas no build: depois de alterar, faça um novo deploy):
+`VITE_API_URL=https://motus-dm29.onrender.com`, `VITE_SUPABASE_URL` (sem `/rest/v1` no final) e `VITE_SUPABASE_ANON_KEY` (só a anon key).
+
+**Redirects/Rewrites** (obrigatório, senão recarregar a página em `/login` dá 404):
+
+| Source | Destination | Action |
+|---|---|---|
+| `/*` | `/index.html` | Rewrite |
+
+**Headers** (recomendado): `/*` → `X-Robots-Tag: noindex, nofollow` e `X-Frame-Options: DENY`.
+
+No serviço do **backend**, `ADMIN_FRONTEND_URL` precisa ter a URL do painel (ex.: `https://motus-admin.onrender.com`), senão as chamadas são bloqueadas por CORS. Para continuar usando o painel local também: `https://motus-admin.onrender.com,http://localhost:5173`.
