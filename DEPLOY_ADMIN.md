@@ -7,7 +7,7 @@ Passo a passo para colocar o painel administrativo (`admin/`) e as rotas novas d
 | Etapa | Onde | Quem pode fazer |
 |---|---|---|
 | 0. Reativar o Supabase (se estiver pausado) | Supabase | Quem é dono do projeto |
-| 1. Rodar as migrations 007, 008 e 009 | Supabase → SQL Editor | Qualquer pessoa com acesso ao projeto |
+| 1. Rodar as migrations 007 a 010 | Supabase → SQL Editor | Qualquer pessoa com acesso ao projeto |
 | 2. Conferir o bucket de áudio | Supabase → Storage | Idem |
 | 3. Testar tudo localmente | Seu computador | Quem tem o `backend/.env` |
 | 4. Levar a branch `feature` para a `main` | GitHub | Quem tem permissão no repositório |
@@ -30,13 +30,14 @@ Projetos do plano gratuito são **pausados** depois de alguns dias sem uso. Quan
 
 ## 1. Rodar as migrations
 
-As migrations 005 e 006 já foram rodadas na Fase 1. Faltam três, **nesta ordem**:
+As migrations 005 e 006 já foram rodadas na Fase 1. Faltam quatro, **nesta ordem**:
 
 | Arquivo | O que faz | Risco |
 |---|---|---|
 | `backend/migrations/007_add_reports_status.sql` | Coluna `status` nos relatos (todos os existentes ficam "em aberto") | Nenhum: só adiciona coluna com valor padrão |
-| `backend/migrations/008_add_metrics_indexes.sql` | Índices para as métricas ficarem rápidas | Nenhum: só cria índices |
+| `backend/migrations/008_create_user_sessions.sql` | Cria a tabela de sessões concluídas, que o app já tentava usar mas não existia | Nenhum: cria tabela nova. A partir daí, as conclusões de áudio passam a ser registradas |
 | `backend/migrations/009_add_sessions_is_active.sql` | Coluna `is_active` nas sessões (todas as existentes ficam ativas) | Nenhum: só adiciona coluna com valor padrão |
+| `backend/migrations/010_add_metrics_indexes.sql` | Índices para as métricas ficarem rápidas | Nenhum: só cria índices |
 
 Para cada uma:
 
@@ -47,12 +48,13 @@ Para cada uma:
 Conferência (numa query nova):
 
 ```sql
-SELECT column_name FROM information_schema.columns
+SELECT table_name, column_name FROM information_schema.columns
 WHERE (table_name = 'reports' AND column_name IN ('status', 'updated_at'))
-   OR (table_name = 'sessions' AND column_name = 'is_active');
+   OR (table_name = 'sessions' AND column_name = 'is_active')
+   OR (table_name = 'user_sessions' AND column_name = 'completed_at');
 ```
 
-Deve listar **3 linhas**: `status`, `updated_at` e `is_active`.
+Deve listar **4 linhas**: `status`, `updated_at`, `is_active` e `completed_at`.
 
 > A 009 precisa rodar **antes** do app mobile novo ser publicado (etapa 10): o app passa a filtrar sessões por `is_active`. Rodando agora, já fica garantido.
 
@@ -185,6 +187,7 @@ https://motus-admin.onrender.com,http://localhost:5173
 | "Email ou senha inválidos…" com a senha certa | Sua conta não está em `admin_users` |
 | "Relatos em aberto: Rode a migration 007" | Migration 007 não foi rodada |
 | Erro ao listar sessões de áudio | Migration 009 não foi rodada |
+| Erro na Visão geral, Engajamento ou Detalhe do usuário | Migration 008 (`user_sessions`) não foi rodada |
 | Áudio enviado não toca no app | Bucket não é público (etapa 2) |
 
 ## 9. Dar acesso ao time

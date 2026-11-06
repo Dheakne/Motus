@@ -43,8 +43,9 @@ migrations/004_add_consent_columns.sql
 migrations/005_add_admin_users.sql
 migrations/006_add_admin_audit_log.sql
 migrations/007_add_reports_status.sql
-migrations/008_add_metrics_indexes.sql
+migrations/008_create_user_sessions.sql
 migrations/009_add_sessions_is_active.sql
+migrations/010_add_metrics_indexes.sql
 ```
 
 Veja [migrations/README.md](migrations/README.md) para detalhes.
