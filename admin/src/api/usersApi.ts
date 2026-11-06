@@ -46,9 +46,31 @@ export interface ChallengeProgressRow {
   challenge: { id: string; title: string } | null;
 }
 
+export interface PremiumSubscription {
+  id: string;
+  /** stripe = pago; admin = liberado pelo painel */
+  source: 'stripe' | 'admin';
+  plan: 'monthly' | 'annual' | null;
+  status: 'active' | 'past_due' | 'incomplete' | 'canceled';
+  amount_cents: number | null;
+  currency: string;
+  cancel_at_period_end: boolean;
+  current_period_end: string | null;
+  started_at: string;
+  canceled_at: string | null;
+  granted_by: string | null;
+}
+
+export interface PremiumInfo {
+  has_paid: boolean;
+  has_admin_grant: boolean;
+  subscriptions: PremiumSubscription[];
+}
+
 export interface UserDetail {
   profile: UserProfile;
   stats: { sessions_completed: number };
+  premium: PremiumInfo;
   recent_sessions: UserSessionRow[];
   challenge_progress: ChallengeProgressRow[];
 }
@@ -61,4 +83,4 @@ export const listUsers = (params: { search?: string; page: number; pageSize?: nu
 export const getUser = (id: string) => apiFetch<UserDetail>(`/api/admin/users/${id}`);
 
 export const updateUser = (id: string, changes: UserChanges) =>
-  apiSend<UserProfile>(`/api/admin/users/${id}`, 'PATCH', changes);
+  apiSend<UserProfile & { premium: PremiumInfo }>(`/api/admin/users/${id}`, 'PATCH', changes);

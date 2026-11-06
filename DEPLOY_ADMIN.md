@@ -74,7 +74,8 @@ Com o backend (`cd backend && npm run dev`) e o painel (`cd admin && npm run dev
 - [ ] **Visão geral**: os 6 números aparecem e o gráfico de crescimento carrega. "Relatos em aberto" mostra um número (se mostrar "Rode a migration 008", a etapa 1 não pegou).
 - [ ] **Engajamento**: troque entre 7, 30 e 90 dias; os gráficos mudam.
 - [ ] **Usuários**: busque pelo seu email; abra o seu usuário; os históricos aparecem.
-- [ ] **Usuários → ativar premium**: teste **só na sua conta**, depois remova.
+- [ ] **Usuários → Liberar premium**: teste **só na sua conta**, depois clique em "Remover liberação do painel". O premium do painel é uma linha `source = admin` em `premium_subscriptions` (ver `PLANO_PREMIUM.md`); quem paga pelo Stripe não perde o acesso ao remover a liberação.
+- [ ] **Visão geral → Premium**: os números de assinantes, liberados e receita aparecem.
 - [ ] **Conteúdo → Nova sessão**: envie um mp3 curto com o título "TESTE - não usar", **desmarque "Ativa"**, salve. Depois clique em Editar → "Ouvir áudio atual" e confira se toca.
 - [ ] **Conteúdo → Categorias**: só abra e feche um "Editar" (não renomeie: o app encontra as sessões pelo nome da categoria).
 - [ ] **Exercícios semanais**: crie um "TESTE - não usar" (já nasce inativo) e edite.
@@ -92,6 +93,8 @@ npm test
 ```
 
 ## 4. Levar a branch `feature` para a `main`
+
+> **A `feature` já contém a `feature-premium` (Stripe).** O ideal é a `feature-premium` entrar na `main` primeiro, pelo PR da Letícia, com as variáveis do Stripe configuradas no Render (ver `PLANO_PREMIUM.md`). Se o PR da `feature` entrar antes, ele leva o premium junto: configure as variáveis do Stripe antes do merge, ou as rotas de pagamento respondem 503.
 
 O Render faz deploy da `main`. Antes de abrir o PR, traga o que o time fez na `main` para evitar conflitos:
 

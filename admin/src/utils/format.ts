@@ -8,6 +8,11 @@ const dateTimeFmt = new Intl.DateTimeFormat('pt-BR', {
   timeStyle: 'short',
 });
 
+const currencyFmt = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+
+/** Centavos → "R$ 13,00" */
+export const formatCents = (cents: number | null | undefined) => (cents == null ? '—' : currencyFmt.format(cents / 100));
+
 export const formatNumber = (n: number | null | undefined) => (n == null ? '—' : numberFmt.format(n));
 export const formatPercent = (n: number | null | undefined) => (n == null ? '—' : percentFmt.format(n));
 export const formatDecimal = (n: number | null | undefined) => (n == null ? '—' : decimalFmt.format(n));

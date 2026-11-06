@@ -31,3 +31,19 @@ export interface EngagementMetrics {
 
 export const getEngagement = (range: EngagementRange) =>
   apiFetch<EngagementMetrics>(`/api/admin/metrics/engagement?range=${range}`);
+
+export interface PremiumMetrics {
+  period: { from: string; to: string };
+  active_premium_users: number;
+  active_by_source: { stripe: number; admin: number };
+  active_by_plan: { monthly: number; annual: number };
+  new_subscriptions: number;
+  new_admin_grants: number;
+  cancellations: number;
+  churn_rate: number;
+  /** Receita recorrente mensal em centavos (anual ÷ 12) */
+  mrr_cents: number;
+}
+
+export const getPremiumMetrics = (days = 30) =>
+  apiFetch<PremiumMetrics>(`/api/admin/metrics/premium?days=${days}`);

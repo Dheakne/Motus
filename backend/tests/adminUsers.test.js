@@ -96,7 +96,7 @@ describe('PATCH /api/admin/users/:id', () => {
     expect(res.status).toBe(400);
   });
 
-  it('200 — ativa premium e grava audit log com antes/depois', async () => {
+  it('200 — liberar premium cria liberação do painel (não grava is_premium direto)', async () => {
     const res = await request(app)
       .patch(`/api/admin/users/${admin.user.id}`)
       .set(admin.auth)
@@ -104,17 +104,56 @@ describe('PATCH /api/admin/users/:id', () => {
 
     expect(res.status).toBe(200);
     expect(res.body.data.is_premium).toBe(true);
+    expect(res.body.data.premium).toMatchObject({ has_admin_grant: true, has_paid: false });
+
+    const { data: subs } = await supabase
+      .from('premium_subscriptions')
+      .select('source, status, granted_by')
+      .eq('user_id', admin.user.id);
+    expect(subs).toEqual([{ source: 'admin', status: 'active', granted_by: admin.user.id }]);
 
     const { data: logs } = await supabase
       .from('admin_audit_log')
-      .select('action, target_table, target_id, payload')
+      .select('target_id, payload')
       .eq('admin_id', admin.user.id)
-      .eq('action', 'user.update');
+      .eq('action', 'user.set_premium');
     expect(logs).toHaveLength(1);
     expect(logs[0]).toMatchObject({
-      target_table: 'user_profiles',
       target_id: admin.user.id,
-      payload: { before: { is_premium: false }, after: { is_premium: true } },
+      payload: { requested: 'grant', before: { is_premium: false }, after: { is_premium: true } },
     });
+  });
+
+  it('200 — liberar de novo não duplica a liberação', async () => {
+    await request(app).patch(`/api/admin/users/${admin.user.id}`).set(admin.auth).send({ is_premium: true });
+    const { data: subs } = await supabase
+      .from('premium_subscriptions')
+      .select('id')
+      .eq('user_id', admin.user.id)
+      .eq('status', 'active');
+    expect(subs).toHaveLength(1);
+  });
+
+  it('200 — remover encerra a liberação e o usuário volta a gratuito', async () => {
+    const res = await request(app)
+      .patch(`/api/admin/users/${admin.user.id}`)
+      .set(admin.auth)
+      .send({ is_premium: false });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.is_premium).toBe(false);
+    expect(res.body.data.premium.has_admin_grant).toBe(false);
+
+    const detail = await request(app).get(`/api/admin/users/${admin.user.id}`).set(admin.auth);
+    expect(detail.body.data.premium.subscriptions[0]).toMatchObject({ source: 'admin', status: 'canceled' });
+  });
+
+  it('200 — has_seen_tutus é gravado direto, com audit log user.update', async () => {
+    const res = await request(app)
+      .patch(`/api/admin/users/${admin.user.id}`)
+      .set(admin.auth)
+      .send({ has_seen_tutus: true });
+    expect(res.status).toBe(200);
+    expect(res.body.data.has_seen_tutus).toBe(true);
   });
 });

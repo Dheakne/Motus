@@ -2,6 +2,7 @@ const supabase = require('../../config/supabase');
 const { getAuthUsersMap, sanitizeSearch, httpError } = require('../../utils/adminQuery');
 const { markedDays } = require('../../utils/metricsUtils');
 const { logAdminAction } = require('../../utils/auditLog');
+const { grantAdminPremium, revokeAdminPremium } = require('../premiumService');
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -17,6 +18,31 @@ const LIST_FIELDS = 'user_id, display_name, full_name, level, total_points, is_p
 const MAX_EMAIL_MATCHES = 200;
 
 const notFound = () => httpError(404, 'USER_NOT_FOUND', 'Usuário não encontrado');
+
+const SUBSCRIPTION_FIELDS =
+  'id, source, plan, status, amount_cents, currency, cancel_at_period_end, current_period_end, started_at, canceled_at, granted_by';
+
+/**
+ * Histórico de premium do usuário (assinaturas Stripe e liberações do painel) e um resumo
+ * do que está ativo agora. O is_premium do perfil é derivado dessas linhas (PLANO_PREMIUM.md).
+ * @param {string} userId
+ */
+async function getPremiumInfo(userId) {
+  const { data, error } = await supabase
+    .from('premium_subscriptions')
+    .select(SUBSCRIPTION_FIELDS)
+    .eq('user_id', userId)
+    .order('started_at', { ascending: false })
+    .limit(20);
+  if (error) throw error;
+
+  const active = data.filter((s) => s.status === 'active');
+  return {
+    has_paid: active.some((s) => s.source === 'stripe'),
+    has_admin_grant: active.some((s) => s.source === 'admin'),
+    subscriptions: data,
+  };
+}
 
 /**
  * Lista paginada de usuários, com busca por nome ou email.
@@ -70,7 +96,7 @@ exports.getUserDetail = async (userId) => {
   if (profileError) throw profileError;
   if (!profile) throw notFound();
 
-  const [authResult, sessionsResult, completedResult, progressResult] = await Promise.all([
+  const [authResult, sessionsResult, completedResult, progressResult, premium] = await Promise.all([
     supabase.auth.admin.getUserById(userId),
     supabase
       .from('user_sessions')
@@ -89,6 +115,7 @@ exports.getUserDetail = async (userId) => {
       .eq('user_id', userId)
       .order('week_start', { ascending: false })
       .limit(10),
+    getPremiumInfo(userId),
   ]);
 
   for (const r of [sessionsResult, completedResult, progressResult]) {
@@ -104,6 +131,7 @@ exports.getUserDetail = async (userId) => {
       last_sign_in_at: authUser?.last_sign_in_at ?? null,
     },
     stats: { sessions_completed: completedResult.count ?? 0 },
+    premium,
     recent_sessions: sessionsResult.data,
     challenge_progress: progressResult.data.map((row) => ({
       ...row,
@@ -113,36 +141,60 @@ exports.getUserDetail = async (userId) => {
 };
 
 /**
- * Atualiza campos permitidos do perfil (a allowlist é garantida pelo Joi na rota)
- * e grava o antes/depois no audit log.
+ * Atualiza o usuário pelo painel (a allowlist é garantida pelo Joi na rota) e grava o audit log.
+ *
+ * is_premium nunca é gravado direto: ele é derivado de premium_subscriptions (PLANO_PREMIUM.md).
+ * - true  → cria uma liberação do painel (source = 'admin') e recalcula
+ * - false → encerra só a liberação do painel; quem paga pelo Stripe continua premium
+ *
  * @param {string} adminId
  * @param {string} userId
  * @param {{ is_premium?: boolean, has_seen_tutus?: boolean }} changes
- * @returns {Promise<object>} Perfil atualizado
+ * @returns {Promise<object>} Perfil atualizado + resumo de premium
  */
 exports.updateUser = async (adminId, userId, changes) => {
   if (!UUID_RE.test(userId)) throw notFound();
 
-  const fields = Object.keys(changes).join(', ');
   const { data: before, error: beforeError } = await supabase
     .from('user_profiles')
-    .select(fields)
+    .select('is_premium, has_seen_tutus')
     .eq('user_id', userId)
     .maybeSingle();
   if (beforeError) throw beforeError;
   if (!before) throw notFound();
 
-  const { data: updated, error } = await supabase
-    .from('user_profiles')
-    .update({ ...changes, updated_at: new Date().toISOString() })
-    .eq('user_id', userId)
-    .select(PROFILE_FIELDS)
-    .single();
+  if (changes.is_premium !== undefined) {
+    const isPremium = changes.is_premium
+      ? await grantAdminPremium(userId, adminId)
+      : await revokeAdminPremium(userId);
+
+    await logAdminAction(adminId, 'user.set_premium', 'user_profiles', userId, {
+      requested: changes.is_premium ? 'grant' : 'revoke',
+      before: { is_premium: before.is_premium },
+      after: { is_premium: isPremium },
+    });
+  }
+
+  if (changes.has_seen_tutus !== undefined) {
+    const { error } = await supabase
+      .from('user_profiles')
+      .update({ has_seen_tutus: changes.has_seen_tutus, updated_at: new Date().toISOString() })
+      .eq('user_id', userId);
+    if (error) throw error;
+
+    await logAdminAction(adminId, 'user.update', 'user_profiles', userId, {
+      before: { has_seen_tutus: before.has_seen_tutus },
+      after: { has_seen_tutus: changes.has_seen_tutus },
+    });
+  }
+
+  const [{ data: profile, error }, premium] = await Promise.all([
+    supabase.from('user_profiles').select(PROFILE_FIELDS).eq('user_id', userId).single(),
+    getPremiumInfo(userId),
+  ]);
   if (error) throw error;
 
-  await logAdminAction(adminId, 'user.update', 'user_profiles', userId, { before, after: changes });
-
-  return updated;
+  return { ...profile, premium };
 };
 
 exports.UUID_RE = UUID_RE;

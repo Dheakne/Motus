@@ -1,16 +1,18 @@
 import { useQuery } from '@tanstack/react-query';
-import { getOverview } from '../api/metricsApi';
+import { getOverview, getPremiumMetrics } from '../api/metricsApi';
 import KpiCard from '../components/KpiCard';
 import ChartCard from '../components/charts/ChartCard';
 import TrendChart from '../components/charts/TrendChart';
 import { ErrorBox } from '../components/QueryState';
-import { formatNumber, formatPercent } from '../utils/format';
+import { formatCents, formatNumber, formatPercent } from '../utils/format';
 
 export default function Overview() {
   const { data, error, isPending, refetch } = useQuery({
     queryKey: ['metrics', 'overview'],
     queryFn: getOverview,
   });
+  const premium = useQuery({ queryKey: ['metrics', 'premium', 30], queryFn: () => getPremiumMetrics(30) });
+  const p = premium.data;
 
   return (
     <section>
@@ -49,6 +51,33 @@ export default function Overview() {
           hint={data && data.open_reports === null ? 'Rode a migration 008' : 'Abrir a fila de relatos'}
           loading={isPending}
           to="/reports"
+        />
+      </div>
+
+      <h3 className="section-title">Premium · últimos 30 dias</h3>
+      {premium.error && <ErrorBox error={premium.error} onRetry={() => premium.refetch()} />}
+      <div className="kpi-grid kpi-grid-3">
+        <KpiCard
+          label="Assinantes pagantes"
+          value={p ? formatNumber(p.active_by_source.stripe) : null}
+          hint={p ? `${formatNumber(p.active_by_plan.monthly)} mensal · ${formatNumber(p.active_by_plan.annual)} anual` : undefined}
+          loading={premium.isPending}
+        />
+        <KpiCard
+          label="Liberados pelo painel"
+          value={p ? formatNumber(p.active_by_source.admin) : null}
+          hint={p ? `${formatNumber(p.new_admin_grants)} novas liberações no período` : undefined}
+          loading={premium.isPending}
+        />
+        <KpiCard
+          label="Receita recorrente mensal"
+          value={p ? formatCents(p.mrr_cents) : null}
+          hint={
+            p
+              ? `${formatNumber(p.new_subscriptions)} novas · ${formatNumber(p.cancellations)} encerradas · churn ${formatPercent(p.churn_rate)}`
+              : undefined
+          }
+          loading={premium.isPending}
         />
       </div>
 

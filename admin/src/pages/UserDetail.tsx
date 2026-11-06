@@ -1,9 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
 import { getUser, updateUser } from '../api/usersApi';
-import type { ChallengeProgressRow } from '../api/usersApi';
+import type { ChallengeProgressRow, PremiumSubscription, UserDetail as Detail } from '../api/usersApi';
 import { ErrorBox, Loading } from '../components/QueryState';
-import { categoryLabel, formatDate, formatDateTime, formatNumber } from '../utils/format';
+import { categoryLabel, formatCents, formatDate, formatDateTime, formatNumber } from '../utils/format';
 
 const WEEK = [
   ['monday', 'S'],
@@ -29,6 +29,24 @@ function WeekDots({ row }: { row: ChallengeProgressRow }) {
 
 const yesNo = (v: boolean | null) => (v ? 'Sim' : 'Não');
 
+const SUB_STATUS: Record<PremiumSubscription['status'], string> = {
+  active: 'Ativa',
+  past_due: 'Pagamento atrasado',
+  incomplete: 'Incompleta',
+  canceled: 'Encerrada',
+};
+const PLAN: Record<string, string> = { monthly: 'Mensal', annual: 'Anual' };
+
+/** Selo do plano: diferencia premium pago (Stripe) de liberado pelo painel. */
+function PremiumBadge({ data }: { data: Detail }) {
+  const { has_paid: paid, has_admin_grant: granted } = data.premium;
+  if (paid && granted) return <span className="badge badge-premium">Premium · pago e liberado</span>;
+  if (paid) return <span className="badge badge-premium">Premium · pago</span>;
+  if (granted) return <span className="badge badge-premium">Premium · liberado pelo painel</span>;
+  if (data.profile.is_premium) return <span className="badge badge-premium">Premium</span>;
+  return <span className="badge">Gratuito</span>;
+}
+
 export default function UserDetail() {
   const { id = '' } = useParams();
   const queryClient = useQueryClient();
@@ -47,14 +65,17 @@ export default function UserDetail() {
     },
   });
 
+  // O painel só cria/encerra a liberação manual (source = admin). Assinatura paga é do Stripe.
   function togglePremium() {
     if (!data) return;
-    const next = !data.profile.is_premium;
     const name = data.profile.display_name || data.profile.email;
-    const ok = window.confirm(
-      next ? `Ativar o plano premium para ${name}?` : `Remover o plano premium de ${name}?`
-    );
-    if (ok) premium.mutate(next);
+    const revoking = data.premium.has_admin_grant;
+    const message = revoking
+      ? data.premium.has_paid
+        ? `Remover a liberação do painel de ${name}? A pessoa continua premium pela assinatura paga.`
+        : `Remover a liberação do painel de ${name}? A pessoa perde o acesso premium.`
+      : `Liberar premium para ${name}? Fica ativo até alguém remover a liberação.`;
+    if (window.confirm(message)) premium.mutate(!revoking);
   }
 
   return (
@@ -74,14 +95,18 @@ export default function UserDetail() {
               <p className="muted">{data.profile.email ?? 'sem email'}</p>
             </div>
             <div className="detail-actions">
-              {data.profile.is_premium ? (
-                <span className="badge badge-premium">Premium</span>
+              <PremiumBadge data={data} />
+              {data.premium.has_paid && !data.premium.has_admin_grant ? (
+                <span className="muted detail-note">Assinatura paga: gerenciada pelo Stripe</span>
               ) : (
-                <span className="badge">Gratuito</span>
+                <button className="btn btn-ghost" onClick={togglePremium} disabled={premium.isPending}>
+                  {premium.isPending
+                    ? 'Salvando…'
+                    : data.premium.has_admin_grant
+                      ? 'Remover liberação do painel'
+                      : 'Liberar premium'}
+                </button>
               )}
-              <button className="btn btn-ghost" onClick={togglePremium} disabled={premium.isPending}>
-                {premium.isPending ? 'Salvando…' : data.profile.is_premium ? 'Remover premium' : 'Ativar premium'}
-              </button>
             </div>
           </header>
 
@@ -131,6 +156,45 @@ export default function UserDetail() {
               </dd>
             </div>
           </dl>
+
+          {data.premium.subscriptions.length > 0 && (
+            <>
+              <h3 className="section-title">Histórico de premium</h3>
+              <div className="table-wrap">
+                <table className="data-table">
+                  <thead>
+                    <tr>
+                      <th>Origem</th>
+                      <th>Plano</th>
+                      <th>Status</th>
+                      <th>Início</th>
+                      <th>Renovação / fim</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data.premium.subscriptions.map((sub) => (
+                      <tr key={sub.id}>
+                        <td>{sub.source === 'stripe' ? 'Assinatura (Stripe)' : 'Liberado pelo painel'}</td>
+                        <td>
+                          {sub.plan ? `${PLAN[sub.plan]} · ${formatCents(sub.amount_cents)}` : '—'}
+                        </td>
+                        <td>
+                          <span className={sub.status === 'active' ? 'badge badge-active' : 'badge'}>
+                            {SUB_STATUS[sub.status]}
+                          </span>
+                          {sub.cancel_at_period_end && sub.status === 'active' && (
+                            <span className="muted"> · cancela no fim do período</span>
+                          )}
+                        </td>
+                        <td>{formatDate(sub.started_at)}</td>
+                        <td>{formatDate(sub.canceled_at ?? sub.current_period_end)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
 
           <h3 className="section-title">Últimas sessões de áudio</h3>
           <div className="table-wrap">

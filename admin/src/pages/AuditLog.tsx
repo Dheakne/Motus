@@ -18,6 +18,7 @@ const ACTION_FILTERS = [
 
 const ACTION_LABELS: Record<string, string> = {
   'user.update': 'Alterou usuário',
+  'user.set_premium': 'Liberou/removeu premium',
   'session.create': 'Criou sessão',
   'session.update': 'Editou sessão',
   'session.deactivate': 'Desativou sessão',

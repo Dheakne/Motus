@@ -365,3 +365,5 @@ h1, h2, p { margin: 0; }
 
 /* Visão geral: 6 KPIs em duas linhas de 3 no desktop */
 .kpi-grid-3 { grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); }
+
+.detail-note { font-size: 13px; }
