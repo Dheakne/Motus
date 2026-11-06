@@ -91,7 +91,10 @@ Se o login/cadastro só funciona no celular de uma pessoa específica da equipe,
 | PATCH | `/api/exercises/progress/mark-today` | Bearer token | Marca dia do exercício semanal |
 | GET | `/api/sessions/:id` | Bearer token | Retorna sessão de áudio |
 | GET | `/api/admin/me` | Bearer token + admin | Confirma acesso ao painel e retorna o papel |
-| GET | `/api/admin/metrics/overview` | Bearer token + admin | KPIs gerais (total de usuários, premium) |
+| GET | `/api/admin/metrics/overview` | Bearer token + admin | KPIs gerais + crescimento de usuários (30 dias) |
+| GET | `/api/admin/users?search=&page=&pageSize=` | Bearer token + admin | Lista paginada de usuários (busca por nome/email) |
+| GET | `/api/admin/users/:id` | Bearer token + admin | Perfil, últimas sessões e progresso semanal |
+| PATCH | `/api/admin/users/:id` | Bearer token + admin | Altera `is_premium` / `has_seen_tutus` (gera audit log) |
 
 ## Testes
 

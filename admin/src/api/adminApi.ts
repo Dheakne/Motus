@@ -8,12 +8,12 @@ export interface AdminMe {
   role: AdminRole;
 }
 
-export interface OverviewMetrics {
-  total_users: number;
-  premium_users: number;
-  premium_rate: number;
-}
-
 export const getMe = () => apiFetch<AdminMe>('/api/admin/me');
 
-export const getOverview = () => apiFetch<OverviewMetrics>('/api/admin/metrics/overview');
+/** Resposta paginada padrão das listas do painel. */
+export interface Paged<T> {
+  items: T[];
+  page: number;
+  pageSize: number;
+  total: number;
+}

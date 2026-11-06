@@ -1,15 +1,8 @@
+const handle = require('./handle');
 const { getOverview } = require('../../services/admin/metricsService');
-const { success } = require('../../utils/responses');
 
 /**
  * GET /api/admin/metrics/overview
- * KPIs gerais da plataforma.
+ * KPIs gerais da plataforma + crescimento de usuários (30 dias).
  */
-exports.overview = async (req, res, next) => {
-  try {
-    const data = await getOverview();
-    return success(res, data);
-  } catch (err) {
-    next(err);
-  }
-};
+exports.overview = handle(() => getOverview());

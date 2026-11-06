@@ -1,9 +1,24 @@
-import { Outlet } from 'react-router-dom';
+import { NavLink, Outlet } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
+import type { AdminRole } from '../api/adminApi';
+
+interface NavItem {
+  to: string;
+  label: string;
+  /** Visível só para quem tem esse papel */
+  role?: AdminRole;
+}
+
+const NAV: NavItem[] = [
+  { to: '/', label: 'Visão geral' },
+  { to: '/users', label: 'Usuários' },
+];
 
 export default function Layout() {
   const { state, logout } = useAuth();
   if (state.status !== 'signedIn') return null;
+
+  const items = NAV.filter((item) => !item.role || item.role === state.admin.role);
 
   return (
     <div className="layout">
@@ -20,6 +35,18 @@ export default function Layout() {
             </button>
           </div>
         </div>
+        <nav className="nav" aria-label="Seções do painel">
+          {items.map((item) => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              end={item.to === '/'}
+              className={({ isActive }) => `nav-link${isActive ? ' is-active' : ''}`}
+            >
+              {item.label}
+            </NavLink>
+          ))}
+        </nav>
       </header>
       <div className="sheet">
         <main className="content">

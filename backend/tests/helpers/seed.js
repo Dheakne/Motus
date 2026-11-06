@@ -7,10 +7,13 @@ const supabase = createClient(
   { auth: { persistSession: false } }
 );
 
-const TEST_EMAIL = `test_motus_${Date.now()}@motus-test.com`;
 const TEST_PASSWORD = 'test123456';
+let seq = 0;
 
 async function createTestUser() {
+  // Email único por chamada: um mesmo arquivo de teste pode criar mais de um usuário
+  seq += 1;
+  const TEST_EMAIL = `test_motus_${Date.now()}_${seq}@motus-test.com`;
   const { data, error } = await supabase.auth.signUp({
     email: TEST_EMAIL,
     password: TEST_PASSWORD,
@@ -33,6 +36,9 @@ async function createTestUser() {
 }
 
 async function deleteTestUser(userId) {
+  // admin_audit_log.admin_id não tem ON DELETE CASCADE: limpa o log antes de apagar o usuário
+  await supabase.from('admin_audit_log').delete().eq('admin_id', userId);
+  await supabase.from('admin_users').delete().eq('user_id', userId);
   await supabase.from('user_profiles').delete().eq('user_id', userId);
   await supabase.auth.admin.deleteUser(userId);
 }

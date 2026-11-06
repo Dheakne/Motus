@@ -39,8 +39,9 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise
   const body = await res.json().catch(() => null);
 
   // Token expirado ou acesso de admin revogado: encerra a sessão local,
-  // o AuthProvider recebe SIGNED_OUT e manda de volta para o login
-  if (res.status === 401 || res.status === 403) {
+  // o AuthProvider recebe SIGNED_OUT e manda de volta para o login.
+  // (403 SUPERADMIN_REQUIRED não desloga: o admin só não tem acesso àquela tela.)
+  if (res.status === 401 || (res.status === 403 && body?.error === 'FORBIDDEN')) {
     await supabase.auth.signOut();
   }
 
@@ -53,4 +54,19 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise
   }
 
   return body.data as T;
+}
+
+/** POST/PATCH/DELETE com corpo JSON. */
+export function apiSend<T>(path: string, method: 'POST' | 'PATCH' | 'DELETE', body?: unknown) {
+  return apiFetch<T>(path, {
+    method,
+    body: body === undefined ? undefined : JSON.stringify(body),
+  });
+}
+
+/** Monta a query string ignorando valores vazios. */
+export function qs(params: Record<string, string | number | undefined | null>) {
+  const entries = Object.entries(params).filter(([, v]) => v !== undefined && v !== null && v !== '');
+  if (!entries.length) return '';
+  return '?' + new URLSearchParams(entries.map(([k, v]) => [k, String(v)])).toString();
 }
