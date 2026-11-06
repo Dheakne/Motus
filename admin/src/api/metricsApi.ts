@@ -15,3 +15,19 @@ export interface OverviewMetrics {
 }
 
 export const getOverview = () => apiFetch<OverviewMetrics>('/api/admin/metrics/overview');
+
+export type EngagementRange = '7d' | '30d' | '90d';
+
+export interface EngagementMetrics {
+  range: EngagementRange;
+  dau: Array<{ day: string; active_users: number }>;
+  wau: number;
+  mau: number;
+  /** Média de dias marcados (0–7) por quem escolheu exercício na semana atual */
+  avg_streak: number;
+  weekly_participants: number;
+  sessions_completed_by_day: Array<{ day: string; count: number }>;
+}
+
+export const getEngagement = (range: EngagementRange) =>
+  apiFetch<EngagementMetrics>(`/api/admin/metrics/engagement?range=${range}`);

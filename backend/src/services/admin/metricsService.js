@@ -1,7 +1,16 @@
 const supabase = require('../../config/supabase');
 const logger = require('../../utils/logger');
 const { countRows, fetchAll } = require('../../utils/adminQuery');
-const { lastNDays, daysAgoIso, countByDay } = require('../../utils/metricsUtils');
+const {
+  lastNDays,
+  daysAgoIso,
+  countByDay,
+  distinctUsersByDay,
+  distinctUsersSince,
+  markedDays,
+  average,
+} = require('../../utils/metricsUtils');
+const { getWeekStart } = require('../../utils/dateUtils');
 
 const GROWTH_DAYS = 30;
 
@@ -76,5 +85,62 @@ exports.getOverview = async () => {
     active_challenges: activeChallenges,
     open_reports: openReports,
     user_growth: await getUserGrowth(totalUsers),
+  };
+};
+
+const RANGES = { '7d': 7, '30d': 30, '90d': 90 };
+
+/**
+ * Engajamento no período: DAU, WAU/MAU, média de dias marcados na semana atual
+ * e sessões concluídas por dia.
+ * Usuário "ativo" = concluiu uma sessão de áudio ou marcou um dia do exercício semanal.
+ * @param {string} range - '7d' | '30d' | '90d' (padrão 30d)
+ * @returns {Promise<object>}
+ */
+exports.getEngagement = async (range) => {
+  const rangeKey = RANGES[range] ? range : '30d';
+  const days = RANGES[rangeKey];
+  // Busca ao menos 30 dias para calcular o MAU mesmo no filtro de 7 dias
+  const since = daysAgoIso(Math.max(days, 30));
+
+  const [sessions, progressUpdates, currentWeek] = await Promise.all([
+    fetchAll(() =>
+      supabase
+        .from('user_sessions')
+        .select('user_id, completed_at')
+        .eq('completed', true)
+        .gte('completed_at', since)
+        .order('completed_at')
+    ),
+    fetchAll(() =>
+      supabase
+        .from('user_challenge_progress')
+        .select('user_id, updated_at')
+        .gte('updated_at', since)
+        .order('updated_at')
+    ),
+    fetchAll(() =>
+      supabase
+        .from('user_challenge_progress')
+        .select('monday, tuesday, wednesday, thursday, friday, saturday, sunday')
+        .eq('week_start', getWeekStart())
+        .order('id')
+    ),
+  ]);
+
+  const events = [
+    ...sessions.map((r) => ({ user_id: r.user_id, at: r.completed_at })),
+    ...progressUpdates.map((r) => ({ user_id: r.user_id, at: r.updated_at })),
+  ];
+  const dayKeys = lastNDays(days);
+
+  return {
+    range: rangeKey,
+    dau: distinctUsersByDay(dayKeys, events),
+    wau: distinctUsersSince(events, daysAgoIso(7)),
+    mau: distinctUsersSince(events, daysAgoIso(30)),
+    avg_streak: average(currentWeek.map(markedDays)),
+    weekly_participants: currentWeek.length,
+    sessions_completed_by_day: countByDay(dayKeys, sessions.map((r) => r.completed_at)),
   };
 };

@@ -10,6 +10,7 @@ Execute cada arquivo em ordem no **Supabase SQL Editor** (painel do projeto → 
 | `004_add_consent_columns.sql` | Adiciona `consent_terms`, `consent_health_data` e `consented_at` em `user_profiles` (consentimento LGPD gravado no cadastro) |
 | `005_add_admin_users.sql` | Cria `admin_users` (quem acessa o painel admin, com papel `admin`/`superadmin`). RLS sem policies: só o backend lê |
 | `006_add_admin_audit_log.sql` | Cria `admin_audit_log` (registro das ações feitas pelo painel). RLS sem policies: só o backend lê |
+| `008_add_metrics_indexes.sql` | Índices por data para as métricas do painel (crescimento, ativos por dia, sessões por dia). Só cria índices |
 
 ## Como executar
 

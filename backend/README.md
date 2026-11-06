@@ -42,6 +42,7 @@ migrations/003_make_optional_columns_nullable.sql
 migrations/004_add_consent_columns.sql
 migrations/005_add_admin_users.sql
 migrations/006_add_admin_audit_log.sql
+migrations/008_add_metrics_indexes.sql
 ```
 
 Veja [migrations/README.md](migrations/README.md) para detalhes.
@@ -92,6 +93,7 @@ Se o login/cadastro só funciona no celular de uma pessoa específica da equipe,
 | GET | `/api/sessions/:id` | Bearer token | Retorna sessão de áudio |
 | GET | `/api/admin/me` | Bearer token + admin | Confirma acesso ao painel e retorna o papel |
 | GET | `/api/admin/metrics/overview` | Bearer token + admin | KPIs gerais + crescimento de usuários (30 dias) |
+| GET | `/api/admin/metrics/engagement?range=7d\|30d\|90d` | Bearer token + admin | DAU/WAU/MAU, média de dias marcados, sessões por dia |
 | GET | `/api/admin/users?search=&page=&pageSize=` | Bearer token + admin | Lista paginada de usuários (busca por nome/email) |
 | GET | `/api/admin/users/:id` | Bearer token + admin | Perfil, últimas sessões e progresso semanal |
 | PATCH | `/api/admin/users/:id` | Bearer token + admin | Altera `is_premium` / `has_seen_tutus` (gera audit log) |

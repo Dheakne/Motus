@@ -327,3 +327,5 @@ h1, h2, p { margin: 0; }
   .content { padding: 36px 16px 40px; }
   .kpi-value { font-size: 26px; }
 }
+.page-note { font-size: 13px; margin-bottom: 16px; }
+.chart-grid.is-loading { opacity: 0.6; }
