@@ -177,6 +177,11 @@ h1, h2, p { margin: 0; }
   color: var(--danger);
   background: var(--danger-bg);
 }
+.success-card {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  margin-bottom: 16px; padding: 14px 18px; border-radius: 14px;
+  color: #0e7a47; background: #e6f8ee;
+}
 .error-card .btn-ghost { border-color: var(--danger); color: var(--danger); }
 .kpi-hint { font-size: 13px; color: var(--text-secondary); }
 .loading-text { padding: 24px 0; }

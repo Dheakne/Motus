@@ -24,6 +24,20 @@ export default function SessionsTab() {
   const [status, setStatus] = useState<StatusFilter>('active');
   const [category, setCategory] = useState('');
   const [editing, setEditing] = useState<AudioSession | 'new' | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+
+  // Depois de salvar, mostra o filtro onde a sessão ficou: uma sessão inativa
+  // sumiria da aba "Ativas" e pareceria não ter sido salva
+  function handleSaved(saved: AudioSession, created: boolean) {
+    const tab = saved.is_active ? 'active' : 'inactive';
+    if (status !== 'all' && status !== tab) setStatus(tab);
+    if (category && category !== saved.category) setCategory('');
+    setNotice(
+      `Sessão "${saved.title}" ${created ? 'criada' : 'salva'} ${
+        saved.is_active ? 'e já aparece no app' : 'como inativa (não aparece no app)'
+      }.`
+    );
+  }
 
   const sessions = useQuery({
     queryKey: ['content', 'sessions', status, category],
@@ -113,6 +127,14 @@ export default function SessionsTab() {
 
       {sessions.error && <ErrorBox error={sessions.error} onRetry={() => sessions.refetch()} />}
       {toggleActive.error && <ErrorBox error={toggleActive.error} />}
+      {notice && (
+        <div className="success-card" role="status">
+          <p>{notice}</p>
+          <button className="btn-link" onClick={() => setNotice(null)}>
+            Fechar
+          </button>
+        </div>
+      )}
 
       <DataTable
         columns={columns}
@@ -150,7 +172,13 @@ export default function SessionsTab() {
         </div>
       )}
 
-      {editing && <SessionForm session={editing === 'new' ? undefined : editing} onClose={() => setEditing(null)} />}
+      {editing && (
+        <SessionForm
+          session={editing === 'new' ? undefined : editing}
+          onClose={() => setEditing(null)}
+          onSaved={handleSaved}
+        />
+      )}
     </>
   );
 }

@@ -17,9 +17,11 @@ interface SessionFormProps {
   /** Sessão em edição; ausente = criar nova */
   session?: AudioSession;
   onClose: () => void;
+  /** Chamado com a sessão salva (para a lista mostrar onde ela ficou) */
+  onSaved?: (session: AudioSession, created: boolean) => void;
 }
 
-export default function SessionForm({ session, onClose }: SessionFormProps) {
+export default function SessionForm({ session, onClose, onSaved }: SessionFormProps) {
   const queryClient = useQueryClient();
   const editing = Boolean(session);
 
@@ -61,9 +63,10 @@ export default function SessionForm({ session, onClose }: SessionFormProps) {
       const changes = changedFields(session, input);
       return Object.keys(changes).length ? updateSession(session.id, changes) : session;
     },
-    onSuccess: () => {
+    onSuccess: (saved) => {
       queryClient.invalidateQueries({ queryKey: ['content'] });
       queryClient.invalidateQueries({ queryKey: ['metrics'] });
+      onSaved?.(saved, !session);
       onClose();
     },
     onSettled: () => setStep(null),
