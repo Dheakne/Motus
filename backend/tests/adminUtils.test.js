@@ -10,7 +10,7 @@ const {
   markedDays,
   average,
 } = require('../src/utils/metricsUtils');
-const { parsePagination, sanitizeSearch } = require('../src/utils/adminQuery');
+const { parsePagination, sanitizeSearch, isValidId } = require('../src/utils/adminQuery');
 
 describe('metricsUtils', () => {
   it('toDayKey usa o fuso de São Paulo (UTC-3)', () => {
@@ -79,6 +79,16 @@ describe('adminQuery', () => {
     expect(parsePagination({ page: '3', pageSize: '10' })).toEqual({ page: 3, pageSize: 10, from: 20, to: 29 });
     expect(parsePagination({ page: '-1', pageSize: '5000' })).toEqual({ page: 1, pageSize: 100, from: 0, to: 99 });
     expect(parsePagination({ page: 'abc' }).page).toBe(1);
+  });
+
+  it('isValidId confere uuid (usuários, categorias) e bigint (sessões, exercícios, relatos)', () => {
+    expect(isValidId('0f8fad5b-d9cb-469f-a165-70867728950e', 'uuid')).toBe(true);
+    expect(isValidId('42', 'uuid')).toBe(false);
+    expect(isValidId('42', 'bigint')).toBe(true);
+    expect(isValidId(42, 'bigint')).toBe(true);
+    expect(isValidId('0', 'bigint')).toBe(false);
+    expect(isValidId('12abc', 'bigint')).toBe(false);
+    expect(isValidId('0f8fad5b-d9cb-469f-a165-70867728950e', 'bigint')).toBe(false);
   });
 
   it('sanitizeSearch remove caracteres que alteram o filtro do PostgREST', () => {

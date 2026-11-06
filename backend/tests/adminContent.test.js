@@ -88,7 +88,7 @@ describe('Sessões de áudio', () => {
 
   it('404 — sessão inexistente', async () => {
     const res = await request(app)
-      .patch('/api/admin/content/sessions/00000000-0000-0000-0000-000000000000')
+      .patch('/api/admin/content/sessions/999999999')
       .set(admin.auth)
       .send({ duration: 3 });
     expect(res.status).toBe(404);

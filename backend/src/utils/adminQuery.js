@@ -76,6 +76,21 @@ exports.sanitizeSearch = (value) =>
     .trim()
     .slice(0, 100);
 
+// Formato dos ids no banco: usuários e categorias usam uuid;
+// sessions, weekly_challenges e reports usam bigint (número)
+const ID_PATTERNS = {
+  uuid: /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+  bigint: /^[1-9]\d{0,17}$/,
+};
+
+/**
+ * Confere se o id da URL tem o formato da coluna (evita erro 500 do Postgres em id inválido).
+ * @param {string} id
+ * @param {'uuid'|'bigint'} type
+ * @returns {boolean}
+ */
+exports.isValidId = (id, type) => ID_PATTERNS[type].test(String(id));
+
 /**
  * Cria um erro de negócio no formato já tratado pelos controllers ({ status, code }).
  * @param {number} status

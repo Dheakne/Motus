@@ -28,11 +28,11 @@ export interface UserSessionRow {
   completed_at: string | null;
   points_earned: number;
   created_at: string;
-  session: { id: string; title: string; category: string; duration: number } | null;
+  session: { id: number; title: string; category: string; duration: number } | null;
 }
 
 export interface ChallengeProgressRow {
-  id: string;
+  id: number;
   week_start: string;
   monday: boolean;
   tuesday: boolean;
@@ -43,7 +43,7 @@ export interface ChallengeProgressRow {
   sunday: boolean;
   days_completed: number;
   updated_at: string | null;
-  challenge: { id: string; title: string } | null;
+  challenge: { id: number; title: string } | null;
 }
 
 export interface PremiumSubscription {

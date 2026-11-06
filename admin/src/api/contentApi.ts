@@ -6,7 +6,8 @@ import { supabase } from '../auth/supabaseClient';
 export type SessionCategory = 'gratidao' | 'atencao' | 'meditacao' | 'reflexao' | 'descanso';
 
 export interface AudioSession {
-  id: string;
+  /** bigint no banco */
+  id: number;
   title: string;
   /** Minutos */
   duration: number;
@@ -29,10 +30,10 @@ export const listSessions = (params: { category?: string; status?: StatusFilter 
 export const createSession = (input: SessionInput) =>
   apiSend<AudioSession>('/api/admin/content/sessions', 'POST', input);
 
-export const updateSession = (id: string, changes: Partial<SessionInput>) =>
+export const updateSession = (id: number, changes: Partial<SessionInput>) =>
   apiSend<AudioSession>(`/api/admin/content/sessions/${id}`, 'PATCH', changes);
 
-export const getSessionAudioUrl = (id: string) =>
+export const getSessionAudioUrl = (id: number) =>
   apiFetch<{ url: string }>(`/api/admin/content/sessions/${id}/audio-url`);
 
 interface AudioUpload {
@@ -112,7 +113,8 @@ export const deleteCategory = (id: string) =>
 // ─── Exercícios semanais ─────────────────────────────────────────────
 
 export interface Challenge {
-  id: string;
+  /** bigint no banco */
+  id: number;
   title: string;
   description: string | null;
   discoveries: string | null;
@@ -136,13 +138,13 @@ export const listChallenges = () => apiFetch<Challenge[]>('/api/admin/content/ch
 export const createChallenge = (input: ChallengeInput) =>
   apiSend<Challenge>('/api/admin/content/challenges', 'POST', input);
 
-export const updateChallenge = (id: string, changes: Partial<ChallengeInput>) =>
+export const updateChallenge = (id: number, changes: Partial<ChallengeInput>) =>
   apiSend<Challenge>(`/api/admin/content/challenges/${id}`, 'PATCH', changes);
 
 // ─── Métricas ────────────────────────────────────────────────────────
 
 export interface ContentMetrics {
-  top_sessions: Array<{ id: string; title: string; category: SessionCategory; completions: number }>;
+  top_sessions: Array<{ id: number; title: string; category: SessionCategory; completions: number }>;
   completions_by_category: Array<{ category: SessionCategory; completions: number }>;
 }
 

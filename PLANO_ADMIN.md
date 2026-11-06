@@ -8,6 +8,7 @@
 > Diferenças em relação a este plano:
 > - `completion_rate_by_category` virou `completions_by_category`: o app só grava `user_sessions` ao concluir, então a taxa seria sempre 100%.
 > - A tabela `user_sessions` não existia no banco (o app gravava nela e falhava em silêncio): criada na migration `009_create_user_sessions.sql`; os índices foram para a `011`.
+> - No banco real, `sessions.id`, `weekly_challenges.id` e `reports.id` são `bigint` (o PLANO_BACKEND diz `uuid`); usuários e categorias são `uuid`. O backend valida cada id conforme a tabela (`isValidId`).
 > - Nova migration `010_add_sessions_is_active.sql`: `sessions` não tinha `is_active`, necessário para o soft delete. O app (CategoryScreen) passou a mostrar só sessões ativas.
 > - Upload de áudio pelo painel (não previsto): o navegador envia direto ao Storage com URL assinada pelo backend e grava a URL pública em `audio_url`, que é o que o app toca.
 > - As migrations do painel são 005, 006 e 008–011; a 007 é a de premium (`PLANO_PREMIUM.md`). Ativar/remover premium no painel usa o `premiumService` (liberação `source = admin`), nunca grava `is_premium` direto.

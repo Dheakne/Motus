@@ -1,10 +1,9 @@
 const crypto = require('crypto');
 const supabase = require('../../config/supabase');
 const { storageBucket } = require('../../config/env');
-const { fetchAll, httpError } = require('../../utils/adminQuery');
+const { fetchAll, httpError, isValidId } = require('../../utils/adminQuery');
 const { markedDays, average } = require('../../utils/metricsUtils');
 const { logAdminAction } = require('../../utils/auditLog');
-const { UUID_RE } = require('./usersService');
 
 const SESSION_FIELDS = 'id, title, duration, audio_url, category, category_id, is_premium, is_active, created_at';
 const CHALLENGE_FIELDS =
@@ -12,12 +11,15 @@ const CHALLENGE_FIELDS =
 
 const AUDIO_EXTENSIONS = new Set(['mp3', 'm4a', 'aac', 'wav', 'ogg']);
 
+// Tipo do id de cada tabela de conteúdo no banco
+const ID_TYPES = { sessions: 'bigint', weekly_challenges: 'bigint', categories: 'uuid' };
+
 /**
  * Busca um registro pelo id ou lança 404.
  * @returns {Promise<object>}
  */
 async function findOrFail(table, id, fields, notFoundCode, notFoundMessage) {
-  if (!UUID_RE.test(id)) throw httpError(404, notFoundCode, notFoundMessage);
+  if (!isValidId(id, ID_TYPES[table])) throw httpError(404, notFoundCode, notFoundMessage);
   const { data, error } = await supabase.from(table).select(fields).eq('id', id).maybeSingle();
   if (error) throw error;
   if (!data) throw httpError(404, notFoundCode, notFoundMessage);

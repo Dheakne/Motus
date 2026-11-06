@@ -1,13 +1,14 @@
 -- Migration 009: cria a tabela user_sessions (sessões de áudio concluídas)
 -- O app já grava nela ao terminar um áudio (AudioPlayerScreen.markSessionAsComplete),
 -- mas a tabela não existia no banco: a gravação falhava em silêncio e nenhuma
--- conclusão ficava registrada. Estrutura conforme PLANO_BACKEND.md.
+-- conclusão ficava registrada. Estrutura conforme PLANO_BACKEND.md, exceto session_id,
+-- que é bigint porque sessions.id é bigint no banco (o plano dizia uuid).
 -- Executar no Supabase SQL Editor
 
 CREATE TABLE IF NOT EXISTS user_sessions (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  session_id uuid NOT NULL REFERENCES sessions(id) ON DELETE CASCADE,
+  session_id bigint NOT NULL REFERENCES sessions(id) ON DELETE CASCADE,
   completed boolean NOT NULL DEFAULT false,
   progress_seconds integer NOT NULL DEFAULT 0,
   completed_at timestamptz,

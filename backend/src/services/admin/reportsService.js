@@ -1,8 +1,7 @@
 const supabase = require('../../config/supabase');
-const { httpError } = require('../../utils/adminQuery');
+const { httpError, isValidId } = require('../../utils/adminQuery');
 const { logAdminAction } = require('../../utils/auditLog');
 const { REPORT_STATUSES } = require('../../validators/adminSchemas');
-const { UUID_RE } = require('./usersService');
 
 const FIELDS = 'id, user_id, email, type, subject, description, status, created_at, updated_at';
 
@@ -41,7 +40,7 @@ exports.listReports = async ({ status, from, to }) => {
  * @param {'open'|'in_progress'|'resolved'} status
  */
 exports.updateReportStatus = async (adminId, id, status) => {
-  if (!UUID_RE.test(id)) throw notFound();
+  if (!isValidId(id, 'bigint')) throw notFound();
 
   const { data: before, error: beforeError } = await supabase
     .from('reports')

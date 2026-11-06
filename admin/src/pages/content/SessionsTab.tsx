@@ -117,7 +117,7 @@ export default function SessionsTab() {
       <DataTable
         columns={columns}
         data={sessions.data ?? []}
-        getRowId={(s) => s.id}
+        getRowId={(s) => String(s.id)}
         loading={sessions.isPending}
         emptyText="Nenhuma sessão com esses filtros."
       />

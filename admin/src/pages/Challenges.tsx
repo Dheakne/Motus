@@ -102,7 +102,7 @@ export default function Challenges() {
       <DataTable
         columns={columns}
         data={challenges.data ?? []}
-        getRowId={(c) => c.id}
+        getRowId={(c) => String(c.id)}
         loading={challenges.isPending}
         emptyText="Nenhum exercício cadastrado."
       />

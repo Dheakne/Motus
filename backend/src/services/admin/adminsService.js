@@ -1,7 +1,6 @@
 const supabase = require('../../config/supabase');
-const { getAuthUsersMap, httpError, parsePagination, sanitizeSearch } = require('../../utils/adminQuery');
+const { getAuthUsersMap, httpError, isValidId, parsePagination, sanitizeSearch } = require('../../utils/adminQuery');
 const { logAdminAction } = require('../../utils/auditLog');
-const { UUID_RE } = require('./usersService');
 
 const cannotChangeSelf = (what) => httpError(400, 'CANNOT_CHANGE_SELF', `Você não pode ${what} o seu próprio acesso`);
 const adminNotFound = () => httpError(404, 'ADMIN_NOT_FOUND', 'Administrador não encontrado');
@@ -65,7 +64,7 @@ exports.grantAdmin = async (adminId, { email, role }) => {
  * @param {string} userId
  */
 exports.revokeAdmin = async (adminId, userId) => {
-  if (!UUID_RE.test(userId)) throw adminNotFound();
+  if (!isValidId(userId, 'uuid')) throw adminNotFound();
   if (userId === adminId) throw cannotChangeSelf('revogar');
 
   const { data: before, error: beforeError } = await supabase

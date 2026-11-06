@@ -1,10 +1,9 @@
 const supabase = require('../../config/supabase');
-const { getAuthUsersMap, sanitizeSearch, httpError } = require('../../utils/adminQuery');
+const { getAuthUsersMap, sanitizeSearch, httpError, isValidId } = require('../../utils/adminQuery');
 const { markedDays } = require('../../utils/metricsUtils');
 const { logAdminAction } = require('../../utils/auditLog');
 const { grantAdminPremium, revokeAdminPremium } = require('../premiumService');
 
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 // Campos do perfil visíveis no painel. phone e birth_date ficam de fora de propósito
 // (dados pessoais que a equipe não precisa para suporte — minimização LGPD).
@@ -86,7 +85,7 @@ exports.listUsers = async ({ search, from, to }) => {
  * @returns {Promise<object>}
  */
 exports.getUserDetail = async (userId) => {
-  if (!UUID_RE.test(userId)) throw notFound();
+  if (!isValidId(userId, 'uuid')) throw notFound();
 
   const { data: profile, error: profileError } = await supabase
     .from('user_profiles')
@@ -153,7 +152,7 @@ exports.getUserDetail = async (userId) => {
  * @returns {Promise<object>} Perfil atualizado + resumo de premium
  */
 exports.updateUser = async (adminId, userId, changes) => {
-  if (!UUID_RE.test(userId)) throw notFound();
+  if (!isValidId(userId, 'uuid')) throw notFound();
 
   const { data: before, error: beforeError } = await supabase
     .from('user_profiles')
@@ -197,4 +196,3 @@ exports.updateUser = async (adminId, userId, changes) => {
   return { ...profile, premium };
 };
 
-exports.UUID_RE = UUID_RE;
