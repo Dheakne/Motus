@@ -42,6 +42,7 @@ migrations/003_make_optional_columns_nullable.sql
 migrations/004_add_consent_columns.sql
 migrations/005_add_admin_users.sql
 migrations/006_add_admin_audit_log.sql
+migrations/007_add_reports_status.sql
 migrations/008_add_metrics_indexes.sql
 migrations/009_add_sessions_is_active.sql
 ```
@@ -108,6 +109,11 @@ Se o login/cadastro só funciona no celular de uma pessoa específica da equipe,
 | PATCH / DELETE | `/api/admin/content/challenges/:id` | Bearer token + admin | Edita / desativa exercício (DELETE é soft delete) |
 | GET | `/api/admin/metrics/content` | Bearer token + admin | Sessões mais concluídas e conclusões por categoria |
 | GET | `/api/admin/metrics/challenges` | Bearer token + admin | Participantes e média de dias por exercício |
+| GET | `/api/admin/reports?status=&page=` | Bearer token + admin | Fila de relatos com contagem por status |
+| PATCH | `/api/admin/reports/:id` | Bearer token + admin | Muda o status (`open` / `in_progress` / `resolved`) |
+| GET / POST | `/api/admin/admins` | Bearer token + **superadmin** | Lista / concede acesso ao painel (`{ email, role }`) |
+| DELETE | `/api/admin/admins/:userId` | Bearer token + **superadmin** | Revoga acesso (não permite revogar a si mesmo) |
+| GET | `/api/admin/audit-log?action=&page=` | Bearer token + **superadmin** | Histórico de ações do painel (somente leitura) |
 
 ## Testes
 

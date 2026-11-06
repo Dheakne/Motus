@@ -74,3 +74,14 @@ exports.createChallengeSchema = Joi.object({
 });
 
 exports.updateChallengeSchema = Joi.object(challengeFields).min(1);
+
+exports.REPORT_STATUSES = ['open', 'in_progress', 'resolved'];
+
+exports.updateReportSchema = Joi.object({
+  status: Joi.string().valid(...exports.REPORT_STATUSES).required(),
+});
+
+exports.grantAdminSchema = Joi.object({
+  email: Joi.string().trim().lowercase().email().required(),
+  role: Joi.string().valid('admin', 'superadmin').default('admin'),
+});

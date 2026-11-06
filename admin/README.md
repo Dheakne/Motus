@@ -2,7 +2,22 @@
 
 Painel administrativo web do Motus (Vite + React + TypeScript). Plano completo em [PLANO_ADMIN.md](../PLANO_ADMIN.md).
 
-O painel **nunca** acessa o banco direto: usa o Supabase só para o login (anon key) e busca tudo em `/api/admin/*` no backend.
+O painel **nunca** acessa o banco direto: usa o Supabase só para o login (anon key) e para enviar arquivos de áudio com uma URL de upload assinada pelo backend. Todos os dados vêm de `/api/admin/*` no backend.
+
+## Telas
+
+| Tela | Quem vê | O que faz |
+|---|---|---|
+| Visão geral | admin e superadmin | KPIs (usuários, novos, premium, sessões, exercícios ativos, relatos em aberto) e crescimento de usuários em 30 dias |
+| Engajamento | admin e superadmin | Ativos por dia, WAU, MAU, média de dias marcados na semana e sessões por dia (7, 30 ou 90 dias) |
+| Conteúdo | admin e superadmin | Sessões de áudio (criar, editar, enviar áudio, ativar/desativar) e categorias da Home |
+| Exercícios semanais | admin e superadmin | Criar, editar, ativar/desativar exercícios; participantes e média de dias |
+| Usuários | admin e superadmin | Busca por nome/email, detalhe com histórico e ativar/remover premium |
+| Relatos | admin e superadmin | Fila de bugs e sugestões enviados pelo app, com status de atendimento |
+| Administradores | só superadmin | Conceder, alterar papel e revogar acesso ao painel |
+| Histórico | só superadmin | Tudo que foi alterado pelo painel (audit log), somente leitura |
+
+Desativar uma sessão ou exercício **não apaga nada**: ele só some do app, e o histórico de quem já usou continua.
 
 ## Rodando localmente
 
@@ -13,16 +28,15 @@ cp .env.example .env     # preencha com a URL e a anon key do Supabase
 npm run dev              # http://localhost:5173
 ```
 
-Enquanto as rotas `/api/admin` não estiverem em produção no Render, rode também o backend local (`cd backend && npm run dev`) e mantenha `VITE_API_URL=http://localhost:3000`.
+Rode também o backend local (`cd backend && npm run dev`) com `VITE_API_URL=http://localhost:3000`, ou aponte `VITE_API_URL` para o backend de produção depois do deploy.
+
+O banco é o mesmo do app. Ao testar criação de conteúdo, marque como **inativo** e use nomes como "TESTE - não usar".
 
 ## Dar acesso a alguém
 
-O login usa a mesma conta do app. Para liberar o painel, rode no Supabase SQL Editor (depois da migration `005_add_admin_users.sql`):
+Pelo próprio painel: **Administradores → Conceder acesso** (só superadmin). A pessoa precisa ter conta no app.
 
-```sql
-INSERT INTO admin_users (user_id, role)
-SELECT id, 'admin' FROM auth.users WHERE email = 'pessoa@exemplo.com';
-```
+O primeiro superadmin é criado no Supabase SQL Editor (ver [backend/migrations/README.md](../backend/migrations/README.md)).
 
 Quem não estiver em `admin_users` recebe "Email ou senha inválidos, ou conta sem acesso ao painel". A mensagem é igual à de senha errada de propósito.
 
@@ -36,26 +50,4 @@ Quem não estiver em `admin_users` recebe "Email ou senha inválidos, ou conta s
 
 ## Produção
 
-O painel é publicado como **Static Site no Render**, na mesma conta do backend. Site estático no Render não "dorme" (só o backend do plano free dorme).
-
-Configuração em **Render → New → Static Site**, apontando para o repositório:
-
-| Campo | Valor |
-|---|---|
-| Branch | `main` |
-| Root Directory | `admin` |
-| Build Command | `npm install && npm run build` |
-| Publish Directory | `dist` |
-
-**Environment** (lidas no build: depois de alterar, faça um novo deploy):
-`VITE_API_URL=https://motus-dm29.onrender.com`, `VITE_SUPABASE_URL` (sem `/rest/v1` no final) e `VITE_SUPABASE_ANON_KEY` (só a anon key).
-
-**Redirects/Rewrites** (obrigatório, senão recarregar a página em `/login` dá 404):
-
-| Source | Destination | Action |
-|---|---|---|
-| `/*` | `/index.html` | Rewrite |
-
-**Headers** (recomendado): `/*` → `X-Robots-Tag: noindex, nofollow` e `X-Frame-Options: DENY`.
-
-No serviço do **backend**, `ADMIN_FRONTEND_URL` precisa ter a URL do painel (ex.: `https://motus-admin.onrender.com`), senão as chamadas são bloqueadas por CORS. Para continuar usando o painel local também: `https://motus-admin.onrender.com,http://localhost:5173`.
+Static Site no Render, na mesma conta do backend. Passo a passo completo em [DEPLOY_ADMIN.md](../DEPLOY_ADMIN.md).

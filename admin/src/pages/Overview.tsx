@@ -18,7 +18,7 @@ export default function Overview() {
 
       {error && <ErrorBox error={error} onRetry={() => refetch()} />}
 
-      <div className="kpi-grid">
+      <div className="kpi-grid kpi-grid-3">
         <KpiCard label="Total de usuários" value={data ? formatNumber(data.total_users) : null} loading={isPending} />
         <KpiCard
           label="Novos nos últimos 7 dias"
@@ -46,8 +46,9 @@ export default function Overview() {
         <KpiCard
           label="Relatos em aberto"
           value={data ? formatNumber(data.open_reports) : null}
-          hint={data && data.open_reports === null ? 'Rode a migration 007' : undefined}
+          hint={data && data.open_reports === null ? 'Rode a migration 007' : 'Abrir a fila de relatos'}
           loading={isPending}
+          to="/reports"
         />
       </div>
 

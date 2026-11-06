@@ -343,3 +343,25 @@ h1, h2, p { margin: 0; }
 .color-cell, .category-cell { display: inline-flex; align-items: center; gap: 8px; }
 .color-dot { width: 14px; height: 14px; border-radius: 50%; border: 1px solid var(--divider); }
 .category-emoji { font-size: 18px; }
+
+/* Relatos */
+.report-list { display: grid; gap: 12px; margin-bottom: 16px; }
+.report-card { border: 1px solid var(--divider); border-radius: 14px; padding: 16px 18px; display: grid; gap: 12px; }
+.report-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.report-description { white-space: pre-wrap; font-size: 15px; line-height: 1.5; }
+.report-footer { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; font-size: 14px; }
+.report-status { display: flex; align-items: center; gap: 8px; }
+
+/* Administradores e histórico */
+.grant-form { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
+.grant-form .input { flex: 1; min-width: 240px; }
+.mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13px; }
+.payload {
+  margin: 0; padding: 12px; border-radius: 10px; background: var(--surface);
+  font-size: 12px; overflow-x: auto; white-space: pre-wrap; word-break: break-word;
+}
+.kpi-link { text-decoration: none; color: inherit; }
+.kpi-link:hover { outline: 2px solid var(--primary); outline-offset: -2px; }
+
+/* Visão geral: 6 KPIs em duas linhas de 3 no desktop */
+.kpi-grid-3 { grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); }

@@ -10,6 +10,7 @@ Execute cada arquivo em ordem no **Supabase SQL Editor** (painel do projeto → 
 | `004_add_consent_columns.sql` | Adiciona `consent_terms`, `consent_health_data` e `consented_at` em `user_profiles` (consentimento LGPD gravado no cadastro) |
 | `005_add_admin_users.sql` | Cria `admin_users` (quem acessa o painel admin, com papel `admin`/`superadmin`). RLS sem policies: só o backend lê |
 | `006_add_admin_audit_log.sql` | Cria `admin_audit_log` (registro das ações feitas pelo painel). RLS sem policies: só o backend lê |
+| `007_add_reports_status.sql` | Adiciona `status` (`open`/`in_progress`/`resolved`, padrão `open`) e `updated_at` em `reports` para a fila de relatos do painel |
 | `008_add_metrics_indexes.sql` | Índices por data para as métricas do painel (crescimento, ativos por dia, sessões por dia). Só cria índices |
 | `009_add_sessions_is_active.sql` | Adiciona `is_active` em `sessions` (padrão `true`) para desativar sessões pelo painel sem apagar histórico. **Rodar antes** de publicar a versão do app que filtra por `is_active` |
 

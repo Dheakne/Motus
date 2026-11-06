@@ -15,6 +15,9 @@ const NAV: NavItem[] = [
   { to: '/content', label: 'Conteúdo' },
   { to: '/challenges', label: 'Exercícios semanais' },
   { to: '/users', label: 'Usuários' },
+  { to: '/reports', label: 'Relatos' },
+  { to: '/admins', label: 'Administradores', role: 'superadmin' },
+  { to: '/audit-log', label: 'Histórico', role: 'superadmin' },
 ];
 
 export default function Layout() {

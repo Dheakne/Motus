@@ -3,6 +3,15 @@
 > **Versão 1.0** · Elaborado em 02/10/2026
 > Documento complementar ao [PLANO_BACKEND.md](./PLANO_BACKEND.md) — assume o backend Express + Supabase já existente em `backend/`.
 
+> **Status (06/11/2026): Fases 1 a 5 implementadas** na branch `feature`. Para colocar em produção, siga o [DEPLOY_ADMIN.md](./DEPLOY_ADMIN.md).
+>
+> Diferenças em relação a este plano:
+> - `completion_rate_by_category` virou `completions_by_category`: o app só grava `user_sessions` ao concluir, então a taxa seria sempre 100%.
+> - Nova migration `009_add_sessions_is_active.sql`: `sessions` não tinha `is_active`, necessário para o soft delete. O app (CategoryScreen) passou a mostrar só sessões ativas.
+> - Upload de áudio pelo painel (não previsto): o navegador envia direto ao Storage com URL assinada pelo backend e grava a URL pública em `audio_url`, que é o que o app toca.
+> - Estilo em CSS puro (sem Tailwind), com a paleta e a fonte do app; hospedagem como Static Site no Render.
+> - Telefone e data de nascimento não são expostos ao painel (minimização LGPD).
+
 ---
 
 ## SUMÁRIO

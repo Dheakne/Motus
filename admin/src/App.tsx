@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './auth/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
+import SuperadminRoute from './components/SuperadminRoute';
 import Login from './pages/Login';
 import Overview from './pages/Overview';
 import Engagement from './pages/Engagement';
@@ -9,6 +10,9 @@ import Content from './pages/Content';
 import Challenges from './pages/Challenges';
 import Users from './pages/Users';
 import UserDetail from './pages/UserDetail';
+import Reports from './pages/Reports';
+import Admins from './pages/Admins';
+import AuditLog from './pages/AuditLog';
 
 export default function App() {
   return (
@@ -24,6 +28,11 @@ export default function App() {
               <Route path="challenges" element={<Challenges />} />
               <Route path="users" element={<Users />} />
               <Route path="users/:id" element={<UserDetail />} />
+              <Route path="reports" element={<Reports />} />
+              <Route element={<SuperadminRoute />}>
+                <Route path="admins" element={<Admins />} />
+                <Route path="audit-log" element={<AuditLog />} />
+              </Route>
             </Route>
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
