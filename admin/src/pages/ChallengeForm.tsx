@@ -4,7 +4,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import Modal from '../components/Modal';
 import { createChallenge, updateChallenge } from '../api/contentApi';
 import type { Challenge, ChallengeInput } from '../api/contentApi';
-import { changedFields, emptyToNull } from '../utils/diff';
+import { changedFields } from '../utils/diff';
 
 // Categorias que o app já reconhece (ícone próprio na lista de exercícios)
 const KNOWN_CATEGORIES = [
@@ -46,9 +46,9 @@ export default function ChallengeForm({ challenge, onClose }: ChallengeFormProps
         title: title.trim(),
         category: category.trim(),
         duration_minutes: Number(duration),
-        description: emptyToNull(description),
-        discoveries: emptyToNull(discoveries),
-        tips: emptyToNull(tips),
+        description: description.trim(),
+        discoveries: discoveries.trim(),
+        tips: tips.trim(),
         is_free: isFree,
         is_active: isActive,
       };
@@ -69,6 +69,9 @@ export default function ChallengeForm({ challenge, onClose }: ChallengeFormProps
     const minutes = Number(duration);
     if (!title.trim()) return setFormError('Informe o título.');
     if (!category.trim()) return setFormError('Informe a categoria.');
+    if (!description.trim() || !discoveries.trim() || !tips.trim()) {
+      return setFormError('Descrição, descobertas e dicas são obrigatórias.');
+    }
     if (!Number.isInteger(minutes) || minutes < 1) return setFormError('Tempo diário deve ser um número inteiro de minutos.');
     save.mutate();
   }
@@ -116,17 +119,17 @@ export default function ChallengeForm({ challenge, onClose }: ChallengeFormProps
 
         <label className="form-field">
           Descrição
-          <textarea className="textarea" value={description} onChange={(e) => setDescription(e.target.value)} maxLength={5000} />
+          <textarea className="textarea" value={description} onChange={(e) => setDescription(e.target.value)} maxLength={5000} required />
         </label>
         <label className="form-field">
           Descobertas
-          <textarea className="textarea" value={discoveries} onChange={(e) => setDiscoveries(e.target.value)} maxLength={5000} />
-          <span className="form-help">Uma por linha.</span>
+          <textarea className="textarea" value={discoveries} onChange={(e) => setDiscoveries(e.target.value)} maxLength={5000} required />
+          <span className="form-help">Uma por linha, numeradas como nos exercícios existentes (1. …, 2. …).</span>
         </label>
         <label className="form-field">
           Dicas
-          <textarea className="textarea" value={tips} onChange={(e) => setTips(e.target.value)} maxLength={5000} />
-          <span className="form-help">Uma por linha.</span>
+          <textarea className="textarea" value={tips} onChange={(e) => setTips(e.target.value)} maxLength={5000} required />
+          <span className="form-help">Uma por linha, numeradas como nos exercícios existentes (1. …, 2. …).</span>
         </label>
 
         <label className="form-check">

@@ -9,6 +9,10 @@ export interface AudioSession {
   /** bigint no banco */
   id: number;
   title: string;
+  /** Descrição curta (obrigatória no banco) */
+  description: string;
+  /** Texto longo opcional */
+  full_description: string | null;
   /** Minutos */
   duration: number;
   audio_url: string;
@@ -20,7 +24,10 @@ export interface AudioSession {
   completions: number;
 }
 
-export type SessionInput = Pick<AudioSession, 'title' | 'duration' | 'audio_url' | 'category' | 'is_premium' | 'is_active'>;
+export type SessionInput = Pick<
+  AudioSession,
+  'title' | 'description' | 'full_description' | 'duration' | 'audio_url' | 'category' | 'is_premium' | 'is_active'
+>;
 
 export type StatusFilter = 'active' | 'inactive' | 'all';
 
@@ -90,14 +97,16 @@ export function readAudioMinutes(file: File): Promise<number | null> {
 export interface Category {
   id: string;
   title: string;
-  color: string | null;
-  icon_emoji: string | null;
+  /** Rótulo do card na Home (ex.: "Áudio") */
+  description: string;
+  color: string;
+  icon_emoji: string;
   order: number;
   created_at: string;
   sessions_count: number;
 }
 
-export type CategoryInput = Pick<Category, 'title' | 'color' | 'icon_emoji' | 'order'>;
+export type CategoryInput = Pick<Category, 'title' | 'description' | 'color' | 'icon_emoji' | 'order'>;
 
 export const listCategories = () => apiFetch<Category[]>('/api/admin/content/categories');
 
@@ -116,9 +125,9 @@ export interface Challenge {
   /** bigint no banco */
   id: number;
   title: string;
-  description: string | null;
-  discoveries: string | null;
-  tips: string | null;
+  description: string;
+  discoveries: string;
+  tips: string;
   duration_minutes: number;
   category: string;
   is_free: boolean;

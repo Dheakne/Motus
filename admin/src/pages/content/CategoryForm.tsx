@@ -4,7 +4,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import Modal from '../../components/Modal';
 import { createCategory, updateCategory } from '../../api/contentApi';
 import type { Category, CategoryInput } from '../../api/contentApi';
-import { changedFields, emptyToNull } from '../../utils/diff';
+import { changedFields } from '../../utils/diff';
 
 interface CategoryFormProps {
   category?: Category;
@@ -17,6 +17,7 @@ export default function CategoryForm({ category, nextOrder, onClose }: CategoryF
   const editing = Boolean(category);
 
   const [title, setTitle] = useState(category?.title ?? '');
+  const [description, setDescription] = useState(category?.description ?? 'Áudio');
   const [emoji, setEmoji] = useState(category?.icon_emoji ?? '');
   const [color, setColor] = useState(category?.color ?? '#1066E7');
   const [order, setOrder] = useState(String(category?.order ?? nextOrder));
@@ -26,8 +27,9 @@ export default function CategoryForm({ category, nextOrder, onClose }: CategoryF
     mutationFn: () => {
       const input: CategoryInput = {
         title: title.trim(),
-        icon_emoji: emptyToNull(emoji),
-        color: emptyToNull(color),
+        description: description.trim(),
+        icon_emoji: emoji.trim(),
+        color: color.trim(),
         order: Number(order),
       };
       if (!category) return createCategory(input);
@@ -44,6 +46,9 @@ export default function CategoryForm({ category, nextOrder, onClose }: CategoryF
     e.preventDefault();
     setFormError(null);
     if (!title.trim()) return setFormError('Informe o título.');
+    if (!description.trim()) return setFormError('Informe o rótulo do card.');
+    if (!emoji.trim()) return setFormError('Informe o emoji do card.');
+    if (!/^#[0-9A-Fa-f]{6}$/.test(color.trim())) return setFormError('Cor deve estar no formato #RRGGBB.');
     if (!Number.isInteger(Number(order)) || Number(order) < 0) return setFormError('Ordem deve ser um número inteiro.');
     save.mutate();
   }
@@ -65,10 +70,16 @@ export default function CategoryForm({ category, nextOrder, onClose }: CategoryF
           {titleChanged && <span className="form-help warn-text">Atenção: o nome mudou.</span>}
         </label>
 
+        <label className="form-field">
+          Rótulo do card
+          <input className="input" value={description} onChange={(e) => setDescription(e.target.value)} maxLength={100} required />
+          <span className="form-help">Texto pequeno do card na Home, como "Áudio" ou "Missões".</span>
+        </label>
+
         <div className="form-row">
           <label className="form-field">
             Emoji do card
-            <input className="input" value={emoji} onChange={(e) => setEmoji(e.target.value)} maxLength={16} />
+            <input className="input" value={emoji} onChange={(e) => setEmoji(e.target.value)} maxLength={16} required />
           </label>
           <label className="form-field">
             Ordem na Home

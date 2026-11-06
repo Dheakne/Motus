@@ -14,8 +14,11 @@ async function createTestUser() {
   // Email único por chamada: um mesmo arquivo de teste pode criar mais de um usuário
   seq += 1;
   const TEST_EMAIL = `test_motus_${Date.now()}_${seq}@motus-test.com`;
-  const { data, error } = await supabase.auth.signUp({
+  // admin.createUser já cria a conta confirmada e não envia email
+  // (signUp mandava confirmação e esbarrava no limite de emails do Supabase)
+  const { data, error } = await supabase.auth.admin.createUser({
     email: TEST_EMAIL,
+    email_confirm: true,
     password: TEST_PASSWORD,
   });
   if (error) throw error;

@@ -110,7 +110,8 @@ exports.getUserDetail = async (userId) => {
       .eq('completed', true),
     supabase
       .from('user_challenge_progress')
-      .select('id, week_start, monday, tuesday, wednesday, thursday, friday, saturday, sunday, updated_at, challenge:weekly_challenges(id, title)')
+      // Sem FK entre user_challenge_progress e weekly_challenges no banco: o título é buscado à parte
+      .select('id, challenge_id, week_start, monday, tuesday, wednesday, thursday, friday, saturday, sunday, updated_at')
       .eq('user_id', userId)
       .order('week_start', { ascending: false })
       .limit(10),
@@ -123,6 +124,13 @@ exports.getUserDetail = async (userId) => {
 
   const authUser = authResult.data?.user;
 
+  const challengeIds = [...new Set(progressResult.data.map((r) => r.challenge_id).filter(Boolean))];
+  const { data: challenges, error: challengesError } = challengeIds.length
+    ? await supabase.from('weekly_challenges').select('id, title').in('id', challengeIds)
+    : { data: [], error: null };
+  if (challengesError) throw challengesError;
+  const challengeById = new Map(challenges.map((c) => [c.id, c]));
+
   return {
     profile: {
       ...profile,
@@ -134,6 +142,7 @@ exports.getUserDetail = async (userId) => {
     recent_sessions: sessionsResult.data,
     challenge_progress: progressResult.data.map((row) => ({
       ...row,
+      challenge: challengeById.get(row.challenge_id) ?? null,
       days_completed: markedDays(row),
     })),
   };

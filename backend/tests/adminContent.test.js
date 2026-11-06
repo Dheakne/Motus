@@ -31,12 +31,21 @@ describe('Sessões de áudio', () => {
     expect(res.body.error).toBe('VALIDATION_ERROR');
   });
 
+  it('400 — descrição curta é obrigatória', async () => {
+    const res = await request(app)
+      .post('/api/admin/content/sessions')
+      .set(admin.auth)
+      .send({ title: 'TESTE', duration: 5, audio_url: 'https://example.com/a.mp3', category: 'meditacao' });
+    expect(res.status).toBe(400);
+  });
+
   it('201 — cria sessão inativa', async () => {
     const res = await request(app)
       .post('/api/admin/content/sessions')
       .set(admin.auth)
       .send({
         title: '  TESTE automatizado - não usar  ',
+        description: 'Sessão criada pelos testes automatizados.',
         duration: 5,
         audio_url: 'https://example.com/teste.mp3',
         category: 'meditacao',
@@ -45,6 +54,9 @@ describe('Sessões de áudio', () => {
 
     expect(res.status).toBe(201);
     expect(res.body.data).toMatchObject({ title: 'TESTE automatizado - não usar', is_active: false });
+    // category_id é preenchido a partir da categoria (mesmo vínculo das sessões existentes)
+    const { data: meditacao } = await supabase.from('categories').select('id').eq('title', 'Meditação').single();
+    expect(res.body.data.category_id).toBe(meditacao.id);
     sessionId = res.body.data.id;
     created.sessions.push(sessionId);
   });
@@ -129,7 +141,7 @@ describe('Categorias', () => {
     const createRes = await request(app)
       .post('/api/admin/content/categories')
       .set(admin.auth)
-      .send({ title: 'TESTE automatizado', color: '#1066E7', icon_emoji: '🧪', order: 999 });
+      .send({ title: 'TESTE automatizado', description: 'Áudio', color: '#1066E7', icon_emoji: '🧪', order: 999 });
     expect(createRes.status).toBe(201);
     categoryId = createRes.body.data.id;
     created.categories.push(categoryId);
@@ -137,13 +149,19 @@ describe('Categorias', () => {
     const list = await request(app).get('/api/admin/content/categories').set(admin.auth);
     expect(list.body.data.find((c) => c.id === categoryId)).toMatchObject({ sessions_count: 0 });
 
-    // Para limpar um campo opcional o painel envia null
+    const patchRes = await request(app)
+      .patch(`/api/admin/content/categories/${categoryId}`)
+      .set(admin.auth)
+      .send({ icon_emoji: '🔬' });
+    expect(patchRes.status).toBe(200);
+    expect(patchRes.body.data.icon_emoji).toBe('🔬');
+
+    // emoji é obrigatório no banco: não dá para limpar
     const clearRes = await request(app)
       .patch(`/api/admin/content/categories/${categoryId}`)
       .set(admin.auth)
       .send({ icon_emoji: null });
-    expect(clearRes.status).toBe(200);
-    expect(clearRes.body.data.icon_emoji).toBeNull();
+    expect(clearRes.status).toBe(400);
 
     const delRes = await request(app).delete(`/api/admin/content/categories/${categoryId}`).set(admin.auth);
     expect(delRes.status).toBe(200);
@@ -153,7 +171,7 @@ describe('Categorias', () => {
     const cat = await request(app)
       .post('/api/admin/content/categories')
       .set(admin.auth)
-      .send({ title: 'TESTE com sessão', order: 998 });
+      .send({ title: 'TESTE com sessão', description: 'Áudio', color: '#1066E7', icon_emoji: '🧪', order: 998 });
     created.categories.push(cat.body.data.id);
 
     const session = await request(app)
@@ -161,6 +179,7 @@ describe('Categorias', () => {
       .set(admin.auth)
       .send({
         title: 'TESTE vinculada',
+        description: 'Sessão vinculada criada pelos testes.',
         duration: 1,
         audio_url: 'https://example.com/x.mp3',
         category: 'meditacao',
@@ -176,6 +195,14 @@ describe('Categorias', () => {
 });
 
 describe('Exercícios semanais', () => {
+  it('400 — descrição, descobertas e dicas são obrigatórias', async () => {
+    const res = await request(app)
+      .post('/api/admin/content/challenges')
+      .set(admin.auth)
+      .send({ title: 'TESTE', category: 'Respiração', duration_minutes: 5, description: '' });
+    expect(res.status).toBe(400);
+  });
+
   it('cria inativo, edita, desativa e aparece nas métricas', async () => {
     const createRes = await request(app)
       .post('/api/admin/content/challenges')
@@ -184,11 +211,13 @@ describe('Exercícios semanais', () => {
         title: 'TESTE automatizado - não usar',
         category: 'Respiração',
         duration_minutes: 5,
-        tips: 'Dica 1\nDica 2',
-        description: '',
+        description: 'Exercício criado pelos testes automatizados.',
+        discoveries: '1. Uma descoberta\n2. Outra',
+        tips: '1. Dica 1\n2. Dica 2',
+        is_active: false,
       });
     expect(createRes.status).toBe(201);
-    expect(createRes.body.data).toMatchObject({ is_active: false, description: null });
+    expect(createRes.body.data).toMatchObject({ is_active: false, tips: '1. Dica 1\n2. Dica 2' });
     const id = createRes.body.data.id;
     created.challenges.push(id);
 

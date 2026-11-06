@@ -11,7 +11,7 @@ import {
 } from '../../api/contentApi';
 import type { AudioSession, SessionCategory, SessionInput } from '../../api/contentApi';
 import { SESSION_CATEGORIES } from '../../utils/format';
-import { changedFields } from '../../utils/diff';
+import { changedFields, emptyToNull } from '../../utils/diff';
 
 interface SessionFormProps {
   /** Sessão em edição; ausente = criar nova */
@@ -24,6 +24,8 @@ export default function SessionForm({ session, onClose }: SessionFormProps) {
   const editing = Boolean(session);
 
   const [title, setTitle] = useState(session?.title ?? '');
+  const [description, setDescription] = useState(session?.description ?? '');
+  const [fullDescription, setFullDescription] = useState(session?.full_description ?? '');
   const [category, setCategory] = useState<SessionCategory>(session?.category ?? 'meditacao');
   const [duration, setDuration] = useState(session ? String(session.duration) : '');
   const [isPremium, setIsPremium] = useState(session?.is_premium ?? false);
@@ -46,6 +48,8 @@ export default function SessionForm({ session, onClose }: SessionFormProps) {
 
       const input: SessionInput = {
         title: title.trim(),
+        description: description.trim(),
+        full_description: emptyToNull(fullDescription),
         category,
         duration: Number(duration),
         audio_url: finalUrl,
@@ -87,6 +91,7 @@ export default function SessionForm({ session, onClose }: SessionFormProps) {
     setFormError(null);
     const minutes = Number(duration);
     if (!title.trim()) return setFormError('Informe o título.');
+    if (!description.trim()) return setFormError('Informe a descrição curta.');
     if (!Number.isInteger(minutes) || minutes < 1) return setFormError('Duração deve ser um número inteiro de minutos.');
     if (audioMode === 'upload' && !file && !editing) return setFormError('Escolha o arquivo de áudio.');
     if (audioMode === 'url' && !audioUrl.trim()) return setFormError('Informe a URL do áudio.');
@@ -102,6 +107,28 @@ export default function SessionForm({ session, onClose }: SessionFormProps) {
         <label className="form-field">
           Título
           <input className="input" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={200} required />
+        </label>
+
+        <label className="form-field">
+          Descrição curta
+          <textarea
+            className="textarea textarea-sm"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            maxLength={500}
+            required
+          />
+          <span className="form-help">Uma frase sobre a sessão, como nas que já existem.</span>
+        </label>
+
+        <label className="form-field">
+          Texto completo (opcional)
+          <textarea
+            className="textarea"
+            value={fullDescription}
+            onChange={(e) => setFullDescription(e.target.value)}
+            maxLength={10000}
+          />
         </label>
 
         <div className="form-row">

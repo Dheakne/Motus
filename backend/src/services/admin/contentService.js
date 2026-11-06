@@ -5,7 +5,36 @@ const { fetchAll, httpError, isValidId } = require('../../utils/adminQuery');
 const { markedDays, average } = require('../../utils/metricsUtils');
 const { logAdminAction } = require('../../utils/auditLog');
 
-const SESSION_FIELDS = 'id, title, duration, audio_url, category, category_id, is_premium, is_active, created_at';
+const SESSION_FIELDS =
+  'id, title, description, full_description, duration, audio_url, category, category_id, is_premium, is_active, created_at';
+
+// sessions.category (texto do CHECK) → título da categoria da Home (o app usa o mesmo mapa no CategoryScreen)
+const CATEGORY_TITLES = {
+  gratidao: 'Gratidão',
+  atencao: 'Atenção Concentrada',
+  meditacao: 'Meditação',
+  reflexao: 'Reflexão',
+  descanso: 'Descanso',
+};
+
+/**
+ * Preenche sessions.category_id (NOT NULL) a partir de category, buscando a categoria da Home pelo título.
+ * @param {object} values - Campos da sessão (create ou patch)
+ * @returns {Promise<object>}
+ */
+async function withCategoryId(values) {
+  if (!values.category || values.category_id) return values;
+  const { data, error } = await supabase
+    .from('categories')
+    .select('id')
+    .eq('title', CATEGORY_TITLES[values.category])
+    .maybeSingle();
+  if (error) throw error;
+  if (!data) {
+    throw httpError(400, 'CATEGORY_NOT_FOUND', `Categoria "${CATEGORY_TITLES[values.category]}" não existe na Home do app`);
+  }
+  return { ...values, category_id: data.id };
+}
 const CHALLENGE_FIELDS =
   'id, title, description, discoveries, tips, duration_minutes, category, is_free, is_active, created_at';
 
@@ -78,15 +107,21 @@ exports.listSessions = async ({ category, status = 'all' } = {}) => {
   return data.map((s) => ({ ...s, completions: completions.get(s.id) ?? 0 }));
 };
 
-exports.createSession = (adminId, values) =>
-  createWithAudit({ table: 'sessions', fields: SESSION_FIELDS, values, adminId, action: 'session.create' });
+exports.createSession = async (adminId, values) =>
+  createWithAudit({
+    table: 'sessions',
+    fields: SESSION_FIELDS,
+    values: await withCategoryId(values),
+    adminId,
+    action: 'session.create',
+  });
 
-exports.updateSession = (adminId, id, changes) =>
+exports.updateSession = async (adminId, id, changes) =>
   updateWithAudit({
     table: 'sessions',
     fields: SESSION_FIELDS,
     id,
-    changes,
+    changes: await withCategoryId(changes),
     adminId,
     action: 'session.update',
     notFound: SESSION_NOT_FOUND,

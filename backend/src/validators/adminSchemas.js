@@ -13,13 +13,19 @@ exports.SESSION_CATEGORIES = ['gratidao', 'atencao', 'meditacao', 'reflexao', 'd
 
 // Texto opcional: string vazia vira null
 const optionalText = (max) => Joi.string().trim().max(max).empty('').allow(null);
+// Texto obrigatório no banco (NOT NULL): não aceita vazio nem null
+const requiredText = (max) => Joi.string().trim().min(1).max(max);
 
 const sessionFields = {
   title: Joi.string().trim().min(1).max(200),
+  // Descrição curta exibida com a sessão (NOT NULL no banco)
+  description: requiredText(500),
+  full_description: optionalText(10000),
   duration: Joi.number().integer().min(1).max(600),
   audio_url: Joi.string().trim().min(1).max(2000),
   category: Joi.string().valid(...exports.SESSION_CATEGORIES),
-  category_id: Joi.string().guid().empty('').allow(null),
+  // Preenchido pelo backend a partir de category (NOT NULL no banco)
+  category_id: Joi.string().guid(),
   is_premium: Joi.boolean(),
   is_active: Joi.boolean(),
 };
@@ -27,6 +33,7 @@ const sessionFields = {
 exports.createSessionSchema = Joi.object({
   ...sessionFields,
   title: sessionFields.title.required(),
+  description: sessionFields.description.required(),
   duration: sessionFields.duration.required(),
   audio_url: sessionFields.audio_url.required(),
   category: sessionFields.category.required(),
@@ -41,25 +48,30 @@ exports.audioUploadSchema = Joi.object({
 
 const categoryFields = {
   title: Joi.string().trim().min(1).max(60),
-  color: Joi.string().trim().pattern(/^#[0-9A-Fa-f]{6}$/).empty('').allow(null)
+  // description, color e icon_emoji são NOT NULL no banco
+  description: requiredText(100),
+  color: Joi.string().trim().pattern(/^#[0-9A-Fa-f]{6}$/)
     .messages({ 'string.pattern.base': 'Cor deve estar no formato #RRGGBB' }),
-  icon_emoji: optionalText(16),
+  icon_emoji: requiredText(16),
   order: Joi.number().integer().min(0).max(1000),
 };
 
 exports.createCategorySchema = Joi.object({
   ...categoryFields,
   title: categoryFields.title.required(),
+  description: categoryFields.description.required(),
+  color: categoryFields.color.required(),
+  icon_emoji: categoryFields.icon_emoji.required(),
 });
 
 exports.updateCategorySchema = Joi.object(categoryFields).min(1);
 
 const challengeFields = {
   title: Joi.string().trim().min(1).max(200),
-  description: optionalText(5000),
-  // Um item por linha (o app separa por \n)
-  discoveries: optionalText(5000),
-  tips: optionalText(5000),
+  // description, discoveries e tips são NOT NULL no banco. Um item por linha (o app separa por \n)
+  description: requiredText(5000),
+  discoveries: requiredText(5000),
+  tips: requiredText(5000),
   duration_minutes: Joi.number().integer().min(1).max(600),
   category: Joi.string().trim().min(1).max(60),
   is_free: Joi.boolean(),
@@ -69,6 +81,9 @@ const challengeFields = {
 exports.createChallengeSchema = Joi.object({
   ...challengeFields,
   title: challengeFields.title.required(),
+  description: challengeFields.description.required(),
+  discoveries: challengeFields.discoveries.required(),
+  tips: challengeFields.tips.required(),
   duration_minutes: challengeFields.duration_minutes.required(),
   category: challengeFields.category.required(),
 });
