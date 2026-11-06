@@ -346,9 +346,8 @@ h1, h2, p { margin: 0; }
 .color-field { display: flex; align-items: center; gap: 10px; }
 .color-field input[type='color'] { width: 44px; height: 44px; border: none; border-radius: 12px; padding: 0; background: none; cursor: pointer; }
 .color-field .input { flex: 1; }
-.color-cell, .category-cell { display: inline-flex; align-items: center; gap: 8px; }
+.color-cell { display: inline-flex; align-items: center; gap: 8px; }
 .color-dot { width: 14px; height: 14px; border-radius: 50%; border: 1px solid var(--divider); }
-.category-emoji { font-size: 18px; }
 
 /* Relatos */
 .report-list { display: grid; gap: 12px; margin-bottom: 16px; }

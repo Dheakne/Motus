@@ -26,14 +26,7 @@ export default function CategoriesTab() {
       col.accessor('order', { header: 'Ordem', cell: (i) => formatNumber(i.getValue()) }),
       col.accessor('title', {
         header: 'Categoria',
-        cell: ({ row }) => (
-          <span className="category-cell">
-            <span className="category-emoji" aria-hidden="true">
-              {row.original.icon_emoji}
-            </span>
-            <strong>{row.original.title}</strong>
-          </span>
-        ),
+        cell: (i) => <strong>{i.getValue()}</strong>,
       }),
       col.accessor('color', {
         header: 'Cor',
