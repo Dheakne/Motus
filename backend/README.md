@@ -43,6 +43,7 @@ migrations/004_add_consent_columns.sql
 migrations/005_add_admin_users.sql
 migrations/006_add_admin_audit_log.sql
 migrations/008_add_metrics_indexes.sql
+migrations/009_add_sessions_is_active.sql
 ```
 
 Veja [migrations/README.md](migrations/README.md) para detalhes.
@@ -97,6 +98,16 @@ Se o login/cadastro só funciona no celular de uma pessoa específica da equipe,
 | GET | `/api/admin/users?search=&page=&pageSize=` | Bearer token + admin | Lista paginada de usuários (busca por nome/email) |
 | GET | `/api/admin/users/:id` | Bearer token + admin | Perfil, últimas sessões e progresso semanal |
 | PATCH | `/api/admin/users/:id` | Bearer token + admin | Altera `is_premium` / `has_seen_tutus` (gera audit log) |
+| GET / POST | `/api/admin/content/sessions` | Bearer token + admin | Lista (com conclusões) / cria sessão de áudio |
+| PATCH / DELETE | `/api/admin/content/sessions/:id` | Bearer token + admin | Edita / desativa sessão (DELETE é soft delete) |
+| POST | `/api/admin/content/sessions/upload-url` | Bearer token + admin | Prepara upload direto do áudio para o Storage |
+| GET | `/api/admin/content/sessions/:id/audio-url` | Bearer token + admin | URL para ouvir o áudio no painel |
+| GET / POST | `/api/admin/content/categories` | Bearer token + admin | Lista / cria categoria da Home |
+| PATCH / DELETE | `/api/admin/content/categories/:id` | Bearer token + admin | Edita / exclui categoria (409 se tiver sessões) |
+| GET / POST | `/api/admin/content/challenges` | Bearer token + admin | Lista (com participantes) / cria exercício semanal |
+| PATCH / DELETE | `/api/admin/content/challenges/:id` | Bearer token + admin | Edita / desativa exercício (DELETE é soft delete) |
+| GET | `/api/admin/metrics/content` | Bearer token + admin | Sessões mais concluídas e conclusões por categoria |
+| GET | `/api/admin/metrics/challenges` | Bearer token + admin | Participantes e média de dias por exercício |
 
 ## Testes
 

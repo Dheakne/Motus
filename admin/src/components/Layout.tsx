@@ -12,6 +12,8 @@ interface NavItem {
 const NAV: NavItem[] = [
   { to: '/', label: 'Visão geral' },
   { to: '/engagement', label: 'Engajamento' },
+  { to: '/content', label: 'Conteúdo' },
+  { to: '/challenges', label: 'Exercícios semanais' },
   { to: '/users', label: 'Usuários' },
 ];
 

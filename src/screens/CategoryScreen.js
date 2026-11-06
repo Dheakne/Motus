@@ -47,6 +47,8 @@ export default function CategoryScreen({ route, navigation }) {
         .from("sessions")
         .select("*")
         .eq("category", categoryValue)
+        // Sessões desativadas pelo painel admin somem do app (migration 009)
+        .eq("is_active", true)
         .order("duration", { ascending: true });
 
       if (data) {

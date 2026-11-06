@@ -329,3 +329,17 @@ h1, h2, p { margin: 0; }
 }
 .page-note { font-size: 13px; margin-bottom: 16px; }
 .chart-grid.is-loading { opacity: 0.6; }
+.toolbar-group { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.fieldset { border: none; padding: 0; margin: 0; gap: 10px; }
+.fieldset legend { padding: 0; margin-bottom: 6px; }
+.file-input { padding: 10px 14px; }
+.audio-preview audio { width: 100%; }
+.danger-link { color: var(--danger); }
+.btn-link:disabled { opacity: 0.5; cursor: default; }
+.warn-text { color: #8a5300; }
+.color-field { display: flex; align-items: center; gap: 10px; }
+.color-field input[type='color'] { width: 44px; height: 44px; border: none; border-radius: 12px; padding: 0; background: none; cursor: pointer; }
+.color-field .input { flex: 1; }
+.color-cell, .category-cell { display: inline-flex; align-items: center; gap: 8px; }
+.color-dot { width: 14px; height: 14px; border-radius: 50%; border: 1px solid var(--divider); }
+.category-emoji { font-size: 18px; }
